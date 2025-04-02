@@ -1,4 +1,11 @@
-import { Controller, Post, Body, Request, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Request,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
@@ -9,6 +16,7 @@ import {
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./localauth.guard";
 import { KakaoStrategy } from "./kakao.strategy";
+
 import { AuthGuard } from "@nestjs/passport";
 import { NaverStrategy } from "./naver.strategy";
 import { GoogleStrategy } from "./google.strategy";
@@ -41,21 +49,21 @@ export class AuthController {
 
   // 카카오 로그인
   @UseGuards(AuthGuard("kakao"))
-  @Post("kakao")
+  @Get("kakao")
   async kakaoLogin(@Request() req) {
     return this.authService.login(req.user);
   }
 
   // 네이버 로그인
   @UseGuards(AuthGuard("naver"))
-  @Post("naver")
+  @Get("naver")
   async naverLogin(@Request() req) {
-    return this.authService.login(req.user);
+    return;
   }
 
   // 구글 로그인
   @UseGuards(AuthGuard("google"))
-  @Post("google")
+  @Get("google")
   async googleLogin(@Request() req) {
     return this.authService.login(req.user);
   }

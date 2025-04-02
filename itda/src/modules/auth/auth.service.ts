@@ -89,7 +89,7 @@ export class AuthService {
   // 회원가입
   async register(registerDto: RegisterDto): Promise<User> {
     const { email, password, nickname, birthDate, type } = registerDto;
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : null; // 비밀번호가 없으면 null 저장
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
     const age = this.calculateAge(birthDate);
 
     // 닉네임 중복 체크

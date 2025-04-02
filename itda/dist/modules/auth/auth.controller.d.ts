@@ -10,9 +10,7 @@ export declare class AuthController {
     kakaoLogin(req: any): Promise<{
         access_token: string;
     }>;
-    naverLogin(req: any): Promise<{
-        access_token: string;
-    }>;
+    naverLogin(req: any): Promise<void>;
     googleLogin(req: any): Promise<{
         access_token: string;
     }>;

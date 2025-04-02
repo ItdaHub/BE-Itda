@@ -34,7 +34,7 @@ let AuthController = class AuthController {
         return this.authService.login(req.user);
     }
     async naverLogin(req) {
-        return this.authService.login(req.user);
+        return;
     }
     async googleLogin(req) {
         return this.authService.login(req.user);
@@ -56,6 +56,7 @@ __decorate([
 ], AuthController.prototype, "register", null);
 __decorate([
     (0, common_1.UseGuards)(localauth_guard_1.LocalAuthGuard),
+    (0, swagger_1.ApiTags)("login"),
     (0, common_1.Post)("login"),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -64,7 +65,7 @@ __decorate([
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
-    (0, common_1.Post)("kakao"),
+    (0, common_1.Get)("kakao"),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -72,7 +73,7 @@ __decorate([
 ], AuthController.prototype, "kakaoLogin", null);
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("naver")),
-    (0, common_1.Post)("naver"),
+    (0, common_1.Get)("naver"),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -80,7 +81,7 @@ __decorate([
 ], AuthController.prototype, "naverLogin", null);
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
-    (0, common_1.Post)("google"),
+    (0, common_1.Get)("google"),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
