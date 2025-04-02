@@ -82,6 +82,12 @@ let AuthService = class AuthService {
         const { email, password, nickname, birthDate, type } = registerDto;
         const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
         const age = this.calculateAge(birthDate);
+        const existingUser = await this.entityManager.findOne(user_entity_1.User, {
+            where: { nickname },
+        });
+        if (existingUser) {
+            throw new Error("이미 사용 중인 닉네임입니다.");
+        }
         const user = this.entityManager.create(user_entity_1.User, {
             email,
             password: hashedPassword,

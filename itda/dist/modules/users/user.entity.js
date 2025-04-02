@@ -108,7 +108,7 @@ __decorate([
     __metadata("design:type", Date)
 ], User.prototype, "created_at", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: UserType }),
+    (0, typeorm_1.Column)({ type: "enum", enum: UserType, default: UserType.USER }),
     __metadata("design:type", String)
 ], User.prototype, "user_type", void 0);
 __decorate([

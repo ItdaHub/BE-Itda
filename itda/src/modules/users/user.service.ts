@@ -18,7 +18,7 @@ export class UserService {
   // 유저 단일 조회
   async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: { id }, // FindOneOptions 사용
+      where: { id },
     });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -33,14 +33,14 @@ export class UserService {
 
   // 유저 업데이트
   async update(id: number, user: Partial<User>): Promise<User> {
-    const existingUser = await this.findOne(id); // 유저 존재 여부 확인
+    const existingUser = await this.findOne(id);
     await this.userRepository.update(id, user);
-    return existingUser; // 업데이트된 유저 반환
+    return existingUser;
   }
 
   // 유저 삭제
   async remove(id: number): Promise<void> {
-    const existingUser = await this.findOne(id); // 유저 존재 여부 확인
+    const existingUser = await this.findOne(id);
     await this.userRepository.delete(id);
   }
 }

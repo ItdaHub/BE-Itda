@@ -6,10 +6,8 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 전역 ValidationPipe 적용 (DTO 유효성 검사 활성화)
   app.useGlobalPipes(new ValidationPipe());
 
-  // Swagger 설정
   const config = new DocumentBuilder()
     .setTitle("회원가입 API")
     .setDescription("회원가입 관련 API 문서")
@@ -18,6 +16,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
 
-  await app.listen(3000);
+  await app.listen(5001);
 }
 bootstrap();

@@ -49,12 +49,12 @@ export class User {
   password: string;
 
   @Column({ nullable: true })
-  @IsOptional() // class-validator의 IsOptional
+  @IsOptional()
   @IsString()
   profile_img: string;
 
   @Column({ unique: true, nullable: true })
-  @IsOptional() // class-validator의 IsOptional
+  @IsOptional()
   @IsString()
   phone: string;
 
@@ -71,7 +71,7 @@ export class User {
   @CreateDateColumn()
   created_at: Date;
 
-  @Column({ type: "enum", enum: UserType })
+  @Column({ type: "enum", enum: UserType, default: UserType.USER })
   user_type: UserType;
 
   @Column({ type: "enum", enum: UserStatus })

@@ -16,6 +16,5 @@ export class RegisterDto {
   @IsString()
   birthDate?: string;
 
-  // `local` 회원가입 기본값 추가
   type: LoginType = LoginType.LOCAL;
 }

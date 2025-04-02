@@ -10,7 +10,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
       clientID: "구글 앱 클라이언트 아이디",
       clientSecret: "구글 앱 클라이언트 시크릿",
       callbackURL: "구글 인증 콜백 URL",
-      scope: ["email", "profile"], // 구글 프로필과 이메일 정보 요청
+      scope: ["email", "profile"],
     });
   }
 
@@ -19,3 +19,4 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
     return user;
   }
 }
+// login get

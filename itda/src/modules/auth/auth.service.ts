@@ -24,7 +24,7 @@ export class AuthService {
         email: profile._json.kakao_account.email,
         nickname: profile.username,
         type: LoginType.KAKAO,
-        password: null, // 소셜 로그인은 비밀번호 없음
+        password: null,
       });
     }
 
@@ -86,18 +86,26 @@ export class AuthService {
     return age;
   }
 
-  // 회원가입 (로컬 및 소셜 회원가입 지원)
+  // 회원가입
   async register(registerDto: RegisterDto): Promise<User> {
     const { email, password, nickname, birthDate, type } = registerDto;
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null; // 비밀번호가 없으면 null 저장
-    const age = this.calculateAge(birthDate); // undefined 처리
+    const age = this.calculateAge(birthDate);
+
+    // 닉네임 중복 체크
+    const existingUser = await this.entityManager.findOne(User, {
+      where: { nickname },
+    });
+    if (existingUser) {
+      throw new Error("이미 사용 중인 닉네임입니다.");
+    }
 
     const user = this.entityManager.create(User, {
       email,
       password: hashedPassword,
       nickname,
       age,
-      type: type || LoginType.LOCAL, // 기본값 설정
+      type: type || LoginType.LOCAL,
     });
 
     await this.entityManager.save(user);

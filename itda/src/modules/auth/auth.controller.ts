@@ -1,5 +1,11 @@
 import { Controller, Post, Body, Request, UseGuards } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./localauth.guard";
 import { KakaoStrategy } from "./kakao.strategy";
@@ -12,12 +18,6 @@ import { RegisterDto } from "./dto/register.dto";
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  // // 회원가입
-  // @Post("register")
-  // async register(@Body() body) {
-  //   return this.authService.register(body.email, body.password, body.nickname);
-  // }
 
   @Post("register")
   @ApiOperation({
@@ -32,6 +32,7 @@ export class AuthController {
 
   // 로그인
   @UseGuards(LocalAuthGuard)
+  @ApiTags("login")
   @Post("login")
   async login(@Request() req) {
     // 로그인한 사용자 정보를 기반으로 JWT 토큰 반환
