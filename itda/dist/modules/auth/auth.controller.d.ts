@@ -3,15 +3,27 @@ import { RegisterDto } from "./dto/register.dto";
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
-    register(registerDto: RegisterDto): Promise<import("../users/user.entity").User>;
+    register(registerDto: RegisterDto): Promise<{
+        token: string;
+        user: any;
+    }>;
     login(req: any): Promise<{
-        access_token: string;
+        token: string;
+        user: import("../users/user.entity").User;
     }>;
-    kakaoLogin(req: any): Promise<{
-        access_token: string;
+    kakaoLogin(): Promise<void>;
+    kakaoCallback(req: any): Promise<{
+        token: string;
+        user: import("../users/user.entity").User;
     }>;
-    naverLogin(req: any): Promise<void>;
-    googleLogin(req: any): Promise<{
-        access_token: string;
+    naverLogin(): Promise<void>;
+    naverCallback(req: any): Promise<{
+        token: string;
+        user: import("../users/user.entity").User;
+    }>;
+    googleLogin(): Promise<void>;
+    googleCallback(req: any): Promise<{
+        token: string;
+        user: import("../users/user.entity").User;
     }>;
 }

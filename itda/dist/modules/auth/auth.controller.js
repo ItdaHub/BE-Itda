@@ -30,13 +30,22 @@ let AuthController = class AuthController {
     async login(req) {
         return this.authService.login(req.user);
     }
-    async kakaoLogin(req) {
-        return this.authService.login(req.user);
-    }
-    async naverLogin(req) {
+    async kakaoLogin() {
         return;
     }
-    async googleLogin(req) {
+    async kakaoCallback(req) {
+        return this.authService.login(req.user);
+    }
+    async naverLogin() {
+        return;
+    }
+    async naverCallback(req) {
+        return this.authService.login(req.user);
+    }
+    async googleLogin() {
+        return;
+    }
+    async googleCallback(req) {
         return this.authService.login(req.user);
     }
 };
@@ -56,37 +65,87 @@ __decorate([
 ], AuthController.prototype, "register", null);
 __decorate([
     (0, common_1.UseGuards)(localauth_guard_1.LocalAuthGuard),
-    (0, swagger_1.ApiTags)("login"),
     (0, common_1.Post)("login"),
+    (0, swagger_1.ApiOperation)({
+        summary: "로컬 로그인",
+        description: "이메일과 비밀번호로 로그인합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "로그인 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: "인증 실패" }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
     (0, common_1.Get)("kakao"),
-    __param(0, (0, common_1.Request)()),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
+    (0, swagger_1.ApiOperation)({
+        summary: "카카오 로그인",
+        description: "카카오 로그인 페이지로 리디렉트됩니다.",
+    }),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "kakaoLogin", null);
 __decorate([
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("naver")),
-    (0, common_1.Get)("naver"),
+    (0, common_1.Get)("callback/kakao"),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
+    (0, swagger_1.ApiOperation)({
+        summary: "카카오 로그인 콜백",
+        description: "카카오 로그인 후 JWT를 반환합니다.",
+    }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "kakaoCallback", null);
+__decorate([
+    (0, common_1.Get)("naver"),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("naver")),
+    (0, swagger_1.ApiOperation)({
+        summary: "네이버 로그인",
+        description: "네이버 로그인 페이지로 리디렉트됩니다.",
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "naverLogin", null);
 __decorate([
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
-    (0, common_1.Get)("google"),
+    (0, common_1.Get)("callback/naver"),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("naver")),
+    (0, swagger_1.ApiOperation)({
+        summary: "네이버 로그인 콜백",
+        description: "네이버 로그인 후 JWT를 반환합니다.",
+    }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
+], AuthController.prototype, "naverCallback", null);
+__decorate([
+    (0, common_1.Get)("google"),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
+    (0, swagger_1.ApiOperation)({
+        summary: "구글 로그인",
+        description: "구글 로그인 페이지로 리디렉트됩니다.",
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleLogin", null);
+__decorate([
+    (0, common_1.Get)("callback/google"),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
+    (0, swagger_1.ApiOperation)({
+        summary: "구글 로그인 콜백",
+        description: "구글 로그인 후 JWT를 반환합니다.",
+    }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "googleCallback", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)("Auth"),
     (0, common_1.Controller)("auth"),

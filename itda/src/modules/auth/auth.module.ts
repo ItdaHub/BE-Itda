@@ -7,8 +7,9 @@ import { JwtModule } from "@nestjs/jwt";
 import { LocalStrategy } from "./local.strategy";
 import { JwtStrategy } from "./jwt.strategy";
 import { KakaoStrategy } from "./kakao.strategy";
-import { NaverStrategy } from "./naver.strategy";
-import { GoogleStrategy } from "./google.strategy";
+// import { NaverStrategy } from "./naver.strategy";
+// import { GoogleStrategy } from "./google.strategy";
+import { PassportModule } from "@nestjs/passport";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { GoogleStrategy } from "./google.strategy";
       secret: "SECRET_KEY",
       signOptions: { expiresIn: "1h" },
     }),
+    PassportModule.register({ defaultStrategy: "google" }),
   ],
   controllers: [AuthController],
   providers: [
@@ -24,8 +26,8 @@ import { GoogleStrategy } from "./google.strategy";
     LocalStrategy,
     JwtStrategy,
     KakaoStrategy,
-    NaverStrategy,
-    GoogleStrategy,
+    // NaverStrategy,
+    // GoogleStrategy,
   ],
 })
 export class AuthModule {}

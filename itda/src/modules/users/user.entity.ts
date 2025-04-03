@@ -44,7 +44,8 @@ export class User {
   @IsEmail()
   email: string;
 
-  @Column({ select: false })
+  @Column({ select: false, nullable: true })
+  @IsOptional()
   @IsString()
   password: string;
 

@@ -13,106 +13,66 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  // 카카오 로그인
-  async validateKakaoUser(profile: any) {
-    let user = await this.entityManager.findOne(User, {
-      where: { email: profile._json.kakao_account.email },
-    });
+  // ✅ 공통 토큰 생성 함수
+  private createToken(user: User) {
+    const payload = { id: user.id, email: user.email, type: user.type };
+    return this.jwtService.sign(payload);
+  }
+
+  // ✅ 공통 응답 포맷 함수
+  private formatResponse(user: User) {
+    return {
+      token: this.createToken(user),
+      user: {
+        id: user.id,
+        email: user.email,
+        profile_img: user.profile_img,
+        phone: user.phone,
+        type: user.type,
+        nickname: user.nickname,
+        age: user.age,
+        created_at: user.created_at,
+        user_type: user.user_type,
+      },
+    };
+  }
+
+  // ✅ 로그인 시 JWT 토큰 생성
+  async login(user: User) {
+    const payload = { id: user.id, email: user.email, nickname: user.nickname };
+
+    return {
+      token: this.jwtService.sign(payload),
+      user,
+    };
+  }
+
+  // ✅ 카카오 로그인
+  async validateKakaoUser({
+    email,
+    nickname,
+  }: {
+    email: string;
+    nickname: string;
+  }) {
+    if (!email) throw new Error("이메일이 없습니다.");
+
+    let user = await this.entityManager.findOne(User, { where: { email } });
 
     if (!user) {
-      user = await this.register({
-        email: profile._json.kakao_account.email,
-        nickname: profile.username,
+      user = this.entityManager.create(User, {
+        email,
+        nickname,
         type: LoginType.KAKAO,
-        password: null,
+        password: "",
       });
+      await this.entityManager.save(user);
     }
 
-    return user;
+    return this.formatResponse(user);
   }
 
-  // 네이버 로그인
-  async validateNaverUser(profile: any) {
-    let user = await this.entityManager.findOne(User, {
-      where: { email: profile.email },
-    });
-
-    if (!user) {
-      user = await this.register({
-        email: profile.email,
-        nickname: profile.nickname,
-        type: LoginType.NAVER,
-        password: null,
-      });
-    }
-
-    return user;
-  }
-
-  // 구글 로그인
-  async validateGoogleUser(profile: any) {
-    let user = await this.entityManager.findOne(User, {
-      where: { email: profile.emails[0].value },
-    });
-
-    if (!user) {
-      user = await this.register({
-        email: profile.emails[0].value,
-        nickname: profile.displayName,
-        type: LoginType.GOOGLE,
-        password: null,
-      });
-    }
-
-    return user;
-  }
-
-  // 나이 계산 함수
-  private calculateAge(birthDate?: string): number | undefined {
-    if (!birthDate) return undefined;
-
-    const birth = new Date(birthDate);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birth.getDate())
-    ) {
-      age--;
-    }
-
-    return age;
-  }
-
-  // 회원가입
-  async register(registerDto: RegisterDto): Promise<User> {
-    const { email, password, nickname, birthDate, type } = registerDto;
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
-    const age = this.calculateAge(birthDate);
-
-    // 닉네임 중복 체크
-    const existingUser = await this.entityManager.findOne(User, {
-      where: { nickname },
-    });
-    if (existingUser) {
-      throw new Error("이미 사용 중인 닉네임입니다.");
-    }
-
-    const user = this.entityManager.create(User, {
-      email,
-      password: hashedPassword,
-      nickname,
-      age,
-      type: type || LoginType.LOCAL,
-    });
-
-    await this.entityManager.save(user);
-    return user;
-  }
-
-  // 로컬 로그인
+  // ✅ 로컬 로그인
   async validateUser(email: string, password: string) {
     const user = await this.entityManager.findOne(User, { where: { email } });
     if (!user) throw new UnauthorizedException("이메일이 존재하지 않습니다.");
@@ -126,12 +86,24 @@ export class AuthService {
     if (!isPasswordValid)
       throw new UnauthorizedException("비밀번호가 틀렸습니다.");
 
-    return user;
+    return this.formatResponse(user);
   }
 
-  // JWT 토큰 생성
-  async login(user: User) {
-    const payload = { id: user.id, email: user.email, nickname: user.nickname };
-    return { access_token: this.jwtService.sign(payload) };
+  // ✅ 회원가입
+  async register(
+    registerDto: RegisterDto
+  ): Promise<{ token: string; user: any }> {
+    const { email, password, nickname, type } = registerDto;
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+
+    const user = this.entityManager.create(User, {
+      email,
+      password: hashedPassword,
+      nickname,
+      type: type || LoginType.LOCAL,
+    });
+
+    await this.entityManager.save(user);
+    return this.formatResponse(user);
   }
 }

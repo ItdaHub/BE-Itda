@@ -16,8 +16,7 @@ const jwt_1 = require("@nestjs/jwt");
 const local_strategy_1 = require("./local.strategy");
 const jwt_strategy_1 = require("./jwt.strategy");
 const kakao_strategy_1 = require("./kakao.strategy");
-const naver_strategy_1 = require("./naver.strategy");
-const google_strategy_1 = require("./google.strategy");
+const passport_1 = require("@nestjs/passport");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -29,6 +28,7 @@ exports.AuthModule = AuthModule = __decorate([
                 secret: "SECRET_KEY",
                 signOptions: { expiresIn: "1h" },
             }),
+            passport_1.PassportModule.register({ defaultStrategy: "google" }),
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [
@@ -36,8 +36,6 @@ exports.AuthModule = AuthModule = __decorate([
             local_strategy_1.LocalStrategy,
             jwt_strategy_1.JwtStrategy,
             kakao_strategy_1.KakaoStrategy,
-            naver_strategy_1.NaverStrategy,
-            google_strategy_1.GoogleStrategy,
         ],
     })
 ], AuthModule);

@@ -23,80 +23,47 @@ let AuthService = class AuthService {
         this.entityManager = entityManager;
         this.jwtService = jwtService;
     }
-    async validateKakaoUser(profile) {
-        let user = await this.entityManager.findOne(user_entity_1.User, {
-            where: { email: profile._json.kakao_account.email },
-        });
+    createToken(user) {
+        const payload = { id: user.id, email: user.email, type: user.type };
+        return this.jwtService.sign(payload);
+    }
+    formatResponse(user) {
+        return {
+            token: this.createToken(user),
+            user: {
+                id: user.id,
+                email: user.email,
+                profile_img: user.profile_img,
+                phone: user.phone,
+                type: user.type,
+                nickname: user.nickname,
+                age: user.age,
+                created_at: user.created_at,
+                user_type: user.user_type,
+            },
+        };
+    }
+    async login(user) {
+        const payload = { id: user.id, email: user.email, nickname: user.nickname };
+        return {
+            token: this.jwtService.sign(payload),
+            user,
+        };
+    }
+    async validateKakaoUser({ email, nickname, }) {
+        if (!email)
+            throw new Error("이메일이 없습니다.");
+        let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
         if (!user) {
-            user = await this.register({
-                email: profile._json.kakao_account.email,
-                nickname: profile.username,
+            user = this.entityManager.create(user_entity_1.User, {
+                email,
+                nickname,
                 type: user_entity_2.LoginType.KAKAO,
-                password: null,
+                password: "",
             });
+            await this.entityManager.save(user);
         }
-        return user;
-    }
-    async validateNaverUser(profile) {
-        let user = await this.entityManager.findOne(user_entity_1.User, {
-            where: { email: profile.email },
-        });
-        if (!user) {
-            user = await this.register({
-                email: profile.email,
-                nickname: profile.nickname,
-                type: user_entity_2.LoginType.NAVER,
-                password: null,
-            });
-        }
-        return user;
-    }
-    async validateGoogleUser(profile) {
-        let user = await this.entityManager.findOne(user_entity_1.User, {
-            where: { email: profile.emails[0].value },
-        });
-        if (!user) {
-            user = await this.register({
-                email: profile.emails[0].value,
-                nickname: profile.displayName,
-                type: user_entity_2.LoginType.GOOGLE,
-                password: null,
-            });
-        }
-        return user;
-    }
-    calculateAge(birthDate) {
-        if (!birthDate)
-            return undefined;
-        const birth = new Date(birthDate);
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const monthDiff = today.getMonth() - birth.getMonth();
-        if (monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < birth.getDate())) {
-            age--;
-        }
-        return age;
-    }
-    async register(registerDto) {
-        const { email, password, nickname, birthDate, type } = registerDto;
-        const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
-        const age = this.calculateAge(birthDate);
-        const existingUser = await this.entityManager.findOne(user_entity_1.User, {
-            where: { nickname },
-        });
-        if (existingUser) {
-            throw new Error("이미 사용 중인 닉네임입니다.");
-        }
-        const user = this.entityManager.create(user_entity_1.User, {
-            email,
-            password: hashedPassword,
-            nickname,
-            age,
-            type: type || user_entity_2.LoginType.LOCAL,
-        });
-        await this.entityManager.save(user);
-        return user;
+        return this.formatResponse(user);
     }
     async validateUser(email, password) {
         const user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
@@ -107,11 +74,19 @@ let AuthService = class AuthService {
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid)
             throw new common_1.UnauthorizedException("비밀번호가 틀렸습니다.");
-        return user;
+        return this.formatResponse(user);
     }
-    async login(user) {
-        const payload = { id: user.id, email: user.email, nickname: user.nickname };
-        return { access_token: this.jwtService.sign(payload) };
+    async register(registerDto) {
+        const { email, password, nickname, type } = registerDto;
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+        const user = this.entityManager.create(user_entity_1.User, {
+            email,
+            password: hashedPassword,
+            nickname,
+            type: type || user_entity_2.LoginType.LOCAL,
+        });
+        await this.entityManager.save(user);
+        return this.formatResponse(user);
     }
 };
 exports.AuthService = AuthService;
