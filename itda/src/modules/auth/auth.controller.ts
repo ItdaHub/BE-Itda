@@ -5,6 +5,7 @@ import {
   Body,
   Request,
   UseGuards,
+  BadRequestException,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
@@ -33,16 +34,41 @@ export class AuthController {
   // ✅ 회원가입
   @Post("register")
   @ApiOperation({
-    summary: "회원가입",
-    description: "새로운 사용자를 등록합니다.",
+    summary: "로컬 회원가입",
+    description: "이메일과 비밀번호로 로컬 회원을 등록합니다.",
   })
   @ApiResponse({ status: 201, description: "회원가입 성공" })
   @ApiResponse({ status: 400, description: "잘못된 요청" })
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register({
-      ...registerDto,
-      type: registerDto.type ?? LoginType.LOCAL,
-    });
+    return this.authService.register(registerDto);
+  }
+
+  // ✅ 이메일 중복 확인
+  @Post("emailCheck")
+  @ApiOperation({
+    summary: "이메일 중복 확인",
+    description: "이메일이 사용 중인지 확인합니다.",
+  })
+  async checkEmail(@Body("email") email: string) {
+    const isEmailTaken = await this.authService.checkEmail(email);
+    if (isEmailTaken) {
+      throw new BadRequestException("이미 사용된 이메일입니다.");
+    }
+    return { message: "사용 가능한 이메일입니다." };
+  }
+
+  // ✅ 닉네임 중복 확인
+  @Post("nicknameCheck")
+  @ApiOperation({
+    summary: "닉네임 중복 확인",
+    description: "닉네임이 사용 중인지 확인합니다.",
+  })
+  async checkNickName(@Body("nickName") nickName: string) {
+    const isNickNameTaken = await this.authService.checkNickName(nickName);
+    if (isNickNameTaken) {
+      throw new BadRequestException("이미 사용된 닉네임입니다.");
+    }
+    return { message: "사용 가능한 닉네임입니다." };
   }
 
   // ✅ 로컬 로그인 (이메일 & 비밀번호)

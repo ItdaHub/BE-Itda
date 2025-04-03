@@ -45,9 +45,8 @@ let AuthService = class AuthService {
         };
     }
     async login(user) {
-        const payload = { id: user.id, email: user.email, nickname: user.nickname };
         return {
-            token: this.jwtService.sign(payload),
+            token: this.createToken(user),
             user,
         };
     }
@@ -67,14 +66,12 @@ let AuthService = class AuthService {
         return this.formatResponse(user);
     }
     async validateNaverUser({ email, name, nickname, birthYear, phone, }) {
-        let user = await this.entityManager.findOne(user_entity_1.User, {
-            where: { email },
-        });
+        let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
         if (!user) {
             const newUser = await this.register({
                 email,
                 nickname: nickname || email.split("@")[0],
-                name: name,
+                name: name || "사용자",
                 birthYear,
                 phone,
                 type: user_entity_2.LoginType.NAVER,
@@ -82,7 +79,7 @@ let AuthService = class AuthService {
             });
             user = newUser.user;
         }
-        return this.formatResponse(user ?? new user_entity_1.User());
+        return this.formatResponse(user);
     }
     async validateGoogleUser(profile) {
         console.log("📌 구글 프로필:", JSON.stringify(profile, null, 2));
@@ -93,9 +90,7 @@ let AuthService = class AuthService {
             console.error("❌ 구글 프로필에서 이메일을 찾을 수 없습니다.");
             throw new Error("이메일이 없습니다.");
         }
-        let user = await this.entityManager.findOne(user_entity_1.User, {
-            where: { email },
-        });
+        let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
         if (!user) {
             console.log("🆕 새로운 사용자 생성:", { email, name, nickname });
             const newUser = await this.register({
@@ -103,19 +98,17 @@ let AuthService = class AuthService {
                 name,
                 nickname,
                 type: user_entity_2.LoginType.GOOGLE,
-                password: null,
+                password: "",
             });
             user = newUser.user;
         }
         else {
-            console.log("✅ 기존 사용자 발견:", user);
             if (!user.name) {
                 console.log(`⚠️ 기존 사용자 name이 없습니다. 업데이트 진행: ${name}`);
                 user.name = name;
                 await this.entityManager.save(user);
             }
         }
-        console.log("🔍 최종 저장된 사용자:", user);
         return this.formatResponse(user);
     }
     async validateUser(email, password) {
@@ -131,18 +124,37 @@ let AuthService = class AuthService {
     }
     async register(userDto) {
         console.log("🚀 회원 가입 요청:", userDto);
-        const { email, name, nickname, type, password, status } = userDto;
+        const { email, name, nickname, password, birthYear, phone, type } = userDto;
+        const existingUser = await this.entityManager.findOne(user_entity_1.User, {
+            where: [{ email }, { nickname }],
+        });
+        if (existingUser) {
+            throw new Error("이미 사용 중인 이메일 또는 닉네임입니다.");
+        }
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
         const newUser = this.entityManager.create(user_entity_1.User, {
             email,
-            name,
-            nickname,
-            type,
-            password: password ? await bcrypt.hash(password, 10) : null,
-            status: status || user_entity_2.UserStatus.ACTIVE,
+            name: name || "사용자",
+            nickname: nickname || email.split("@")[0],
+            birthYear,
+            phone,
+            type: type ?? user_entity_2.LoginType.LOCAL,
+            password: hashedPassword,
+            status: user_entity_2.UserStatus.ACTIVE,
         });
         await this.entityManager.save(newUser);
         console.log("✅ 회원 가입 완료:", newUser);
         return { user: newUser };
+    }
+    async checkEmail(email) {
+        const user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
+        return !!user;
+    }
+    async checkNickName(nickname) {
+        const user = await this.entityManager.findOne(user_entity_1.User, {
+            where: { nickname },
+        });
+        return !!user;
     }
 };
 exports.AuthService = AuthService;

@@ -20,7 +20,6 @@ const localauth_guard_1 = require("./localauth.guard");
 const passport_1 = require("@nestjs/passport");
 const register_dto_1 = require("./dto/register.dto");
 const jwtauth_guard_1 = require("./jwtauth.guard");
-const user_entity_1 = require("../users/user.entity");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
@@ -30,10 +29,21 @@ let AuthController = class AuthController {
         return this.authService.formatResponse(req.user);
     }
     async register(registerDto) {
-        return this.authService.register({
-            ...registerDto,
-            type: registerDto.type ?? user_entity_1.LoginType.LOCAL,
-        });
+        return this.authService.register(registerDto);
+    }
+    async checkEmail(email) {
+        const isEmailTaken = await this.authService.checkEmail(email);
+        if (isEmailTaken) {
+            throw new common_1.BadRequestException("이미 사용된 이메일입니다.");
+        }
+        return { message: "사용 가능한 이메일입니다." };
+    }
+    async checkNickName(nickName) {
+        const isNickNameTaken = await this.authService.checkNickName(nickName);
+        if (isNickNameTaken) {
+            throw new common_1.BadRequestException("이미 사용된 닉네임입니다.");
+        }
+        return { message: "사용 가능한 닉네임입니다." };
     }
     async login(req) {
         return this.authService.login(req.user);
@@ -80,8 +90,8 @@ __decorate([
 __decorate([
     (0, common_1.Post)("register"),
     (0, swagger_1.ApiOperation)({
-        summary: "회원가입",
-        description: "새로운 사용자를 등록합니다.",
+        summary: "로컬 회원가입",
+        description: "이메일과 비밀번호로 로컬 회원을 등록합니다.",
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: "회원가입 성공" }),
     (0, swagger_1.ApiResponse)({ status: 400, description: "잘못된 요청" }),
@@ -90,6 +100,28 @@ __decorate([
     __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
+__decorate([
+    (0, common_1.Post)("emailCheck"),
+    (0, swagger_1.ApiOperation)({
+        summary: "이메일 중복 확인",
+        description: "이메일이 사용 중인지 확인합니다.",
+    }),
+    __param(0, (0, common_1.Body)("email")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "checkEmail", null);
+__decorate([
+    (0, common_1.Post)("nicknameCheck"),
+    (0, swagger_1.ApiOperation)({
+        summary: "닉네임 중복 확인",
+        description: "닉네임이 사용 중인지 확인합니다.",
+    }),
+    __param(0, (0, common_1.Body)("nickName")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "checkNickName", null);
 __decorate([
     (0, common_1.UseGuards)(localauth_guard_1.LocalAuthGuard),
     (0, common_1.Post)("local"),

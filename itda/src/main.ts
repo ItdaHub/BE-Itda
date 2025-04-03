@@ -6,6 +6,11 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  });
+
   app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
@@ -16,6 +21,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
 
-  await app.listen(5001);
+  await app.listen(5001); // 백엔드 포트는 5001
 }
 bootstrap();

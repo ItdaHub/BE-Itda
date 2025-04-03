@@ -5,7 +5,6 @@ import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { LoginType, UserStatus } from "../users/user.entity";
 import { RegisterDto } from "./dto/register.dto";
-import { CreateUserDto } from "../users/dto/ceateuser.dto";
 
 @Injectable()
 export class AuthService {
@@ -39,12 +38,10 @@ export class AuthService {
     };
   }
 
-  // ✅ 로그인 시 JWT 토큰 생성
+  // ✅ 로그인 (JWT 토큰 생성)
   async login(user: User) {
-    const payload = { id: user.id, email: user.email, nickname: user.nickname };
-
     return {
-      token: this.jwtService.sign(payload),
+      token: this.createToken(user),
       user,
     };
   }
@@ -88,15 +85,13 @@ export class AuthService {
     birthYear?: string;
     phone?: string;
   }) {
-    let user: User | null = await this.entityManager.findOne(User, {
-      where: { email },
-    });
+    let user = await this.entityManager.findOne(User, { where: { email } });
 
     if (!user) {
       const newUser = await this.register({
         email,
         nickname: nickname || email.split("@")[0],
-        name: name,
+        name: name || "사용자",
         birthYear,
         phone,
         type: LoginType.NAVER,
@@ -106,7 +101,7 @@ export class AuthService {
       user = newUser.user;
     }
 
-    return this.formatResponse(user ?? new User());
+    return this.formatResponse(user);
   }
 
   // ✅ 구글 로그인
@@ -114,7 +109,7 @@ export class AuthService {
     console.log("📌 구글 프로필:", JSON.stringify(profile, null, 2));
 
     const email = profile.email || profile._json?.email || null;
-    const name = profile.displayName || profile._json?.name || "익명"; // ✅ name 가져오기
+    const name = profile.displayName || profile._json?.name || "익명";
     const nickname = email?.split("@")[0] || "익명";
 
     if (!email) {
@@ -122,32 +117,26 @@ export class AuthService {
       throw new Error("이메일이 없습니다.");
     }
 
-    let user: User | null = await this.entityManager.findOne(User, {
-      where: { email },
-    });
+    let user = await this.entityManager.findOne(User, { where: { email } });
 
     if (!user) {
       console.log("🆕 새로운 사용자 생성:", { email, name, nickname });
       const newUser = await this.register({
         email,
-        name, // ✅ name 추가
+        name,
         nickname,
         type: LoginType.GOOGLE,
-        password: null,
+        password: "",
       });
 
-      user = newUser.user as User;
+      user = newUser.user;
     } else {
-      console.log("✅ 기존 사용자 발견:", user);
-
       if (!user.name) {
         console.log(`⚠️ 기존 사용자 name이 없습니다. 업데이트 진행: ${name}`);
         user.name = name;
         await this.entityManager.save(user);
       }
     }
-
-    console.log("🔍 최종 저장된 사용자:", user);
 
     return this.formatResponse(user);
   }
@@ -170,18 +159,33 @@ export class AuthService {
   }
 
   // ✅ 회원가입
-  async register(userDto: CreateUserDto): Promise<{ user: User }> {
+  async register(userDto: RegisterDto): Promise<{ user: User }> {
     console.log("🚀 회원 가입 요청:", userDto);
 
-    const { email, name, nickname, type, password, status } = userDto;
+    const { email, name, nickname, password, birthYear, phone, type } = userDto;
 
+    // ✅ 이메일 & 닉네임 중복 검사
+    const existingUser = await this.entityManager.findOne(User, {
+      where: [{ email }, { nickname }],
+    });
+
+    if (existingUser) {
+      throw new Error("이미 사용 중인 이메일 또는 닉네임입니다.");
+    }
+
+    // ✅ 비밀번호 해싱 (password가 없으면 null)
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+
+    // ✅ 새로운 유저 생성
     const newUser = this.entityManager.create(User, {
       email,
-      name,
-      nickname,
-      type,
-      password: password ? await bcrypt.hash(password, 10) : null,
-      status: status || UserStatus.ACTIVE, // ✅ 기본값 설정
+      name: name || "사용자",
+      nickname: nickname || email.split("@")[0],
+      birthYear,
+      phone,
+      type: type ?? LoginType.LOCAL,
+      password: hashedPassword,
+      status: UserStatus.ACTIVE,
     });
 
     await this.entityManager.save(newUser);
@@ -189,5 +193,19 @@ export class AuthService {
     console.log("✅ 회원 가입 완료:", newUser);
 
     return { user: newUser };
+  }
+
+  // ✅ 이메일 중복 검사
+  async checkEmail(email: string): Promise<boolean> {
+    const user = await this.entityManager.findOne(User, { where: { email } });
+    return !!user;
+  }
+
+  // ✅ 닉네임 중복 검사
+  async checkNickName(nickname: string): Promise<boolean> {
+    const user = await this.entityManager.findOne(User, {
+      where: { nickname },
+    });
+    return !!user;
   }
 }

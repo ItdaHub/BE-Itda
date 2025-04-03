@@ -2,7 +2,7 @@ import { EntityManager } from "typeorm";
 import { User } from "../users/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import { LoginType } from "../users/user.entity";
-import { CreateUserDto } from "../users/dto/ceateuser.dto";
+import { RegisterDto } from "./dto/register.dto";
 export declare class AuthService {
     private entityManager;
     private jwtService;
@@ -96,7 +96,9 @@ export declare class AuthService {
             user_type: import("../users/user.entity").UserType;
         };
     }>;
-    register(userDto: CreateUserDto): Promise<{
+    register(userDto: RegisterDto): Promise<{
         user: User;
     }>;
+    checkEmail(email: string): Promise<boolean>;
+    checkNickName(nickname: string): Promise<boolean>;
 }

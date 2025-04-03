@@ -22,6 +22,12 @@ export declare class AuthController {
     register(registerDto: RegisterDto): Promise<{
         user: import("../users/user.entity").User;
     }>;
+    checkEmail(email: string): Promise<{
+        message: string;
+    }>;
+    checkNickName(nickName: string): Promise<{
+        message: string;
+    }>;
     login(req: any): Promise<{
         token: string;
         user: import("../users/user.entity").User;
