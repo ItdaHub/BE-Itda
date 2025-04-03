@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Body,
+  Res,
   Request,
   UseGuards,
   BadRequestException,
@@ -14,6 +15,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { RegisterDto } from "./dto/register.dto";
 import { JwtAuthGuard } from "./jwtauth.guard";
 import { LoginType } from "../users/user.entity";
+import { Response } from "express";
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -107,14 +109,25 @@ export class AuthController {
   }
 
   // ✅ 네이버 로그인
+  // @Get("naver")
+  // @UseGuards(AuthGuard("naver"))
+  // @ApiOperation({
+  //   summary: "네이버 로그인",
+  //   description: "네이버 로그인 페이지로 리디렉트됩니다.",
+  // })
+  // async naverLogin() {
+  //   return;
+  // }
   @Get("naver")
-  @UseGuards(AuthGuard("naver"))
-  @ApiOperation({
-    summary: "네이버 로그인",
-    description: "네이버 로그인 페이지로 리디렉트됩니다.",
-  })
-  async naverLogin() {
-    return;
+  async naverLogin(@Res() res: Response) {
+    const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
+    const REDIRECT_URI = encodeURIComponent(
+      "http://localhost:5001/auth/callback/naver"
+    );
+
+    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=email name nickname age birthday mobile`;
+
+    res.redirect(naverAuthUrl); // ✅ 네이버 로그인 페이지로 리디렉트
   }
 
   // ✅ 네이버 로그인 콜백 (JWT 발급)

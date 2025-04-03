@@ -1,6 +1,7 @@
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginType } from "../users/user.entity";
+import { Response } from "express";
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -37,7 +38,7 @@ export declare class AuthController {
         token: string;
         user: import("../users/user.entity").User;
     }>;
-    naverLogin(): Promise<void>;
+    naverLogin(res: Response): Promise<void>;
     naverCallback(req: any): Promise<{
         token: string;
         user: import("../users/user.entity").User;

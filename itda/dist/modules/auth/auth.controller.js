@@ -54,8 +54,11 @@ let AuthController = class AuthController {
     async kakaoCallback(req) {
         return this.authService.login(req.user);
     }
-    async naverLogin() {
-        return;
+    async naverLogin(res) {
+        const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
+        const REDIRECT_URI = encodeURIComponent("http://localhost:5001/auth/callback/naver");
+        const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=email name nickname age birthday mobile`;
+        res.redirect(naverAuthUrl);
     }
     async naverCallback(req) {
         console.log("📌 네이버 응답:", req.user);
@@ -161,13 +164,9 @@ __decorate([
 ], AuthController.prototype, "kakaoCallback", null);
 __decorate([
     (0, common_1.Get)("naver"),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("naver")),
-    (0, swagger_1.ApiOperation)({
-        summary: "네이버 로그인",
-        description: "네이버 로그인 페이지로 리디렉트됩니다.",
-    }),
+    __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "naverLogin", null);
 __decorate([
