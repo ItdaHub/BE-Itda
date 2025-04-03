@@ -30,6 +30,7 @@ export declare class User {
     profile_img: string;
     phone: string;
     type: LoginType;
+    name?: string;
     nickname: string;
     age: number;
     created_at: Date;

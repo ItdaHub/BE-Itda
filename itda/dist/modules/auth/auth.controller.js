@@ -19,13 +19,21 @@ const auth_service_1 = require("./auth.service");
 const localauth_guard_1 = require("./localauth.guard");
 const passport_1 = require("@nestjs/passport");
 const register_dto_1 = require("./dto/register.dto");
+const jwtauth_guard_1 = require("./jwtauth.guard");
+const user_entity_1 = require("../users/user.entity");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
     }
+    async getLogin(req) {
+        return this.authService.formatResponse(req.user);
+    }
     async register(registerDto) {
-        return this.authService.register(registerDto);
+        return this.authService.register({
+            ...registerDto,
+            type: registerDto.type ?? user_entity_1.LoginType.LOCAL,
+        });
     }
     async login(req) {
         return this.authService.login(req.user);
@@ -40,6 +48,13 @@ let AuthController = class AuthController {
         return;
     }
     async naverCallback(req) {
+        console.log("📌 네이버 응답:", req.user);
+        if (!req.user) {
+            throw new Error("네이버 로그인 실패");
+        }
+        if (!req.user.name) {
+            req.user.name = req.user.nickname || "네이버 유저";
+        }
         return this.authService.login(req.user);
     }
     async googleLogin() {
@@ -50,6 +65,18 @@ let AuthController = class AuthController {
     }
 };
 exports.AuthController = AuthController;
+__decorate([
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)("login"),
+    (0, swagger_1.ApiOperation)({
+        summary: "로그인된 유저 정보",
+        description: "JWT 토큰을 검증하고 유저 정보를 반환합니다.",
+    }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getLogin", null);
 __decorate([
     (0, common_1.Post)("register"),
     (0, swagger_1.ApiOperation)({
@@ -65,7 +92,7 @@ __decorate([
 ], AuthController.prototype, "register", null);
 __decorate([
     (0, common_1.UseGuards)(localauth_guard_1.LocalAuthGuard),
-    (0, common_1.Post)("login"),
+    (0, common_1.Post)("local"),
     (0, swagger_1.ApiOperation)({
         summary: "로컬 로그인",
         description: "이메일과 비밀번호로 로그인합니다.",

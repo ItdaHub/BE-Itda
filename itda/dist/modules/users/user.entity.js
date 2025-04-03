@@ -47,6 +47,7 @@ let User = class User {
     profile_img;
     phone;
     type;
+    name;
     nickname;
     age;
     created_at;
@@ -95,6 +96,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: "enum", enum: LoginType, default: LoginType.LOCAL }),
     __metadata("design:type", String)
 ], User.prototype, "type", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     (0, class_validator_1.IsString)(),

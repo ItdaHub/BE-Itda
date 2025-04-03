@@ -7,8 +7,8 @@ import { JwtModule } from "@nestjs/jwt";
 import { LocalStrategy } from "./local.strategy";
 import { JwtStrategy } from "./jwt.strategy";
 import { KakaoStrategy } from "./kakao.strategy";
-// import { NaverStrategy } from "./naver.strategy";
-// import { GoogleStrategy } from "./google.strategy";
+import { NaverStrategy } from "./naver.strategy";
+import { GoogleStrategy } from "./google.strategy";
 import { PassportModule } from "@nestjs/passport";
 
 @Module({
@@ -26,8 +26,8 @@ import { PassportModule } from "@nestjs/passport";
     LocalStrategy,
     JwtStrategy,
     KakaoStrategy,
-    // NaverStrategy,
-    // GoogleStrategy,
+    NaverStrategy,
+    GoogleStrategy,
   ],
 })
 export class AuthModule {}

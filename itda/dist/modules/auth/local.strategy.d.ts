@@ -11,6 +11,7 @@ export declare class LocalStrategy extends LocalStrategy_base {
         user: {
             id: number;
             email: string;
+            name: string | undefined;
             profile_img: string;
             phone: string;
             type: import("../users/user.entity").LoginType;

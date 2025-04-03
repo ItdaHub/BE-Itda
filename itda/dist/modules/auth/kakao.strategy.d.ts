@@ -12,6 +12,7 @@ export declare class KakaoStrategy extends KakaoStrategy_base {
         user: {
             id: number;
             email: string;
+            name: string | undefined;
             profile_img: string;
             phone: string;
             type: import("../users/user.entity").LoginType;

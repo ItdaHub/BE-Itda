@@ -1,20 +1,29 @@
-import { IsEmail, IsString, IsOptional } from "class-validator";
-import { LoginType } from "../../users/user.entity";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsOptional,
+} from "class-validator";
+import { LoginType } from "../../users/user.entity"; // ✅ LoginType 임포트 필요
 
 export class RegisterDto {
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @IsOptional()
   @IsString()
-  password: string | null;
+  @IsNotEmpty()
+  name: string; // ✅ 필수
 
   @IsString()
-  nickname: string;
+  @IsNotEmpty()
+  nickname: string; // ✅ 필수
 
-  @IsOptional()
   @IsString()
-  birthDate?: string;
+  @MinLength(6)
+  password: string;
 
-  type: LoginType = LoginType.LOCAL;
+  @IsOptional() // ✅ 선택적으로 받을 수 있음
+  type?: LoginType; // ✅ 필드 추가 (없으면 기본값 설정)
 }

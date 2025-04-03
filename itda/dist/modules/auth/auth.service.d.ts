@@ -2,13 +2,27 @@ import { EntityManager } from "typeorm";
 import { User } from "../users/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import { LoginType } from "../users/user.entity";
-import { RegisterDto } from "./dto/register.dto";
+import { CreateUserDto } from "../users/dto/ceateuser.dto";
 export declare class AuthService {
     private entityManager;
     private jwtService;
     constructor(entityManager: EntityManager, jwtService: JwtService);
     private createToken;
-    private formatResponse;
+    formatResponse(user: User): {
+        token: string;
+        user: {
+            id: number;
+            email: string;
+            name: string | undefined;
+            profile_img: string;
+            phone: string;
+            type: LoginType;
+            nickname: string;
+            age: number;
+            created_at: Date;
+            user_type: import("../users/user.entity").UserType;
+        };
+    };
     login(user: User): Promise<{
         token: string;
         user: User;
@@ -21,6 +35,43 @@ export declare class AuthService {
         user: {
             id: number;
             email: string;
+            name: string | undefined;
+            profile_img: string;
+            phone: string;
+            type: LoginType;
+            nickname: string;
+            age: number;
+            created_at: Date;
+            user_type: import("../users/user.entity").UserType;
+        };
+    }>;
+    validateNaverUser({ email, name, nickname, birthYear, phone, }: {
+        email: string;
+        name?: string;
+        nickname?: string;
+        birthYear?: string;
+        phone?: string;
+    }): Promise<{
+        token: string;
+        user: {
+            id: number;
+            email: string;
+            name: string | undefined;
+            profile_img: string;
+            phone: string;
+            type: LoginType;
+            nickname: string;
+            age: number;
+            created_at: Date;
+            user_type: import("../users/user.entity").UserType;
+        };
+    }>;
+    validateGoogleUser(profile: any): Promise<{
+        token: string;
+        user: {
+            id: number;
+            email: string;
+            name: string | undefined;
             profile_img: string;
             phone: string;
             type: LoginType;
@@ -35,6 +86,7 @@ export declare class AuthService {
         user: {
             id: number;
             email: string;
+            name: string | undefined;
             profile_img: string;
             phone: string;
             type: LoginType;
@@ -44,8 +96,7 @@ export declare class AuthService {
             user_type: import("../users/user.entity").UserType;
         };
     }>;
-    register(registerDto: RegisterDto): Promise<{
-        token: string;
-        user: any;
+    register(userDto: CreateUserDto): Promise<{
+        user: User;
     }>;
 }

@@ -62,6 +62,9 @@ export class User {
   @Column({ type: "enum", enum: LoginType, default: LoginType.LOCAL })
   type: LoginType;
 
+  @Column({ nullable: true })
+  name?: string;
+
   @Column({ unique: true })
   @IsString()
   nickname: string;
