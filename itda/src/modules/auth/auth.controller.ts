@@ -109,15 +109,6 @@ export class AuthController {
   }
 
   // ✅ 네이버 로그인
-  // @Get("naver")
-  // @UseGuards(AuthGuard("naver"))
-  // @ApiOperation({
-  //   summary: "네이버 로그인",
-  //   description: "네이버 로그인 페이지로 리디렉트됩니다.",
-  // })
-  // async naverLogin() {
-  //   return;
-  // }
   @Get("naver")
   async naverLogin(@Res() res: Response) {
     const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
@@ -127,7 +118,7 @@ export class AuthController {
 
     const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=email name nickname age birthday mobile`;
 
-    res.redirect(naverAuthUrl); // ✅ 네이버 로그인 페이지로 리디렉트
+    res.redirect(naverAuthUrl);
   }
 
   // ✅ 네이버 로그인 콜백 (JWT 발급)
