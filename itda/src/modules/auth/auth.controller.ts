@@ -88,13 +88,19 @@ export class AuthController {
 
   // ✅ 카카오 로그인
   @Get("kakao")
-  @UseGuards(AuthGuard("kakao"))
   @ApiOperation({
     summary: "카카오 로그인",
-    description: "카카오 로그인 페이지로 리디렉트됩니다.",
+    description: "카카오 로그인 페이지로 리디렉트합니다.",
   })
-  async kakaoLogin() {
-    return;
+  async kakaoLogin(@Res() res: Response) {
+    const KAKAO_CLIENT_ID = "170ea69c85667e150fa103eab9a19c35";
+    const REDIRECT_URI = encodeURIComponent(
+      "http://localhost:5001/auth/callback/kakao"
+    );
+
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
+
+    res.redirect(kakaoAuthUrl);
   }
 
   // ✅ 카카오 로그인 콜백 (JWT 발급)
@@ -102,14 +108,30 @@ export class AuthController {
   @UseGuards(AuthGuard("kakao"))
   @ApiOperation({
     summary: "카카오 로그인 콜백",
-    description: "카카오 로그인 후 JWT를 반환합니다.",
+    description: "카카오 로그인 후 JWT 발급",
   })
-  async kakaoCallback(@Request() req) {
-    return this.authService.login(req.user);
+  async kakaoCallback(@Request() req, @Res() res: Response) {
+    console.log("📌 카카오 응답:", req.user);
+
+    if (!req.user) {
+      throw new Error("카카오 로그인 실패");
+    }
+
+    // ✅ JWT 토큰 생성
+    const { token } = await this.authService.login(req.user);
+
+    // ✅ 프론트엔드로 리디렉트
+    res.redirect(
+      `http://localhost:3000/auth/callback/kakao?token=${encodeURIComponent(token)}`
+    );
   }
 
   // ✅ 네이버 로그인
   @Get("naver")
+  @ApiOperation({
+    summary: "네이버 로그인",
+    description: "네이버 로그인 페이지로 리디렉트합니다.",
+  })
   async naverLogin(@Res() res: Response) {
     const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
     const REDIRECT_URI = encodeURIComponent(
@@ -126,22 +148,22 @@ export class AuthController {
   @UseGuards(AuthGuard("naver"))
   @ApiOperation({
     summary: "네이버 로그인 콜백",
-    description: "네이버 로그인 후 JWT를 반환합니다.",
+    description: "네이버 로그인 후 JWT 발급",
   })
-  async naverCallback(@Request() req) {
+  async naverCallback(@Request() req, @Res() res: Response) {
     console.log("📌 네이버 응답:", req.user);
 
-    // 유저 정보가 정상적으로 들어오는지 확인
     if (!req.user) {
       throw new Error("네이버 로그인 실패");
     }
 
-    // ✅ 이름이 없으면 별명(nickname) 사용
-    if (!req.user.name) {
-      req.user.name = req.user.nickname || "네이버 유저";
-    }
+    // ✅ JWT 토큰 생성
+    const { token } = await this.authService.login(req.user);
 
-    return this.authService.login(req.user);
+    // ✅ 문자열로 변환해서 보내기
+    res.redirect(
+      `http://localhost:3000/auth/callback/naver?token=${encodeURIComponent(token)}`
+    );
   }
 
   // ✅ 구글 로그인
@@ -158,11 +180,19 @@ export class AuthController {
   // ✅ 구글 로그인 콜백 (JWT 발급)
   @Get("callback/google")
   @UseGuards(AuthGuard("google"))
-  @ApiOperation({
-    summary: "구글 로그인 콜백",
-    description: "구글 로그인 후 JWT를 반환합니다.",
-  })
-  async googleCallback(@Request() req) {
-    return this.authService.login(req.user);
+  async googleCallback(@Request() req, @Res() res: Response) {
+    console.log("📌 구글 응답:", req.user);
+
+    if (!req.user) {
+      throw new Error("구글 로그인 실패");
+    }
+
+    // ✅ JWT 토큰 생성 (토큰만 추출)
+    const { token } = await this.authService.login(req.user);
+
+    // ✅ 프론트엔드로 리디렉트 (올바르게 인코딩하여 전달)
+    res.redirect(
+      `http://localhost:3000/auth/callback/google?token=${encodeURIComponent(token)}`
+    );
   }
 }

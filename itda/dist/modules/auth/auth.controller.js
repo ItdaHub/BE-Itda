@@ -48,11 +48,19 @@ let AuthController = class AuthController {
     async login(req) {
         return this.authService.login(req.user);
     }
-    async kakaoLogin() {
-        return;
+    async kakaoLogin(res) {
+        const KAKAO_CLIENT_ID = "170ea69c85667e150fa103eab9a19c35";
+        const REDIRECT_URI = encodeURIComponent("http://localhost:5001/auth/callback/kakao");
+        const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
+        res.redirect(kakaoAuthUrl);
     }
-    async kakaoCallback(req) {
-        return this.authService.login(req.user);
+    async kakaoCallback(req, res) {
+        console.log("📌 카카오 응답:", req.user);
+        if (!req.user) {
+            throw new Error("카카오 로그인 실패");
+        }
+        const { token } = await this.authService.login(req.user);
+        res.redirect(`http://localhost:3000/auth/callback/kakao?token=${encodeURIComponent(token)}`);
     }
     async naverLogin(res) {
         const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
@@ -60,21 +68,24 @@ let AuthController = class AuthController {
         const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=email name nickname age birthday mobile`;
         res.redirect(naverAuthUrl);
     }
-    async naverCallback(req) {
+    async naverCallback(req, res) {
         console.log("📌 네이버 응답:", req.user);
         if (!req.user) {
             throw new Error("네이버 로그인 실패");
         }
-        if (!req.user.name) {
-            req.user.name = req.user.nickname || "네이버 유저";
-        }
-        return this.authService.login(req.user);
+        const { token } = await this.authService.login(req.user);
+        res.redirect(`http://localhost:3000/auth/callback/naver?token=${encodeURIComponent(token)}`);
     }
     async googleLogin() {
         return;
     }
-    async googleCallback(req) {
-        return this.authService.login(req.user);
+    async googleCallback(req, res) {
+        console.log("📌 구글 응답:", req.user);
+        if (!req.user) {
+            throw new Error("구글 로그인 실패");
+        }
+        const { token } = await this.authService.login(req.user);
+        res.redirect(`http://localhost:3000/auth/callback/google?token=${encodeURIComponent(token)}`);
     }
 };
 exports.AuthController = AuthController;
@@ -141,13 +152,13 @@ __decorate([
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.Get)("kakao"),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
     (0, swagger_1.ApiOperation)({
         summary: "카카오 로그인",
-        description: "카카오 로그인 페이지로 리디렉트됩니다.",
+        description: "카카오 로그인 페이지로 리디렉트합니다.",
     }),
+    __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "kakaoLogin", null);
 __decorate([
@@ -155,15 +166,20 @@ __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
     (0, swagger_1.ApiOperation)({
         summary: "카카오 로그인 콜백",
-        description: "카카오 로그인 후 JWT를 반환합니다.",
+        description: "카카오 로그인 후 JWT 발급",
     }),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "kakaoCallback", null);
 __decorate([
     (0, common_1.Get)("naver"),
+    (0, swagger_1.ApiOperation)({
+        summary: "네이버 로그인",
+        description: "네이버 로그인 페이지로 리디렉트합니다.",
+    }),
     __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -174,11 +190,12 @@ __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("naver")),
     (0, swagger_1.ApiOperation)({
         summary: "네이버 로그인 콜백",
-        description: "네이버 로그인 후 JWT를 반환합니다.",
+        description: "네이버 로그인 후 JWT 발급",
     }),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "naverCallback", null);
 __decorate([
@@ -195,13 +212,10 @@ __decorate([
 __decorate([
     (0, common_1.Get)("callback/google"),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
-    (0, swagger_1.ApiOperation)({
-        summary: "구글 로그인 콜백",
-        description: "구글 로그인 후 JWT를 반환합니다.",
-    }),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleCallback", null);
 exports.AuthController = AuthController = __decorate([

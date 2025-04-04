@@ -33,19 +33,10 @@ export declare class AuthController {
         token: string;
         user: import("../users/user.entity").User;
     }>;
-    kakaoLogin(): Promise<void>;
-    kakaoCallback(req: any): Promise<{
-        token: string;
-        user: import("../users/user.entity").User;
-    }>;
+    kakaoLogin(res: Response): Promise<void>;
+    kakaoCallback(req: any, res: Response): Promise<void>;
     naverLogin(res: Response): Promise<void>;
-    naverCallback(req: any): Promise<{
-        token: string;
-        user: import("../users/user.entity").User;
-    }>;
+    naverCallback(req: any, res: Response): Promise<void>;
     googleLogin(): Promise<void>;
-    googleCallback(req: any): Promise<{
-        token: string;
-        user: import("../users/user.entity").User;
-    }>;
+    googleCallback(req: any, res: Response): Promise<void>;
 }
