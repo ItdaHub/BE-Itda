@@ -54,13 +54,11 @@ let AuthController = class AuthController {
         const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
         res.redirect(kakaoAuthUrl);
     }
-    async kakaoCallback(req, res) {
-        console.log("📌 카카오 응답:", req.user);
-        if (!req.user) {
-            throw new Error("카카오 로그인 실패");
-        }
-        const { token } = await this.authService.login(req.user);
-        res.redirect(`http://localhost:3000/auth/callback/kakao?token=${encodeURIComponent(token)}`);
+    async kakaoAuthRedirect(req, res) {
+        const { accessToken, user } = await this.authService.login(req.user);
+        const userStr = encodeURIComponent(JSON.stringify(user));
+        const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
+        res.redirect(redirectUrl);
     }
     async naverLogin(res) {
         const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
@@ -69,23 +67,19 @@ let AuthController = class AuthController {
         res.redirect(naverAuthUrl);
     }
     async naverCallback(req, res) {
-        console.log("📌 네이버 응답:", req.user);
-        if (!req.user) {
-            throw new Error("네이버 로그인 실패");
-        }
-        const { token } = await this.authService.login(req.user);
-        res.redirect(`http://localhost:3000/auth/callback/naver?token=${encodeURIComponent(token)}`);
+        const { accessToken, user } = await this.authService.login(req.user);
+        const userStr = encodeURIComponent(JSON.stringify(user));
+        const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
+        res.redirect(redirectUrl);
     }
     async googleLogin() {
         return;
     }
     async googleCallback(req, res) {
-        console.log("📌 구글 응답:", req.user);
-        if (!req.user) {
-            throw new Error("구글 로그인 실패");
-        }
-        const { token } = await this.authService.login(req.user);
-        res.redirect(`http://localhost:3000/auth/callback/google?token=${encodeURIComponent(token)}`);
+        const { accessToken, user } = await this.authService.login(req.user);
+        const userStr = encodeURIComponent(JSON.stringify(user));
+        const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
+        res.redirect(redirectUrl);
     }
 };
 exports.AuthController = AuthController;
@@ -164,16 +158,12 @@ __decorate([
 __decorate([
     (0, common_1.Get)("callback/kakao"),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
-    (0, swagger_1.ApiOperation)({
-        summary: "카카오 로그인 콜백",
-        description: "카카오 로그인 후 JWT 발급",
-    }),
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "kakaoCallback", null);
+], AuthController.prototype, "kakaoAuthRedirect", null);
 __decorate([
     (0, common_1.Get)("naver"),
     (0, swagger_1.ApiOperation)({
@@ -192,7 +182,7 @@ __decorate([
         summary: "네이버 로그인 콜백",
         description: "네이버 로그인 후 JWT 발급",
     }),
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
@@ -214,9 +204,9 @@ __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
     (0, swagger_1.ApiOperation)({
         summary: "구글 로그인 콜백",
-        description: "구글로그인 후 JWT 발급",
+        description: "구글 로그인 후 JWT 발급",
     }),
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

@@ -35,6 +35,7 @@ const payment_entity_1 = require("./modules/payments/payment.entity");
 const point_entity_1 = require("./modules/payments/point.entity");
 const admin_notification_entity_1 = require("./modules/notifications/admin_notification.entity");
 const announcement_entity_1 = require("./modules/notifications/announcement.entity");
+const ai_module_1 = require("./ai/ai.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -78,6 +79,7 @@ exports.AppModule = AppModule = __decorate([
             notification_module_1.NotificationModule,
             like_module_1.LikeModule,
             auth_module_1.AuthModule,
+            ai_module_1.AiModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, like_service_1.LikeService],

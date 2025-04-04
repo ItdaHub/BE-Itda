@@ -8,19 +8,8 @@ export declare class KakaoStrategy extends KakaoStrategy_base {
     private readonly authService;
     constructor(authService: AuthService, configService: ConfigService);
     validate(accessToken: string, refreshToken: string, profile: any): Promise<{
-        token: string;
-        user: {
-            id: number;
-            email: string;
-            name: string | undefined;
-            profile_img: string;
-            phone: string;
-            type: import("../users/user.entity").LoginType;
-            nickname: string;
-            age: number;
-            created_at: Date;
-            user_type: import("../users/user.entity").UserType;
-        };
+        accessToken: string;
+        user: Record<string, any>;
     }>;
 }
 export {};

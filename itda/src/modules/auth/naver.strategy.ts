@@ -1,8 +1,8 @@
-import { Strategy } from "passport-naver";
-import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
+import { Strategy } from "passport-naver";
 import { Injectable } from "@nestjs/common";
 import { AuthService } from "./auth.service";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class NaverStrategy extends PassportStrategy(Strategy, "naver") {
@@ -14,29 +14,35 @@ export class NaverStrategy extends PassportStrategy(Strategy, "naver") {
       clientID: configService.get<string>("NAVER_CLIENT_ID", ""),
       clientSecret: configService.get<string>("NAVER_CLIENT_SECRET", ""),
       callbackURL: configService.get<string>("NAVER_CALLBACK_URL", ""),
-      scope: ["email", "name", "nickname", "age", "birthday", "mobile"],
-    } as any);
+    });
 
     console.log("네이버 로그인 설정 완료 ✅");
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    console.log("📌 네이버 프로필 전체:", profile._json);
+    console.log("📌 네이버 프로필:", profile);
 
-    const { email, name, nickname, id } = profile._json;
+    const email = profile?.email || profile._json?.email;
+    const name = profile?.name || profile.displayName;
+    const nickname = profile.nickname || email?.split("@")[0];
+    const birthYear = profile.birthyear || profile._json?.birthyear;
+    const phone = profile.mobile || profile._json?.mobile;
 
     if (!email) {
+      console.error("❌ 이메일이 없습니다.");
       throw new Error("이메일이 없습니다.");
     }
 
-    const userName = name || nickname || "네이버 유저";
+    console.log(`✅ 로그인 성공: ${nickname} (${email})`);
 
-    return {
+    const user = await this.authService.validateNaverUser({
       email,
-      name: userName,
+      name,
       nickname,
-      provider: "naver",
-      providerId: id,
-    };
+      birthYear,
+      phone,
+    });
+
+    return this.authService.login(user);
   }
 }

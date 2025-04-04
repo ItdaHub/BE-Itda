@@ -16,6 +16,7 @@ const user_entity_1 = require("../users/user.entity");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = require("bcrypt");
 const user_entity_2 = require("../users/user.entity");
+const class_transformer_1 = require("class-transformer");
 let AuthService = class AuthService {
     entityManager;
     jwtService;
@@ -25,30 +26,20 @@ let AuthService = class AuthService {
     }
     createToken(user) {
         const payload = { id: user.id, email: user.email, type: user.type };
-        return this.jwtService.sign(payload);
+        return this.jwtService.sign(payload, {
+            expiresIn: "1h",
+        });
     }
     formatResponse(user) {
+        const plainUser = (0, class_transformer_1.instanceToPlain)(user);
+        console.log("📦 변환된 user 객체:", plainUser);
         return {
-            token: this.createToken(user),
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                profile_img: user.profile_img,
-                phone: user.phone,
-                type: user.type,
-                nickname: user.nickname,
-                age: user.age,
-                created_at: user.created_at,
-                user_type: user.user_type,
-            },
+            accessToken: this.createToken(user),
+            user: plainUser,
         };
     }
     async login(user) {
-        return {
-            token: this.createToken(user),
-            user,
-        };
+        return this.formatResponse(user);
     }
     async validateKakaoUser({ email, nickname, }) {
         if (!email)
@@ -60,15 +51,16 @@ let AuthService = class AuthService {
                 nickname,
                 type: user_entity_2.LoginType.KAKAO,
                 password: "",
+                status: user_entity_2.UserStatus.ACTIVE,
             });
             await this.entityManager.save(user);
         }
-        return this.formatResponse(user);
+        return user;
     }
     async validateNaverUser({ email, name, nickname, birthYear, phone, }) {
         let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
         if (!user) {
-            const newUser = await this.register({
+            user = (await this.register({
                 email,
                 nickname: nickname || email.split("@")[0],
                 name: name || "사용자",
@@ -76,40 +68,22 @@ let AuthService = class AuthService {
                 phone,
                 type: user_entity_2.LoginType.NAVER,
                 password: "",
-            });
-            user = newUser.user;
+            })).user;
         }
-        return this.formatResponse(user);
+        return user;
     }
-    async validateGoogleUser(profile) {
-        console.log("📌 구글 프로필:", JSON.stringify(profile, null, 2));
-        const email = profile.email || profile._json?.email || null;
-        const name = profile.displayName || profile._json?.name || "익명";
-        const nickname = email?.split("@")[0] || "익명";
-        if (!email) {
-            console.error("❌ 구글 프로필에서 이메일을 찾을 수 없습니다.");
-            throw new Error("이메일이 없습니다.");
-        }
+    async validateGoogleUser({ email, nickname, }) {
         let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
         if (!user) {
-            console.log("🆕 새로운 사용자 생성:", { email, name, nickname });
-            const newUser = await this.register({
+            user = (await this.register({
                 email,
-                name,
+                name: nickname,
                 nickname,
                 type: user_entity_2.LoginType.GOOGLE,
                 password: "",
-            });
-            user = newUser.user;
+            })).user;
         }
-        else {
-            if (!user.name) {
-                console.log(`⚠️ 기존 사용자 name이 없습니다. 업데이트 진행: ${name}`);
-                user.name = name;
-                await this.entityManager.save(user);
-            }
-        }
-        return this.formatResponse(user);
+        return user;
     }
     async validateUser(email, password) {
         const user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });

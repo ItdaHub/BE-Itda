@@ -4,6 +4,7 @@ import {
   Get,
   Body,
   Res,
+  Req,
   Request,
   UseGuards,
   BadRequestException,
@@ -14,7 +15,6 @@ import { LocalAuthGuard } from "./localauth.guard";
 import { AuthGuard } from "@nestjs/passport";
 import { RegisterDto } from "./dto/register.dto";
 import { JwtAuthGuard } from "./jwtauth.guard";
-import { LoginType } from "../users/user.entity";
 import { Response } from "express";
 
 @ApiTags("Auth")
@@ -104,26 +104,20 @@ export class AuthController {
   }
 
   // ✅ 카카오 로그인 콜백 (JWT 발급)
+  // @Get("callback/kakao")
+  // @UseGuards(AuthGuard("kakao"))
+  // async kakaoAuthRedirect(@Req() req, @Res() res) {
+  //   const { token, user } = await this.authService.login(req.user);
+  //   console.log("📌 카카오 응답:", { token, user });
+  //   return res.json(await this.authService.login(req.user));
+  // }
   @Get("callback/kakao")
   @UseGuards(AuthGuard("kakao"))
-  @ApiOperation({
-    summary: "카카오 로그인 콜백",
-    description: "카카오 로그인 후 JWT 발급",
-  })
-  async kakaoCallback(@Request() req, @Res() res: Response) {
-    console.log("📌 카카오 응답:", req.user);
-
-    if (!req.user) {
-      throw new Error("카카오 로그인 실패");
-    }
-
-    // ✅ JWT 토큰 생성
-    const { token } = await this.authService.login(req.user);
-
-    // ✅ 프론트엔드로 리디렉트
-    res.redirect(
-      `http://localhost:3000/auth/callback/kakao?token=${encodeURIComponent(token)}`
-    );
+  async kakaoAuthRedirect(@Req() req, @Res() res) {
+    const { accessToken, user } = await this.authService.login(req.user);
+    const userStr = encodeURIComponent(JSON.stringify(user));
+    const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
+    res.redirect(redirectUrl);
   }
 
   // ✅ 네이버 로그인
@@ -150,20 +144,11 @@ export class AuthController {
     summary: "네이버 로그인 콜백",
     description: "네이버 로그인 후 JWT 발급",
   })
-  async naverCallback(@Request() req, @Res() res: Response) {
-    console.log("📌 네이버 응답:", req.user);
-
-    if (!req.user) {
-      throw new Error("네이버 로그인 실패");
-    }
-
-    // ✅ JWT 토큰 생성
-    const { token } = await this.authService.login(req.user);
-
-    // ✅ 문자열로 변환해서 보내기
-    res.redirect(
-      `http://localhost:3000/auth/callback/naver?token=${encodeURIComponent(token)}`
-    );
+  async naverCallback(@Req() req, @Res() res) {
+    const { accessToken, user } = await this.authService.login(req.user);
+    const userStr = encodeURIComponent(JSON.stringify(user));
+    const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
+    res.redirect(redirectUrl);
   }
 
   // ✅ 구글 로그인
@@ -177,26 +162,17 @@ export class AuthController {
     return;
   }
 
-  // ✅ 구글 로그인 콜백 (JWT 발급)
+  // ✅ 구글 로그인 콜백
   @Get("callback/google")
   @UseGuards(AuthGuard("google"))
   @ApiOperation({
     summary: "구글 로그인 콜백",
-    description: "구글로그인 후 JWT 발급",
+    description: "구글 로그인 후 JWT 발급",
   })
-  async googleCallback(@Request() req, @Res() res: Response) {
-    console.log("📌 구글 응답:", req.user);
-
-    if (!req.user) {
-      throw new Error("구글 로그인 실패");
-    }
-
-    // ✅ JWT 토큰 생성 (토큰만 추출)
-    const { token } = await this.authService.login(req.user);
-
-    // ✅ 프론트엔드로 리디렉트 (올바르게 인코딩하여 전달)
-    res.redirect(
-      `http://localhost:3000/auth/callback/google?token=${encodeURIComponent(token)}`
-    );
+  async googleCallback(@Req() req, @Res() res) {
+    const { accessToken, user } = await this.authService.login(req.user);
+    const userStr = encodeURIComponent(JSON.stringify(user));
+    const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
+    res.redirect(redirectUrl);
   }
 }

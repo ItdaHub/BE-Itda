@@ -31,23 +31,19 @@ let KakaoStrategy = class KakaoStrategy extends (0, passport_1.PassportStrategy)
         const kakaoData = profile._json || JSON.parse(profile._raw || "{}");
         console.log("📌 profile._json 전체:", JSON.stringify(kakaoData, null, 2));
         const kakaoAccount = kakaoData.kakao_account;
-        console.log("🟢 kakaoAccount:", JSON.stringify(kakaoAccount, null, 2));
         if (!kakaoAccount) {
             console.error("❌ 카카오 계정 정보가 없습니다.");
             throw new Error("카카오 계정 정보가 없습니다.");
         }
         const email = kakaoAccount?.email;
         const nickname = kakaoData?.properties?.nickname;
-        if (!email) {
-            console.error("❌ 이메일을 찾을 수 없습니다.");
-            throw new Error("이메일이 없습니다.");
-        }
-        if (!nickname) {
-            console.error("❌ 닉네임을 찾을 수 없습니다.");
-            throw new Error("닉네임이 없습니다.");
+        if (!email || !nickname) {
+            console.error("❌ 필수 정보 누락 - 이메일 또는 닉네임");
+            throw new Error("이메일 또는 닉네임이 없습니다.");
         }
         console.log(`✅ 로그인 성공: ${nickname} (${email})`);
-        return this.authService.validateKakaoUser({ email, nickname });
+        const user = await this.authService.validateKakaoUser({ email, nickname });
+        return this.authService.login(user);
     }
 };
 exports.KakaoStrategy = KakaoStrategy;

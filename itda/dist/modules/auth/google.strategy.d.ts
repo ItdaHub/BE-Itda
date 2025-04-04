@@ -1,4 +1,4 @@
-import { Strategy, VerifyCallback } from "passport-google-oauth20";
+import { Strategy } from "passport-google-oauth20";
 import { ConfigService } from "@nestjs/config";
 import { AuthService } from "./auth.service";
 declare const GoogleStrategy_base: new (...args: [options: import("passport-google-oauth20").StrategyOptionsWithRequest] | [options: import("passport-google-oauth20").StrategyOptions] | [options: import("passport-google-oauth20").StrategyOptions] | [options: import("passport-google-oauth20").StrategyOptionsWithRequest]) => Strategy & {
@@ -7,6 +7,9 @@ declare const GoogleStrategy_base: new (...args: [options: import("passport-goog
 export declare class GoogleStrategy extends GoogleStrategy_base {
     private readonly authService;
     constructor(authService: AuthService, configService: ConfigService);
-    validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<void>;
+    validate(accessToken: string, refreshToken: string, profile: any): Promise<{
+        accessToken: string;
+        user: Record<string, any>;
+    }>;
 }
 export {};

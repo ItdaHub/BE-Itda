@@ -27,23 +27,19 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
         this.authService = authService;
         console.log("구글 로그인 설정 완료 ✅");
     }
-    async validate(accessToken, refreshToken, profile, done) {
+    async validate(accessToken, refreshToken, profile) {
         console.log("📌 구글 프로필:", profile);
         const email = Array.isArray(profile.emails) && profile.emails.length > 0
             ? profile.emails[0].value
             : profile._json?.email || null;
-        const nickname = profile.displayName;
+        const nickname = profile.displayName || profile._json?.name || email?.split("@")[0];
         if (!email) {
             console.error("❌ 이메일을 찾을 수 없습니다.");
             throw new Error("이메일이 없습니다.");
         }
-        if (!nickname) {
-            console.error("❌ 닉네임을 찾을 수 없습니다.");
-            throw new Error("닉네임이 없습니다.");
-        }
         console.log(`✅ 로그인 성공: ${nickname} (${email})`);
         const user = await this.authService.validateGoogleUser({ email, nickname });
-        return done(null, user);
+        return this.authService.login(user);
     }
 };
 exports.GoogleStrategy = GoogleStrategy;
