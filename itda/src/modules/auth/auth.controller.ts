@@ -180,6 +180,10 @@ export class AuthController {
   // ✅ 구글 로그인 콜백 (JWT 발급)
   @Get("callback/google")
   @UseGuards(AuthGuard("google"))
+  @ApiOperation({
+    summary: "구글 로그인 콜백",
+    description: "구글로그인 후 JWT 발급",
+  })
   async googleCallback(@Request() req, @Res() res: Response) {
     console.log("📌 구글 응답:", req.user);
 

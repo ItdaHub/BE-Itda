@@ -212,6 +212,10 @@ __decorate([
 __decorate([
     (0, common_1.Get)("callback/google"),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
+    (0, swagger_1.ApiOperation)({
+        summary: "구글 로그인 콜백",
+        description: "구글로그인 후 JWT 발급",
+    }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),

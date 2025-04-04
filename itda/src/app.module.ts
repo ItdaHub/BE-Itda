@@ -26,6 +26,7 @@ import { Payment } from "./modules/payments/payment.entity";
 import { Point } from "./modules/payments/point.entity";
 import { AdminNotification } from "./modules/notifications/admin_notification.entity";
 import { Announcement } from "./modules/notifications/announcement.entity";
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { Announcement } from "./modules/notifications/announcement.entity";
     NotificationModule,
     LikeModule,
     AuthModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService, LikeService],
