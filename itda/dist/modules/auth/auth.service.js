@@ -27,6 +27,7 @@ let AuthService = class AuthService {
     createToken(user) {
         const payload = { id: user.id, email: user.email, type: user.type };
         return this.jwtService.sign(payload, {
+            secret: process.env.JWT_SECRET,
             expiresIn: "1h",
         });
     }

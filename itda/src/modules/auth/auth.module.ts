@@ -10,6 +10,7 @@ import { KakaoStrategy } from "./kakao.strategy";
 import { NaverStrategy } from "./naver.strategy";
 import { GoogleStrategy } from "./google.strategy";
 import { PassportModule } from "@nestjs/passport";
+import { UserModule } from "../users/user.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PassportModule } from "@nestjs/passport";
       signOptions: { expiresIn: "1h" },
     }),
     PassportModule.register({ defaultStrategy: "google" }),
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [

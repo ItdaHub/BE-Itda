@@ -13,7 +13,7 @@ exports.Like = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../users/user.entity");
 const novel_entity_1 = require("../novels/novel.entity");
-const comment_entity_1 = require("../interactions/comment.entity");
+const comment_entity_1 = require("../comments/comment.entity");
 let Like = class Like {
     id;
     user;

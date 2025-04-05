@@ -2,10 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Vote } from "./vote.entity";
-import { Comment } from "./comment.entity";
+import { Comment } from "../comments/comment.entity";
 import { Novel } from "../novels/novel.entity";
 import { User } from "../users/user.entity";
-import { Chapter } from "../novels/chapter.entity";
+import { Chapter } from "../chapter/chapter.entity";
 
 @Injectable()
 export class InteractionsService {

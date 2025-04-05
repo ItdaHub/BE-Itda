@@ -9,8 +9,8 @@ import {
 import { Payment } from "../payments/payment.entity";
 import { Novel } from "../novels/novel.entity";
 import { Participant } from "../novels/participant.entity";
-import { Chapter } from "../novels/chapter.entity";
-import { Comment } from "../interactions/comment.entity";
+import { Chapter } from "../chapter/chapter.entity";
+import { Comment } from "../comments/comment.entity";
 import { Like } from "../likes/like.entity";
 import { Report } from "../reports/report.entity";
 import { Notification } from "../notifications/notification.entity";
@@ -69,8 +69,9 @@ export class User {
   @IsString()
   nickname: string;
 
-  @Column({ default: 0 })
-  age: number;
+  @Column({ type: "varchar", nullable: true })
+  @IsOptional()
+  birthYear?: string;
 
   @CreateDateColumn()
   created_at: Date;

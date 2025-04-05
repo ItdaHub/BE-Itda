@@ -8,4 +8,7 @@ export declare class UserService {
     create(user: User): Promise<User>;
     update(id: number, user: Partial<User>): Promise<User>;
     remove(id: number): Promise<void>;
+    findByPhone(phone: string): Promise<User | null>;
+    findByEmail(email: string): Promise<User | null>;
+    save(user: User): Promise<User>;
 }

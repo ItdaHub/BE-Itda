@@ -16,6 +16,7 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const user_entity_1 = require("./user.entity");
+const swagger_1 = require("@nestjs/swagger");
 let UserController = class UserController {
     userService;
     constructor(userService) {
@@ -40,19 +41,24 @@ let UserController = class UserController {
 exports.UserController = UserController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: "유저 전체 목록 조회" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(":id"),
-    __param(0, (0, common_1.Param)("id")),
+    (0, swagger_1.ApiOperation)({ summary: "유저 상세 조회" }),
+    (0, swagger_1.ApiParam)({ name: "id", description: "유저 ID" }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: "유저 생성" }),
+    (0, swagger_1.ApiBody)({ type: user_entity_1.User }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [user_entity_1.User]),
@@ -60,7 +66,10 @@ __decorate([
 ], UserController.prototype, "create", null);
 __decorate([
     (0, common_1.Put)(":id"),
-    __param(0, (0, common_1.Param)("id")),
+    (0, swagger_1.ApiOperation)({ summary: "유저 정보 수정" }),
+    (0, swagger_1.ApiParam)({ name: "id", description: "유저 ID" }),
+    (0, swagger_1.ApiBody)({ type: user_entity_1.User }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
@@ -68,12 +77,15 @@ __decorate([
 ], UserController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(":id"),
-    __param(0, (0, common_1.Param)("id")),
+    (0, swagger_1.ApiOperation)({ summary: "유저 삭제" }),
+    (0, swagger_1.ApiParam)({ name: "id", description: "유저 ID" }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "remove", null);
 exports.UserController = UserController = __decorate([
+    (0, swagger_1.ApiTags)("User (유저)"),
     (0, common_1.Controller)("users"),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);

@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { User } from "../users/user.entity";
 import { Novel } from "../novels/novel.entity";
-import { Comment } from "../interactions/comment.entity";
+import { Comment } from "../comments/comment.entity";
 
 @Entity("likes")
 @Check(`(target_type = 'novel' AND novel_id IS NOT NULL AND comment_id IS NULL) OR 
@@ -27,13 +27,13 @@ export class Like {
     onDelete: "CASCADE",
     nullable: true,
   })
-  novel: Novel | null; // 소설 좋아요
+  novel: Novel | null;
 
   @ManyToOne(() => Comment, (comment) => comment.likes, {
     onDelete: "CASCADE",
     nullable: true,
   })
-  comment: Comment | null; // 댓글 좋아요
+  comment: Comment | null;
 
   @CreateDateColumn()
   created_at: Date;

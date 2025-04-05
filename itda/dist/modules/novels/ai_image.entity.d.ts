@@ -1,5 +1,5 @@
 import { Novel } from "./novel.entity";
-import { Chapter } from "./chapter.entity";
+import { Chapter } from "../chapter/chapter.entity";
 export declare class AIGeneratedImage {
     id: number;
     novel: Novel;

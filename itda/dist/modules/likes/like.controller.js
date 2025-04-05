@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LikeController = void 0;
 const common_1 = require("@nestjs/common");
 const like_service_1 = require("./like.service");
+const jwtauth_guard_1 = require("../auth/jwtauth.guard");
+const swagger_1 = require("@nestjs/swagger");
 let LikeController = class LikeController {
     likeService;
     constructor(likeService) {
@@ -38,11 +40,24 @@ let LikeController = class LikeController {
     async countCommentLikes(commentId) {
         return this.likeService.countCommentLikes(commentId);
     }
+    async toggleNovelLike(userId, novelId) {
+        return this.likeService.toggleNovelLike(userId, novelId);
+    }
+    async toggleCommentLike(userId, commentId) {
+        return this.likeService.toggleCommentLike(userId, commentId);
+    }
+    async getMyLikes(req) {
+        const userId = req.user.id;
+        return this.likeService.findLikedNovels(userId);
+    }
 };
 exports.LikeController = LikeController;
 __decorate([
     (0, common_1.Post)("novel/:userId/:novelId"),
-    __param(0, (0, common_1.Param)("userId")),
+    (0, swagger_1.ApiOperation)({ summary: "소설 좋아요 추가" }),
+    (0, swagger_1.ApiParam)({ name: "userId", description: "유저 ID" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Param)("novelId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number]),
@@ -50,7 +65,10 @@ __decorate([
 ], LikeController.prototype, "likeNovel", null);
 __decorate([
     (0, common_1.Delete)("novel/:userId/:novelId"),
-    __param(0, (0, common_1.Param)("userId")),
+    (0, swagger_1.ApiOperation)({ summary: "소설 좋아요 취소" }),
+    (0, swagger_1.ApiParam)({ name: "userId", description: "유저 ID" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Param)("novelId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number]),
@@ -58,7 +76,10 @@ __decorate([
 ], LikeController.prototype, "unlikeNovel", null);
 __decorate([
     (0, common_1.Post)("comment/:userId/:commentId"),
-    __param(0, (0, common_1.Param)("userId")),
+    (0, swagger_1.ApiOperation)({ summary: "댓글 좋아요 추가" }),
+    (0, swagger_1.ApiParam)({ name: "userId", description: "유저 ID" }),
+    (0, swagger_1.ApiParam)({ name: "commentId", description: "댓글 ID" }),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Param)("commentId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number]),
@@ -66,7 +87,10 @@ __decorate([
 ], LikeController.prototype, "likeComment", null);
 __decorate([
     (0, common_1.Delete)("comment/:userId/:commentId"),
-    __param(0, (0, common_1.Param)("userId")),
+    (0, swagger_1.ApiOperation)({ summary: "댓글 좋아요 취소" }),
+    (0, swagger_1.ApiParam)({ name: "userId", description: "유저 ID" }),
+    (0, swagger_1.ApiParam)({ name: "commentId", description: "댓글 ID" }),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Param)("commentId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number]),
@@ -74,19 +98,56 @@ __decorate([
 ], LikeController.prototype, "unlikeComment", null);
 __decorate([
     (0, common_1.Get)("novel/:novelId/count"),
-    __param(0, (0, common_1.Param)("novelId")),
+    (0, swagger_1.ApiOperation)({ summary: "소설 좋아요 수 조회" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], LikeController.prototype, "countNovelLikes", null);
 __decorate([
     (0, common_1.Get)("comment/:commentId/count"),
-    __param(0, (0, common_1.Param)("commentId")),
+    (0, swagger_1.ApiOperation)({ summary: "댓글 좋아요 수 조회" }),
+    (0, swagger_1.ApiParam)({ name: "commentId", description: "댓글 ID" }),
+    __param(0, (0, common_1.Param)("commentId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], LikeController.prototype, "countCommentLikes", null);
+__decorate([
+    (0, common_1.Patch)("novel/:userId/:novelId/toggle"),
+    (0, swagger_1.ApiOperation)({ summary: "소설 좋아요 토글 (추가/취소)" }),
+    (0, swagger_1.ApiParam)({ name: "userId", description: "유저 ID" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], LikeController.prototype, "toggleNovelLike", null);
+__decorate([
+    (0, common_1.Patch)("comment/:userId/:commentId/toggle"),
+    (0, swagger_1.ApiOperation)({ summary: "댓글 좋아요 토글 (추가/취소)" }),
+    (0, swagger_1.ApiParam)({ name: "userId", description: "유저 ID" }),
+    (0, swagger_1.ApiParam)({ name: "commentId", description: "댓글 ID" }),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Param)("commentId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], LikeController.prototype, "toggleCommentLike", null);
+__decorate([
+    (0, common_1.Get)("my-likes"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: "내가 찜한 소설 목록 조회" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], LikeController.prototype, "getMyLikes", null);
 exports.LikeController = LikeController = __decorate([
+    (0, swagger_1.ApiTags)("Like (좋아요 / 찜)"),
     (0, common_1.Controller)("likes"),
     __metadata("design:paramtypes", [like_service_1.LikeService])
 ], LikeController);

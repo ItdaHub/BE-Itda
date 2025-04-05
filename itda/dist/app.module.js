@@ -24,10 +24,10 @@ const user_entity_1 = require("./modules/users/user.entity");
 const novel_entity_1 = require("./modules/novels/novel.entity");
 const report_entity_1 = require("./modules/reports/report.entity");
 const notification_entity_1 = require("./modules/notifications/notification.entity");
-const genre_entity_1 = require("./modules/novels/genre.entity");
+const genre_entity_1 = require("./modules/genre/genre.entity");
 const participant_entity_1 = require("./modules/novels/participant.entity");
-const chapter_entity_1 = require("./modules/novels/chapter.entity");
-const comment_entity_1 = require("./modules/interactions/comment.entity");
+const chapter_entity_1 = require("./modules/chapter/chapter.entity");
+const comment_entity_1 = require("./modules/comments/comment.entity");
 const like_entity_1 = require("./modules/likes/like.entity");
 const ai_image_entity_1 = require("./modules/novels/ai_image.entity");
 const vote_entity_1 = require("./modules/interactions/vote.entity");
@@ -36,6 +36,11 @@ const point_entity_1 = require("./modules/payments/point.entity");
 const admin_notification_entity_1 = require("./modules/notifications/admin_notification.entity");
 const announcement_entity_1 = require("./modules/notifications/announcement.entity");
 const ai_module_1 = require("./ai/ai.module");
+const genre_module_1 = require("./modules/genre/genre.module");
+const chapter_module_1 = require("./modules/chapter/chapter.module");
+const comment_module_1 = require("./modules/comments/comment.module");
+const writers_module_1 = require("./modules/writers/writers.module");
+const user_service_1 = require("./modules/users/user.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -80,9 +85,13 @@ exports.AppModule = AppModule = __decorate([
             like_module_1.LikeModule,
             auth_module_1.AuthModule,
             ai_module_1.AiModule,
+            genre_module_1.GenreModule,
+            chapter_module_1.ChapterModule,
+            comment_module_1.CommentsModule,
+            writers_module_1.WritersModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, like_service_1.LikeService],
+        providers: [app_service_1.AppService, like_service_1.LikeService, user_service_1.UserService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

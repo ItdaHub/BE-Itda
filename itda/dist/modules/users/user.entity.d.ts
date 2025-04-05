@@ -1,8 +1,8 @@
 import { Payment } from "../payments/payment.entity";
 import { Novel } from "../novels/novel.entity";
 import { Participant } from "../novels/participant.entity";
-import { Chapter } from "../novels/chapter.entity";
-import { Comment } from "../interactions/comment.entity";
+import { Chapter } from "../chapter/chapter.entity";
+import { Comment } from "../comments/comment.entity";
 import { Like } from "../likes/like.entity";
 import { Report } from "../reports/report.entity";
 import { Notification } from "../notifications/notification.entity";
@@ -32,7 +32,7 @@ export declare class User {
     type: LoginType;
     name?: string;
     nickname: string;
-    age: number;
+    birthYear?: string;
     created_at: Date;
     user_type: UserType;
     status: UserStatus;

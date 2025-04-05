@@ -5,7 +5,18 @@ import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { LoginType, UserStatus } from "../users/user.entity";
 import { RegisterDto } from "./dto/register.dto";
-import { instanceToPlain } from "class-transformer"; // ✅ import 추가
+import { instanceToPlain } from "class-transformer";
+import { calculateAge } from "../users/utils/user.util";
+
+// 회원가입 시 나이 계산해서 저장(추가 할거면 하기)
+//const birthYear = userDto.birthYear;
+// const age = birthYear ? calculateAge(birthYear) : 0;
+
+// const newUser = this.entityManager.create(User, {
+//   // ...
+//   birthYear,
+//   age, // 여기 추가!
+// });
 
 // ✅ 타입 선언 추가
 type LoginResponse = {
@@ -24,6 +35,7 @@ export class AuthService {
   private createToken(user: User): string {
     const payload = { id: user.id, email: user.email, type: user.type };
     return this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
       expiresIn: "1h",
     });
   }

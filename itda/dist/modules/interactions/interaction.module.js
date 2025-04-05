@@ -12,10 +12,10 @@ const typeorm_1 = require("@nestjs/typeorm");
 const interaction_controller_1 = require("./interaction.controller");
 const interaction_service_1 = require("./interaction.service");
 const vote_entity_1 = require("./vote.entity");
-const comment_entity_1 = require("./comment.entity");
+const comment_entity_1 = require("../comments/comment.entity");
 const novel_entity_1 = require("../novels/novel.entity");
 const user_entity_1 = require("../users/user.entity");
-const chapter_entity_1 = require("../novels/chapter.entity");
+const chapter_entity_1 = require("../chapter/chapter.entity");
 let InteractionsModule = class InteractionsModule {
 };
 exports.InteractionsModule = InteractionsModule;

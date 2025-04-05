@@ -19,19 +19,25 @@ const auth_service_1 = require("./auth.service");
 const localauth_guard_1 = require("./localauth.guard");
 const passport_1 = require("@nestjs/passport");
 const register_dto_1 = require("./dto/register.dto");
+const emailchech_dto_1 = require("./dto/emailchech.dto");
 const jwtauth_guard_1 = require("./jwtauth.guard");
+const user_service_1 = require("../users/user.service");
+const bcrypt = require("bcrypt");
 let AuthController = class AuthController {
     authService;
-    constructor(authService) {
+    userService;
+    constructor(authService, userService) {
         this.authService = authService;
+        this.userService = userService;
     }
-    async getLogin(req) {
-        return this.authService.formatResponse(req.user);
+    getProfile(req) {
+        return { user: req.user };
     }
     async register(registerDto) {
         return this.authService.register(registerDto);
     }
-    async checkEmail(email) {
+    async checkEmail(emailCheckDto) {
+        const { email } = emailCheckDto;
         const isEmailTaken = await this.authService.checkEmail(email);
         if (isEmailTaken) {
             throw new common_1.BadRequestException("이미 사용된 이메일입니다.");
@@ -54,11 +60,15 @@ let AuthController = class AuthController {
         const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
         res.redirect(kakaoAuthUrl);
     }
-    async kakaoAuthRedirect(req, res) {
+    async kakaoCallback(req, res) {
         const { accessToken, user } = await this.authService.login(req.user);
-        const userStr = encodeURIComponent(JSON.stringify(user));
-        const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
-        res.redirect(redirectUrl);
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 1000,
+        });
+        res.redirect("http://localhost:3000/auth/callback");
     }
     async naverLogin(res) {
         const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
@@ -67,39 +77,72 @@ let AuthController = class AuthController {
         res.redirect(naverAuthUrl);
     }
     async naverCallback(req, res) {
-        const { accessToken, user } = await this.authService.login(req.user);
-        const userStr = encodeURIComponent(JSON.stringify(user));
-        const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
-        res.redirect(redirectUrl);
+        const { accessToken } = await this.authService.login(req.user);
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 1000,
+        });
+        res.redirect("http://localhost:3000/auth/callback");
     }
     async googleLogin() {
         return;
     }
     async googleCallback(req, res) {
-        const { accessToken, user } = await this.authService.login(req.user);
-        const userStr = encodeURIComponent(JSON.stringify(user));
-        const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}&user=${userStr}`;
-        res.redirect(redirectUrl);
+        const { accessToken } = await this.authService.login(req.user);
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 1000,
+        });
+        res.redirect("http://localhost:3000/auth/callback");
+    }
+    async findIdByPhone(phone) {
+        const user = await this.userService.findByPhone(phone);
+        if (!user) {
+            throw new common_1.NotFoundException("일치하는 유저를 찾을 수 없습니다.");
+        }
+        return { id: user.email };
+    }
+    async findPassword(body) {
+        const user = await this.userService.findByEmail(body.email);
+        if (!user) {
+            return { message: "User not found", data: null };
+        }
+        return { message: "User found", data: user.email };
+    }
+    async updatePassword(body) {
+        const user = await this.userService.findByEmail(body.email);
+        if (!user) {
+            return { message: "User not found" };
+        }
+        const hashedPassword = await bcrypt.hash(body.password, 10);
+        user.password = hashedPassword;
+        await this.userService.save(user);
+        return { message: "Password updated successfully" };
     }
 };
 exports.AuthController = AuthController;
 __decorate([
-    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Get)("login"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiOperation)({
-        summary: "로그인된 유저 정보",
-        description: "JWT 토큰을 검증하고 유저 정보를 반환합니다.",
+        summary: "로그인된 유저 정보 조회",
+        description: "JWT 토큰을 이용해 로그인한 유저의 정보를 반환합니다.",
     }),
-    __param(0, (0, common_1.Request)()),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "유저 정보 반환 성공" }),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "getLogin", null);
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.Post)("register"),
     (0, swagger_1.ApiOperation)({
         summary: "로컬 회원가입",
-        description: "이메일과 비밀번호로 로컬 회원을 등록합니다.",
+        description: "이메일과 비밀번호로 새로운 유저를 등록합니다.",
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: "회원가입 성공" }),
     (0, swagger_1.ApiResponse)({ status: 400, description: "잘못된 요청" }),
@@ -112,19 +155,21 @@ __decorate([
     (0, common_1.Post)("emailCheck"),
     (0, swagger_1.ApiOperation)({
         summary: "이메일 중복 확인",
-        description: "이메일이 사용 중인지 확인합니다.",
+        description: "입력한 이메일이 이미 사용 중인지 확인합니다.",
     }),
-    __param(0, (0, common_1.Body)("email")),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "사용 가능 여부 반환" }),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [emailchech_dto_1.EmailCheckDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "checkEmail", null);
 __decorate([
     (0, common_1.Post)("nicknameCheck"),
     (0, swagger_1.ApiOperation)({
         summary: "닉네임 중복 확인",
-        description: "닉네임이 사용 중인지 확인합니다.",
+        description: "입력한 닉네임이 이미 사용 중인지 확인합니다.",
     }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "사용 가능 여부 반환" }),
     __param(0, (0, common_1.Body)("nickName")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -135,7 +180,7 @@ __decorate([
     (0, common_1.Post)("local"),
     (0, swagger_1.ApiOperation)({
         summary: "로컬 로그인",
-        description: "이메일과 비밀번호로 로그인합니다.",
+        description: "이메일과 비밀번호를 통한 로그인 처리",
     }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "로그인 성공" }),
     (0, swagger_1.ApiResponse)({ status: 401, description: "인증 실패" }),
@@ -147,8 +192,8 @@ __decorate([
 __decorate([
     (0, common_1.Get)("kakao"),
     (0, swagger_1.ApiOperation)({
-        summary: "카카오 로그인",
-        description: "카카오 로그인 페이지로 리디렉트합니다.",
+        summary: "카카오 로그인 요청",
+        description: "카카오 로그인 인증 페이지로 리디렉트합니다.",
     }),
     __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
@@ -158,17 +203,21 @@ __decorate([
 __decorate([
     (0, common_1.Get)("callback/kakao"),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("kakao")),
+    (0, swagger_1.ApiOperation)({
+        summary: "카카오 로그인 콜백",
+        description: "카카오 로그인 성공 후 JWT 발급, 쿠키 저장, 클라이언트로 리디렉트",
+    }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "kakaoAuthRedirect", null);
+], AuthController.prototype, "kakaoCallback", null);
 __decorate([
     (0, common_1.Get)("naver"),
     (0, swagger_1.ApiOperation)({
-        summary: "네이버 로그인",
-        description: "네이버 로그인 페이지로 리디렉트합니다.",
+        summary: "네이버 로그인 요청",
+        description: "네이버 로그인 인증 페이지로 리디렉트합니다.",
     }),
     __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
@@ -180,7 +229,7 @@ __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("naver")),
     (0, swagger_1.ApiOperation)({
         summary: "네이버 로그인 콜백",
-        description: "네이버 로그인 후 JWT 발급",
+        description: "JWT 발급 후 쿠키에 저장하고 클라이언트로 리디렉트",
     }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
@@ -192,8 +241,8 @@ __decorate([
     (0, common_1.Get)("google"),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
     (0, swagger_1.ApiOperation)({
-        summary: "구글 로그인",
-        description: "구글 로그인 페이지로 리디렉트됩니다.",
+        summary: "구글 로그인 요청",
+        description: "구글 로그인 인증 페이지로 리디렉트합니다.",
     }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -204,7 +253,7 @@ __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)("google")),
     (0, swagger_1.ApiOperation)({
         summary: "구글 로그인 콜백",
-        description: "구글 로그인 후 JWT 발급",
+        description: "JWT 발급 후 쿠키에 저장하고 클라이언트로 리디렉트",
     }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
@@ -212,9 +261,45 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleCallback", null);
+__decorate([
+    (0, common_1.Get)("findid"),
+    (0, swagger_1.ApiOperation)({
+        summary: "전화번호로 ID 찾기",
+        description: "입력한 전화번호와 일치하는 이메일을 반환합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "ID 반환 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "유저를 찾을 수 없음" }),
+    __param(0, (0, common_1.Query)("phone")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "findIdByPhone", null);
+__decorate([
+    (0, common_1.Post)("findpw"),
+    (0, swagger_1.ApiOperation)({
+        summary: "비밀번호 찾기",
+        description: "이메일로 유저가 존재하는지 확인합니다.",
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "findPassword", null);
+__decorate([
+    (0, common_1.Post)("updatePw"),
+    (0, swagger_1.ApiOperation)({
+        summary: "비밀번호 변경",
+        description: "새 비밀번호로 유저 비밀번호를 변경합니다.",
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "updatePassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)("Auth"),
     (0, common_1.Controller)("auth"),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        user_service_1.UserService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

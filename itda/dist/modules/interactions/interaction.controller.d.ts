@@ -13,7 +13,7 @@ export declare class InteractionsController {
         userId: number;
         content: string;
         parentCommentId?: number;
-    }): Promise<import("./comment.entity").Comment>;
-    getCommentsByNovel(novelId: number): Promise<import("./comment.entity").Comment[]>;
+    }): Promise<import("../comments/comment.entity").Comment>;
+    getCommentsByNovel(novelId: number): Promise<import("../comments/comment.entity").Comment[]>;
     deleteComment(commentId: number): Promise<import("typeorm").DeleteResult>;
 }

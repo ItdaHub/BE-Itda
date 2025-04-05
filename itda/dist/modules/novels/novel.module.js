@@ -9,30 +9,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NovelModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const novel_entity_1 = require("./novel.entity");
-const novel_service_1 = require("./novel.service");
 const novel_controller_1 = require("./novel.controller");
+const novel_service_1 = require("./novel.service");
+const novel_entity_1 = require("./novel.entity");
+const genre_entity_1 = require("../genre/genre.entity");
+const chapter_entity_1 = require("../chapter/chapter.entity");
+const user_entity_1 = require("../users/user.entity");
+const user_module_1 = require("../users/user.module");
 const participant_entity_1 = require("./participant.entity");
-const chapter_entity_1 = require("./chapter.entity");
-const genre_entity_1 = require("./genre.entity");
-const ai_image_entity_1 = require("./ai_image.entity");
 let NovelModule = class NovelModule {
 };
 exports.NovelModule = NovelModule;
 exports.NovelModule = NovelModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([
-                novel_entity_1.Novel,
-                participant_entity_1.Participant,
-                chapter_entity_1.Chapter,
-                genre_entity_1.Genre,
-                ai_image_entity_1.AIGeneratedImage,
-            ]),
+            typeorm_1.TypeOrmModule.forFeature([novel_entity_1.Novel, genre_entity_1.Genre, chapter_entity_1.Chapter, user_entity_1.User, participant_entity_1.Participant]),
+            user_module_1.UserModule,
         ],
         controllers: [novel_controller_1.NovelController],
         providers: [novel_service_1.NovelService],
-        exports: [novel_service_1.NovelService],
     })
 ], NovelModule);
 //# sourceMappingURL=novel.module.js.map

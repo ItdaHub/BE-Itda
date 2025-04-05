@@ -12,13 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Novel = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../users/user.entity");
-const genre_entity_1 = require("./genre.entity");
+const genre_entity_1 = require("../genre/genre.entity");
 const participant_entity_1 = require("./participant.entity");
-const chapter_entity_1 = require("./chapter.entity");
+const chapter_entity_1 = require("../chapter/chapter.entity");
 const ai_image_entity_1 = require("./ai_image.entity");
 const like_entity_1 = require("../likes/like.entity");
 const vote_entity_1 = require("../interactions/vote.entity");
-const comment_entity_1 = require("../interactions/comment.entity");
+const comment_entity_1 = require("../comments/comment.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
 let Novel = class Novel {
     id;
@@ -27,6 +27,7 @@ let Novel = class Novel {
     max_participants;
     status;
     cover_image;
+    type;
     created_at;
     genre;
     participants;
@@ -36,6 +37,8 @@ let Novel = class Novel {
     votes;
     comments;
     notifications;
+    author;
+    age_group;
 };
 exports.Novel = Novel;
 __decorate([
@@ -62,6 +65,10 @@ __decorate([
     (0, typeorm_1.Column)({ length: 255, nullable: true }),
     __metadata("design:type", String)
 ], Novel.prototype, "cover_image", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 50, nullable: true }),
+    __metadata("design:type", String)
+], Novel.prototype, "type", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
@@ -98,6 +105,18 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.novel),
     __metadata("design:type", Array)
 ], Novel.prototype, "notifications", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.novels),
+    __metadata("design:type", user_entity_1.User)
+], Novel.prototype, "author", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: ["teen", "twenties", "thirties", "forties"],
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], Novel.prototype, "age_group", void 0);
 exports.Novel = Novel = __decorate([
     (0, typeorm_1.Entity)("novels")
 ], Novel);

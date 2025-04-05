@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
 } from "typeorm";
 import { Novel } from "./novel.entity";
-import { Chapter } from "./chapter.entity";
+import { Chapter } from "../chapter/chapter.entity";
 
 @Entity("ai_generated_images")
 export class AIGeneratedImage {

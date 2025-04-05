@@ -16,6 +16,7 @@ exports.ReportController = void 0;
 const common_1 = require("@nestjs/common");
 const report_service_1 = require("./report.service");
 const report_entity_1 = require("./report.entity");
+const swagger_1 = require("@nestjs/swagger");
 let ReportController = class ReportController {
     reportService;
     constructor(reportService) {
@@ -37,12 +38,23 @@ let ReportController = class ReportController {
 exports.ReportController = ReportController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({
+        summary: "신고 목록 조회",
+        description: "등록된 모든 신고를 조회합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "신고 목록 반환" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({
+        summary: "신고 상세 조회",
+        description: "특정 ID의 신고 상세 정보를 반환합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "신고 상세 반환" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 ID의 신고가 존재하지 않음" }),
     __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -50,6 +62,11 @@ __decorate([
 ], ReportController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({
+        summary: "신고 생성",
+        description: "신고 정보를 생성합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "신고 생성 완료" }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [report_entity_1.Report]),
@@ -57,12 +74,18 @@ __decorate([
 ], ReportController.prototype, "create", null);
 __decorate([
     (0, common_1.Delete)(":id"),
+    (0, swagger_1.ApiOperation)({
+        summary: "신고 삭제",
+        description: "특정 ID의 신고를 삭제합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "신고 삭제 완료" }),
     __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "remove", null);
 exports.ReportController = ReportController = __decorate([
+    (0, swagger_1.ApiTags)("Reports"),
     (0, common_1.Controller)("reports"),
     __metadata("design:paramtypes", [report_service_1.ReportService])
 ], ReportController);

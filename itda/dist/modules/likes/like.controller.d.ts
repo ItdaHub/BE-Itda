@@ -9,4 +9,11 @@ export declare class LikeController {
     unlikeComment(userId: number, commentId: number): Promise<void>;
     countNovelLikes(novelId: number): Promise<number>;
     countCommentLikes(commentId: number): Promise<number>;
+    toggleNovelLike(userId: number, novelId: number): Promise<{
+        liked: boolean;
+    }>;
+    toggleCommentLike(userId: number, commentId: number): Promise<{
+        liked: boolean;
+    }>;
+    getMyLikes(req: any): Promise<import("../novels/novel.entity").Novel[]>;
 }

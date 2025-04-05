@@ -1,25 +1,21 @@
+// src/modules/novels/novel.module.ts
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Novel } from "./novel.entity";
-import { NovelService } from "./novel.service";
 import { NovelController } from "./novel.controller";
+import { NovelService } from "./novel.service";
+import { Novel } from "./novel.entity";
+import { Genre } from "../genre/genre.entity";
+import { Chapter } from "../chapter/chapter.entity";
+import { User } from "../users/user.entity";
+import { UserModule } from "../users/user.module";
 import { Participant } from "./participant.entity";
-import { Chapter } from "./chapter.entity";
-import { Genre } from "./genre.entity";
-import { AIGeneratedImage } from "./ai_image.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Novel,
-      Participant,
-      Chapter,
-      Genre,
-      AIGeneratedImage,
-    ]),
+    TypeOrmModule.forFeature([Novel, Genre, Chapter, User, Participant]),
+    UserModule,
   ],
   controllers: [NovelController],
   providers: [NovelService],
-  exports: [NovelService],
 })
 export class NovelModule {}

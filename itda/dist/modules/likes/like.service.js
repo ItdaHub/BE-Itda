@@ -12,10 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LikeService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("typeorm");
+const typeorm_2 = require("typeorm");
 const like_entity_1 = require("./like.entity");
 const user_entity_1 = require("../users/user.entity");
 const novel_entity_1 = require("../novels/novel.entity");
-const comment_entity_1 = require("../interactions/comment.entity");
+const comment_entity_1 = require("../comments/comment.entity");
 let LikeService = class LikeService {
     entityManager;
     constructor(entityManager) {
@@ -23,12 +24,7 @@ let LikeService = class LikeService {
     }
     async likeNovel(userId, novelId) {
         const user = await this.findUserById(userId);
-        const novel = await this.entityManager.findOne(novel_entity_1.Novel, {
-            where: { id: novelId },
-        });
-        if (!novel) {
-            throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
-        }
+        const novel = await this.findNovelById(novelId);
         const existingLike = await this.entityManager.findOne(like_entity_1.Like, {
             where: { user, novel },
         });
@@ -52,14 +48,29 @@ let LikeService = class LikeService {
             throw new common_1.NotFoundException(`Like not found for novel ID ${novelId}`);
         }
     }
+    async toggleNovelLike(userId, novelId) {
+        const user = await this.findUserById(userId);
+        const novel = await this.findNovelById(novelId);
+        const existingLike = await this.entityManager.findOne(like_entity_1.Like, {
+            where: { user, novel },
+        });
+        if (existingLike) {
+            await this.entityManager.remove(existingLike);
+            return { liked: false };
+        }
+        else {
+            const like = this.entityManager.create(like_entity_1.Like, {
+                user,
+                novel,
+                target_type: "novel",
+            });
+            await this.entityManager.save(like);
+            return { liked: true };
+        }
+    }
     async likeComment(userId, commentId) {
         const user = await this.findUserById(userId);
-        const comment = await this.entityManager.findOne(comment_entity_1.Comment, {
-            where: { id: commentId },
-        });
-        if (!comment) {
-            throw new common_1.NotFoundException(`Comment with ID ${commentId} not found`);
-        }
+        const comment = await this.findCommentById(commentId);
         const existingLike = await this.entityManager.findOne(like_entity_1.Like, {
             where: { user, comment },
         });
@@ -81,6 +92,26 @@ let LikeService = class LikeService {
         });
         if (result.affected === 0) {
             throw new common_1.NotFoundException(`Like not found for comment ID ${commentId}`);
+        }
+    }
+    async toggleCommentLike(userId, commentId) {
+        const user = await this.findUserById(userId);
+        const comment = await this.findCommentById(commentId);
+        const existingLike = await this.entityManager.findOne(like_entity_1.Like, {
+            where: { user, comment },
+        });
+        if (existingLike) {
+            await this.entityManager.remove(existingLike);
+            return { liked: false };
+        }
+        else {
+            const like = this.entityManager.create(like_entity_1.Like, {
+                user,
+                comment,
+                target_type: "comment",
+            });
+            await this.entityManager.save(like);
+            return { liked: true };
         }
     }
     async countNovelLikes(novelId) {
@@ -109,10 +140,38 @@ let LikeService = class LikeService {
         }
         return user;
     }
+    async findNovelById(novelId) {
+        const novel = await this.entityManager.findOne(novel_entity_1.Novel, {
+            where: { id: novelId },
+        });
+        if (!novel) {
+            throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
+        }
+        return novel;
+    }
+    async findCommentById(commentId) {
+        const comment = await this.entityManager.findOne(comment_entity_1.Comment, {
+            where: { id: commentId },
+        });
+        if (!comment) {
+            throw new common_1.NotFoundException(`Comment with ID ${commentId} not found`);
+        }
+        return comment;
+    }
+    async findLikedNovels(userId) {
+        const likes = await this.entityManager.find(like_entity_1.Like, {
+            where: {
+                user: { id: userId },
+                novel: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()),
+            },
+            relations: ["novel"],
+        });
+        return likes.map((like) => like.novel).filter(Boolean);
+    }
 };
 exports.LikeService = LikeService;
 exports.LikeService = LikeService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeorm_1.EntityManager])
+    __metadata("design:paramtypes", [typeorm_2.EntityManager])
 ], LikeService);
 //# sourceMappingURL=like.service.js.map

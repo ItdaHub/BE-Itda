@@ -13,7 +13,7 @@ const like_entity_1 = require("./like.entity");
 const like_service_1 = require("./like.service");
 const like_controller_1 = require("./like.controller");
 const novel_entity_1 = require("../novels/novel.entity");
-const comment_entity_1 = require("../interactions/comment.entity");
+const comment_entity_1 = require("../comments/comment.entity");
 let LikeModule = class LikeModule {
 };
 exports.LikeModule = LikeModule;

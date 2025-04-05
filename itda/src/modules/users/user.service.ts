@@ -43,4 +43,21 @@ export class UserService {
     const existingUser = await this.findOne(id);
     await this.userRepository.delete(id);
   }
+
+  // [작성] 전화번호로 유저 조회
+  async findByPhone(phone: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { phone },
+    });
+  }
+
+  // 이메일찾기
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
+  // 비밀번호 저장
+  async save(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
 }

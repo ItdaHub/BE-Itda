@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AIGeneratedImage = void 0;
 const typeorm_1 = require("typeorm");
 const novel_entity_1 = require("./novel.entity");
-const chapter_entity_1 = require("./chapter.entity");
+const chapter_entity_1 = require("../chapter/chapter.entity");
 let AIGeneratedImage = class AIGeneratedImage {
     id;
     novel;

@@ -1,6 +1,6 @@
 import { User } from "../users/user.entity";
 import { Novel } from "../novels/novel.entity";
-import { Comment } from "../interactions/comment.entity";
+import { Comment } from "../comments/comment.entity";
 export declare class Like {
     id: number;
     user: User;

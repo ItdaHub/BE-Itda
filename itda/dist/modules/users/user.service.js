@@ -46,6 +46,17 @@ let UserService = class UserService {
         const existingUser = await this.findOne(id);
         await this.userRepository.delete(id);
     }
+    async findByPhone(phone) {
+        return await this.userRepository.findOne({
+            where: { phone },
+        });
+    }
+    async findByEmail(email) {
+        return this.userRepository.findOne({ where: { email } });
+    }
+    async save(user) {
+        return this.userRepository.save(user);
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

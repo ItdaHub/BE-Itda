@@ -7,13 +7,13 @@ import {
   OneToMany,
 } from "typeorm";
 import { User } from "../users/user.entity";
-import { Genre } from "./genre.entity";
+import { Genre } from "../genre/genre.entity";
 import { Participant } from "./participant.entity";
-import { Chapter } from "./chapter.entity";
+import { Chapter } from "../chapter/chapter.entity";
 import { AIGeneratedImage } from "./ai_image.entity";
 import { Like } from "../likes/like.entity";
 import { Vote } from "../interactions/vote.entity";
-import { Comment } from "../interactions/comment.entity";
+import { Comment } from "../comments/comment.entity";
 import { Notification } from "../notifications/notification.entity";
 
 @Entity("novels")
@@ -35,6 +35,9 @@ export class Novel {
 
   @Column({ length: 255, nullable: true })
   cover_image: string;
+
+  @Column({ type: "varchar", length: 50, nullable: true })
+  type?: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -62,4 +65,14 @@ export class Novel {
 
   @OneToMany(() => Notification, (notification) => notification.novel)
   notifications: Notification[];
+
+  @ManyToOne(() => User, (user) => user.novels)
+  author: User;
+
+  @Column({
+    type: "enum",
+    enum: ["teen", "twenties", "thirties", "forties"],
+    nullable: true,
+  })
+  age_group: "teen" | "twenties" | "thirties" | "forties";
 }

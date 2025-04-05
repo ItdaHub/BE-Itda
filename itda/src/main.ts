@@ -2,6 +2,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,6 +12,7 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
@@ -21,6 +23,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
 
-  await app.listen(5001); // 백엔드 포트는 5001
+  await app.listen(5001);
 }
 bootstrap();

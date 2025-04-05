@@ -15,8 +15,8 @@ const typeorm_1 = require("typeorm");
 const payment_entity_1 = require("../payments/payment.entity");
 const novel_entity_1 = require("../novels/novel.entity");
 const participant_entity_1 = require("../novels/participant.entity");
-const chapter_entity_1 = require("../novels/chapter.entity");
-const comment_entity_1 = require("../interactions/comment.entity");
+const chapter_entity_1 = require("../chapter/chapter.entity");
+const comment_entity_1 = require("../comments/comment.entity");
 const like_entity_1 = require("../likes/like.entity");
 const report_entity_1 = require("../reports/report.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
@@ -49,7 +49,7 @@ let User = class User {
     type;
     name;
     nickname;
-    age;
+    birthYear;
     created_at;
     user_type;
     status;
@@ -106,9 +106,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "nickname", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: 0 }),
-    __metadata("design:type", Number)
-], User.prototype, "age", void 0);
+    (0, typeorm_1.Column)({ type: "varchar", nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], User.prototype, "birthYear", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

@@ -17,29 +17,54 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const payment_entity_1 = require("./payment.entity");
+const user_entity_1 = require("../users/user.entity");
 let PaymentService = class PaymentService {
     paymentRepository;
-    constructor(paymentRepository) {
+    userRepository;
+    constructor(paymentRepository, userRepository) {
         this.paymentRepository = paymentRepository;
+        this.userRepository = userRepository;
     }
-    async create(paymentData) {
-        const payment = this.paymentRepository.create(paymentData);
-        return await this.paymentRepository.save(payment);
+    async preparePayment(data, user) {
+        const { amount, method } = data;
+        const payment = this.paymentRepository.create({
+            user,
+            amount,
+            method,
+            status: "pending",
+        });
+        await this.paymentRepository.save(payment);
+        return { message: "결제 준비 완료", orderId: payment.id };
     }
-    async findOne(id) {
-        const payment = await this.paymentRepository.findOne({ where: { id } });
+    async handleSuccess(data) {
+        const { orderId } = data;
+        const payment = await this.paymentRepository.findOne({
+            where: { id: orderId },
+        });
         if (!payment)
-            throw new common_1.NotFoundException(`Payment with ID ${id} not found`);
-        return payment;
+            throw new Error("결제 정보가 없습니다.");
+        payment.status = "completed";
+        await this.paymentRepository.save(payment);
+        return { message: "결제 완료 처리됨" };
     }
-    async findAll() {
-        return await this.paymentRepository.find();
+    async handleFail(data) {
+        const { orderId } = data;
+        const payment = await this.paymentRepository.findOne({
+            where: { id: orderId },
+        });
+        if (payment) {
+            payment.status = "failed";
+            await this.paymentRepository.save(payment);
+        }
+        return { message: "결제 실패 처리됨" };
     }
 };
 exports.PaymentService = PaymentService;
 exports.PaymentService = PaymentService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(payment_entity_1.Payment)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], PaymentService);
 //# sourceMappingURL=payment.service.js.map

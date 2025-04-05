@@ -15,10 +15,10 @@ import { User } from "./modules/users/user.entity";
 import { Novel } from "./modules/novels/novel.entity";
 import { Report } from "./modules/reports/report.entity";
 import { Notification } from "./modules/notifications/notification.entity";
-import { Genre } from "./modules/novels/genre.entity";
+import { Genre } from "./modules/genre/genre.entity";
 import { Participant } from "./modules/novels/participant.entity";
-import { Chapter } from "./modules/novels/chapter.entity";
-import { Comment } from "./modules/interactions/comment.entity";
+import { Chapter } from "./modules/chapter/chapter.entity";
+import { Comment } from "./modules/comments/comment.entity";
 import { Like } from "./modules/likes/like.entity";
 import { AIGeneratedImage } from "./modules/novels/ai_image.entity";
 import { Vote } from "./modules/interactions/vote.entity";
@@ -26,7 +26,12 @@ import { Payment } from "./modules/payments/payment.entity";
 import { Point } from "./modules/payments/point.entity";
 import { AdminNotification } from "./modules/notifications/admin_notification.entity";
 import { Announcement } from "./modules/notifications/announcement.entity";
-import { AiModule } from './ai/ai.module';
+import { AiModule } from "./ai/ai.module";
+import { GenreModule } from "./modules/genre/genre.module";
+import { ChapterModule } from "./modules/chapter/chapter.module";
+import { CommentsModule } from "./modules/comments/comment.module";
+import { WritersModule } from "./modules/writers/writers.module";
+import { UserService } from "./modules/users/user.service";
 
 @Module({
   imports: [
@@ -68,8 +73,12 @@ import { AiModule } from './ai/ai.module';
     LikeModule,
     AuthModule,
     AiModule,
+    GenreModule,
+    ChapterModule,
+    CommentsModule,
+    WritersModule,
   ],
   controllers: [AppController],
-  providers: [AppService, LikeService],
+  providers: [AppService, LikeService, UserService],
 })
 export class AppModule {}

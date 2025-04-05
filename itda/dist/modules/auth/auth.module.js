@@ -19,6 +19,7 @@ const kakao_strategy_1 = require("./kakao.strategy");
 const naver_strategy_1 = require("./naver.strategy");
 const google_strategy_1 = require("./google.strategy");
 const passport_1 = require("@nestjs/passport");
+const user_module_1 = require("../users/user.module");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -31,6 +32,7 @@ exports.AuthModule = AuthModule = __decorate([
                 signOptions: { expiresIn: "1h" },
             }),
             passport_1.PassportModule.register({ defaultStrategy: "google" }),
+            user_module_1.UserModule,
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [

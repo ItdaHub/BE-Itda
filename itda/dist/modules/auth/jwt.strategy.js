@@ -10,19 +10,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JwtStrategy = void 0;
-const common_1 = require("@nestjs/common");
-const passport_1 = require("@nestjs/passport");
 const passport_jwt_1 = require("passport-jwt");
+const passport_1 = require("@nestjs/passport");
+const common_1 = require("@nestjs/common");
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
     constructor() {
         super({
-            jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([
+                (req) => {
+                    if (req && req.cookies) {
+                        return req.cookies["accessToken"];
+                    }
+                    return null;
+                },
+            ]),
             ignoreExpiration: false,
-            secretOrKey: "SECRET_KEY",
+            secretOrKey: process.env.JWT_SECRET,
         });
     }
     async validate(payload) {
-        return { id: payload.id, email: payload.email, nickname: payload.nickname };
+        if (!payload) {
+            throw new common_1.UnauthorizedException();
+        }
+        return {
+            id: payload.id,
+            email: payload.email,
+            type: payload.type,
+        };
     }
 };
 exports.JwtStrategy = JwtStrategy;
