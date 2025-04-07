@@ -70,8 +70,7 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ unique: true }),
-    (0, class_validator_1.IsEmail)(),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
@@ -163,6 +162,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "points", void 0);
 exports.User = User = __decorate([
-    (0, typeorm_1.Entity)("users")
+    (0, typeorm_1.Entity)("users"),
+    (0, typeorm_1.Unique)(["email", "type"])
 ], User);
 //# sourceMappingURL=user.entity.js.map

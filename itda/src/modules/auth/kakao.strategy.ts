@@ -44,7 +44,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, "kakao") {
 
     const user = await this.authService.validateKakaoUser({ email, nickname });
 
-    // ✅ 토큰 포함된 응답 리턴
-    return this.authService.login(user);
+    return user;
   }
 }

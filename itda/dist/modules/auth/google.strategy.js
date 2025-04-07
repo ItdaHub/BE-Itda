@@ -39,7 +39,7 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
         }
         console.log(`✅ 로그인 성공: ${nickname} (${email})`);
         const user = await this.authService.validateGoogleUser({ email, nickname });
-        return this.authService.login(user);
+        return user;
     }
 };
 exports.GoogleStrategy = GoogleStrategy;

@@ -40,19 +40,60 @@ let AuthController = class AuthController {
         const { email } = emailCheckDto;
         const isEmailTaken = await this.authService.checkEmail(email);
         if (isEmailTaken) {
-            throw new common_1.BadRequestException("이미 사용된 이메일입니다.");
+            throw new common_1.BadRequestException({
+                success: false,
+                message: "이미 사용된 이메일입니다.",
+            });
         }
-        return { message: "사용 가능한 이메일입니다." };
+        return {
+            success: true,
+            message: "사용 가능한 이메일입니다.",
+        };
     }
-    async checkNickName(nickName) {
+    async checkNickname(nickName) {
         const isNickNameTaken = await this.authService.checkNickName(nickName);
         if (isNickNameTaken) {
-            throw new common_1.BadRequestException("이미 사용된 닉네임입니다.");
+            throw new common_1.BadRequestException({
+                success: false,
+                message: "이미 사용 중인 닉네임입니다.",
+            });
         }
-        return { message: "사용 가능한 닉네임입니다." };
+        return {
+            success: true,
+            message: "사용 가능한 닉네임입니다.",
+        };
     }
-    async login(req) {
-        return this.authService.login(req.user);
+    async checkNicknameForEdit(req, nickName) {
+        const user = await this.userService.findById(req.user.id);
+        if (!user) {
+            throw new common_1.NotFoundException("사용자를 찾을 수 없습니다.");
+        }
+        if (user.nickname === nickName) {
+            return { message: "현재 사용 중인 닉네임입니다.", available: true };
+        }
+        const isTaken = await this.authService.checkNickName(nickName);
+        if (isTaken) {
+            throw new common_1.BadRequestException("이미 사용 중인 닉네임입니다.");
+        }
+        return { message: "사용 가능한 닉네임입니다.", available: true };
+    }
+    async login(req, res) {
+        const { accessToken, user } = await this.authService.login(req.user);
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 1000,
+        });
+        res.json({ user });
+    }
+    logout(res) {
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+        });
+        return res.json({ message: "로그아웃 되었습니다." });
     }
     async kakaoLogin(res) {
         const KAKAO_CLIENT_ID = "170ea69c85667e150fa103eab9a19c35";
@@ -170,11 +211,26 @@ __decorate([
         description: "입력한 닉네임이 이미 사용 중인지 확인합니다.",
     }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "사용 가능 여부 반환" }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: "닉네임 중복" }),
     __param(0, (0, common_1.Body)("nickName")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "checkNickName", null);
+], AuthController.prototype, "checkNickname", null);
+__decorate([
+    (0, common_1.Post)("nicknameCheck/edit"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiOperation)({
+        summary: "닉네임 중복 확인 (내 정보 수정)",
+        description: "입력한 닉네임이 이미 사용 중인지 확인합니다. 현재 유저의 닉네임은 예외 처리됩니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "사용 가능 여부 반환" }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)("nickName")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "checkNicknameForEdit", null);
 __decorate([
     (0, common_1.UseGuards)(localauth_guard_1.LocalAuthGuard),
     (0, common_1.Post)("local"),
@@ -185,10 +241,24 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: "로그인 성공" }),
     (0, swagger_1.ApiResponse)({ status: 401, description: "인증 실패" }),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.Post)("logout"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiOperation)({
+        summary: "로그아웃",
+        description: "JWT 쿠키를 삭제하여 로그아웃 처리합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "로그아웃 성공" }),
+    __param(0, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "logout", null);
 __decorate([
     (0, common_1.Get)("kakao"),
     (0, swagger_1.ApiOperation)({

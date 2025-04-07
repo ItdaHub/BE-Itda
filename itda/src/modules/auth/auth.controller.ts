@@ -65,10 +65,18 @@ export class AuthController {
   async checkEmail(@Body() emailCheckDto: EmailCheckDto) {
     const { email } = emailCheckDto;
     const isEmailTaken = await this.authService.checkEmail(email);
+
     if (isEmailTaken) {
-      throw new BadRequestException("이미 사용된 이메일입니다.");
+      throw new BadRequestException({
+        success: false,
+        message: "이미 사용된 이메일입니다.",
+      });
     }
-    return { message: "사용 가능한 이메일입니다." };
+
+    return {
+      success: true,
+      message: "사용 가능한 이메일입니다.",
+    };
   }
 
   // ✅ 닉네임 중복 확인
@@ -78,12 +86,50 @@ export class AuthController {
     description: "입력한 닉네임이 이미 사용 중인지 확인합니다.",
   })
   @ApiResponse({ status: 200, description: "사용 가능 여부 반환" })
-  async checkNickName(@Body("nickName") nickName: string) {
+  @ApiResponse({ status: 400, description: "닉네임 중복" })
+  async checkNickname(@Body("nickName") nickName: string) {
     const isNickNameTaken = await this.authService.checkNickName(nickName);
+
     if (isNickNameTaken) {
-      throw new BadRequestException("이미 사용된 닉네임입니다.");
+      throw new BadRequestException({
+        success: false,
+        message: "이미 사용 중인 닉네임입니다.",
+      });
     }
-    return { message: "사용 가능한 닉네임입니다." };
+
+    return {
+      success: true,
+      message: "사용 가능한 닉네임입니다.",
+    };
+  }
+
+  // ✅ 내 정보 수정 닉네임 변경
+  @Post("nicknameCheck/edit")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: "닉네임 중복 확인 (내 정보 수정)",
+    description:
+      "입력한 닉네임이 이미 사용 중인지 확인합니다. 현재 유저의 닉네임은 예외 처리됩니다.",
+  })
+  @ApiResponse({ status: 200, description: "사용 가능 여부 반환" })
+  async checkNicknameForEdit(@Req() req, @Body("nickName") nickName: string) {
+    const user = await this.userService.findById(req.user.id);
+
+    // 현재 닉네임과 같은 경우 => 사용 가능
+    if (!user) {
+      throw new NotFoundException("사용자를 찾을 수 없습니다.");
+    }
+
+    if (user.nickname === nickName) {
+      return { message: "현재 사용 중인 닉네임입니다.", available: true };
+    }
+
+    const isTaken = await this.authService.checkNickName(nickName);
+    if (isTaken) {
+      throw new BadRequestException("이미 사용 중인 닉네임입니다.");
+    }
+
+    return { message: "사용 가능한 닉네임입니다.", available: true };
   }
 
   // ✅ 로컬 로그인
@@ -95,8 +141,37 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: "로그인 성공" })
   @ApiResponse({ status: 401, description: "인증 실패" })
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(@Request() req, @Res() res: Response) {
+    const { accessToken, user } = await this.authService.login(req.user);
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    // 프론트에서 유저 정보를 사용할 수 있도록 user는 응답에 포함
+    res.json({ user });
+  }
+
+  // ✅ 로그아웃
+  @Post("logout")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: "로그아웃",
+    description: "JWT 쿠키를 삭제하여 로그아웃 처리합니다.",
+  })
+  @ApiResponse({ status: 200, description: "로그아웃 성공" })
+  logout(@Res() res: Response) {
+    // accessToken 쿠키 삭제
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return res.json({ message: "로그아웃 되었습니다." });
   }
 
   // ✅ 카카오 로그인 요청

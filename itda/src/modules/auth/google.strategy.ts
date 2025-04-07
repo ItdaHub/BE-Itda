@@ -41,6 +41,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
     // ✅ authService에서 로그인 응답 통일 처리
     const user = await this.authService.validateGoogleUser({ email, nickname });
 
-    return this.authService.login(user); // ✅ 카카오처럼 응답 통일!
+    return user;
   }
 }

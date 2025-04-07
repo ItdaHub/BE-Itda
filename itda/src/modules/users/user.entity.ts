@@ -5,6 +5,7 @@ import {
   Column,
   CreateDateColumn,
   OneToMany,
+  Unique,
 } from "typeorm";
 import { Payment } from "../payments/payment.entity";
 import { Novel } from "../novels/novel.entity";
@@ -36,12 +37,12 @@ export enum UserStatus {
 }
 
 @Entity("users")
+@Unique(["email", "type"])
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  @IsEmail()
+  @Column()
   email: string;
 
   @Column({ select: false, nullable: true })

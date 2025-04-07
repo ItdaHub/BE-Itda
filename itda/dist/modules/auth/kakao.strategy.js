@@ -43,7 +43,7 @@ let KakaoStrategy = class KakaoStrategy extends (0, passport_1.PassportStrategy)
         }
         console.log(`✅ 로그인 성공: ${nickname} (${email})`);
         const user = await this.authService.validateKakaoUser({ email, nickname });
-        return this.authService.login(user);
+        return user;
     }
 };
 exports.KakaoStrategy = KakaoStrategy;

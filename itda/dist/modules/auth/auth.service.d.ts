@@ -13,6 +13,7 @@ export declare class AuthService {
     private createToken;
     formatResponse(user: User): LoginResponse;
     login(user: User): Promise<LoginResponse>;
+    findById(id: number): Promise<User | null>;
     validateKakaoUser({ email, nickname, }: {
         email: string;
         nickname: string;

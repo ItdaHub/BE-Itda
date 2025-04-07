@@ -43,6 +43,6 @@ export class NaverStrategy extends PassportStrategy(Strategy, "naver") {
       phone,
     });
 
-    return this.authService.login(user);
+    return user;
   }
 }

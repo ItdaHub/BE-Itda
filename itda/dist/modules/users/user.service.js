@@ -57,6 +57,9 @@ let UserService = class UserService {
     async save(user) {
         return this.userRepository.save(user);
     }
+    async findById(id) {
+        return this.userRepository.findOne({ where: { id } });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

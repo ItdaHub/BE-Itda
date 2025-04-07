@@ -45,7 +45,7 @@ let NaverStrategy = class NaverStrategy extends (0, passport_1.PassportStrategy)
             birthYear,
             phone,
         });
-        return this.authService.login(user);
+        return user;
     }
 };
 exports.NaverStrategy = NaverStrategy;

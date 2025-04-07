@@ -7,9 +7,6 @@ declare const GoogleStrategy_base: new (...args: [options: import("passport-goog
 export declare class GoogleStrategy extends GoogleStrategy_base {
     private readonly authService;
     constructor(authService: AuthService, configService: ConfigService);
-    validate(accessToken: string, refreshToken: string, profile: any): Promise<{
-        accessToken: string;
-        user: Record<string, any>;
-    }>;
+    validate(accessToken: string, refreshToken: string, profile: any): Promise<import("../users/user.entity").User>;
 }
 export {};

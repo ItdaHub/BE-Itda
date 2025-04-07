@@ -18,6 +18,8 @@ import { calculateAge } from "../users/utils/user.util";
 //   age, // 여기 추가!
 // });
 
+// 같은 이메일로 로그인 했을때 타입이 다르면 로그인 가능
+
 // ✅ 타입 선언 추가
 type LoginResponse = {
   accessToken: string;
@@ -34,6 +36,7 @@ export class AuthService {
   // ✅ 공통 토큰 생성 함수
   private createToken(user: User): string {
     const payload = { id: user.id, email: user.email, type: user.type };
+    console.log("🧪 JWT payload:", payload);
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
       expiresIn: "1h",
@@ -66,7 +69,9 @@ export class AuthService {
   }) {
     if (!email) throw new Error("이메일이 없습니다.");
 
-    let user = await this.entityManager.findOne(User, { where: { email } });
+    let user = await this.entityManager.findOne(User, {
+      where: { email, type: LoginType.KAKAO },
+    });
 
     if (!user) {
       user = this.entityManager.create(User, {
@@ -74,7 +79,7 @@ export class AuthService {
         nickname,
         type: LoginType.KAKAO,
         password: "",
-        status: UserStatus.ACTIVE, // ✅ 누락 방지
+        status: UserStatus.ACTIVE,
       });
       await this.entityManager.save(user);
     }
@@ -96,7 +101,9 @@ export class AuthService {
     birthYear?: string;
     phone?: string;
   }) {
-    let user = await this.entityManager.findOne(User, { where: { email } });
+    let user = await this.entityManager.findOne(User, {
+      where: { email, type: LoginType.NAVER },
+    });
 
     if (!user) {
       user = (
@@ -123,7 +130,9 @@ export class AuthService {
     email: string;
     nickname: string;
   }) {
-    let user = await this.entityManager.findOne(User, { where: { email } });
+    let user = await this.entityManager.findOne(User, {
+      where: { email, type: LoginType.GOOGLE },
+    });
 
     if (!user) {
       user = (
@@ -175,13 +184,17 @@ export class AuthService {
 
     const { email, name, nickname, password, birthYear, phone, type } = userDto;
 
-    const existingUser = await this.entityManager.findOne(User, {
-      where: [{ email }, { nickname }],
+    const emailUser = await this.entityManager.findOne(User, {
+      where: { email, type },
     });
 
-    if (existingUser) {
-      throw new Error("이미 사용 중인 이메일 또는 닉네임입니다.");
-    }
+    if (emailUser) throw new Error("이미 사용 중인 이메일입니다.");
+
+    const nicknameUser = await this.entityManager.findOne(User, {
+      where: { nickname },
+    });
+
+    if (nicknameUser) throw new Error("이미 사용 중인 닉네임입니다.");
 
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 

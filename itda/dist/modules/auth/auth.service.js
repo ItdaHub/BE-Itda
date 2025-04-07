@@ -26,6 +26,7 @@ let AuthService = class AuthService {
     }
     createToken(user) {
         const payload = { id: user.id, email: user.email, type: user.type };
+        console.log("🧪 JWT payload:", payload);
         return this.jwtService.sign(payload, {
             secret: process.env.JWT_SECRET,
             expiresIn: "1h",
@@ -42,10 +43,15 @@ let AuthService = class AuthService {
     async login(user) {
         return this.formatResponse(user);
     }
+    async findById(id) {
+        return this.entityManager.findOne(user_entity_1.User, { where: { id } });
+    }
     async validateKakaoUser({ email, nickname, }) {
         if (!email)
             throw new Error("이메일이 없습니다.");
-        let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
+        let user = await this.entityManager.findOne(user_entity_1.User, {
+            where: { email, type: user_entity_2.LoginType.KAKAO },
+        });
         if (!user) {
             user = this.entityManager.create(user_entity_1.User, {
                 email,
@@ -59,7 +65,9 @@ let AuthService = class AuthService {
         return user;
     }
     async validateNaverUser({ email, name, nickname, birthYear, phone, }) {
-        let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
+        let user = await this.entityManager.findOne(user_entity_1.User, {
+            where: { email, type: user_entity_2.LoginType.NAVER },
+        });
         if (!user) {
             user = (await this.register({
                 email,
@@ -74,7 +82,9 @@ let AuthService = class AuthService {
         return user;
     }
     async validateGoogleUser({ email, nickname, }) {
-        let user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
+        let user = await this.entityManager.findOne(user_entity_1.User, {
+            where: { email, type: user_entity_2.LoginType.GOOGLE },
+        });
         if (!user) {
             user = (await this.register({
                 email,
@@ -110,12 +120,16 @@ let AuthService = class AuthService {
     async register(userDto) {
         console.log("🚀 회원 가입 요청:", userDto);
         const { email, name, nickname, password, birthYear, phone, type } = userDto;
-        const existingUser = await this.entityManager.findOne(user_entity_1.User, {
-            where: [{ email }, { nickname }],
+        const emailUser = await this.entityManager.findOne(user_entity_1.User, {
+            where: { email, type },
         });
-        if (existingUser) {
-            throw new Error("이미 사용 중인 이메일 또는 닉네임입니다.");
-        }
+        if (emailUser)
+            throw new Error("이미 사용 중인 이메일입니다.");
+        const nicknameUser = await this.entityManager.findOne(user_entity_1.User, {
+            where: { nickname },
+        });
+        if (nicknameUser)
+            throw new Error("이미 사용 중인 닉네임입니다.");
         const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
         const newUser = this.entityManager.create(user_entity_1.User, {
             email,

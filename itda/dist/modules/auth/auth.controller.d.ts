@@ -14,15 +14,19 @@ export declare class AuthController {
         user: import("../users/user.entity").User;
     }>;
     checkEmail(emailCheckDto: EmailCheckDto): Promise<{
+        success: boolean;
         message: string;
     }>;
-    checkNickName(nickName: string): Promise<{
+    checkNickname(nickName: string): Promise<{
+        success: boolean;
         message: string;
     }>;
-    login(req: any): Promise<{
-        accessToken: string;
-        user: Record<string, any>;
+    checkNicknameForEdit(req: any, nickName: string): Promise<{
+        message: string;
+        available: boolean;
     }>;
+    login(req: any, res: Response): Promise<void>;
+    logout(res: Response): Response<any, Record<string, any>>;
     kakaoLogin(res: Response): Promise<void>;
     kakaoCallback(req: any, res: Response): Promise<void>;
     naverLogin(res: Response): Promise<void>;
