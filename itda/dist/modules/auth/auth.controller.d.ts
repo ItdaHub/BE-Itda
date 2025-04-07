@@ -7,9 +7,9 @@ export declare class AuthController {
     private readonly authService;
     private readonly userService;
     constructor(authService: AuthService, userService: UserService);
-    getProfile(req: any): {
-        user: any;
-    };
+    getProfile(req: any): Promise<{
+        user: import("../users/user.entity").User | null;
+    }>;
     register(registerDto: RegisterDto): Promise<{
         user: import("../users/user.entity").User;
     }>;

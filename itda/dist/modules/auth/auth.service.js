@@ -32,9 +32,27 @@ let AuthService = class AuthService {
             expiresIn: "1h",
         });
     }
-    formatResponse(user) {
+    async formatResponse(partialUser) {
+        const user = await this.entityManager.findOne(user_entity_1.User, {
+            where: { id: partialUser.id },
+            relations: [
+                "payments",
+                "novels",
+                "participants",
+                "chapters",
+                "comments",
+                "likes",
+                "reports",
+                "notifications",
+                "votes",
+                "points",
+            ],
+        });
+        if (!user) {
+            throw new Error("유저를 찾을 수 없습니다.");
+        }
         const plainUser = (0, class_transformer_1.instanceToPlain)(user);
-        console.log("📦 변환된 user 객체:", plainUser);
+        console.log("📦 변환된 전체 user 정보:", plainUser);
         return {
             accessToken: this.createToken(user),
             user: plainUser,
@@ -42,9 +60,6 @@ let AuthService = class AuthService {
     }
     async login(user) {
         return this.formatResponse(user);
-    }
-    async findById(id) {
-        return this.entityManager.findOne(user_entity_1.User, { where: { id } });
     }
     async validateKakaoUser({ email, nickname, }) {
         if (!email)

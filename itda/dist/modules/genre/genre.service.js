@@ -25,6 +25,20 @@ let GenreService = class GenreService {
     async getAllGenres() {
         return this.genreRepo.find();
     }
+    async seedGenres() {
+        const genres = ["로맨스", "판타지", "무협", "스릴러"];
+        for (const name of genres) {
+            const exists = await this.genreRepo.findOne({ where: { name } });
+            if (!exists) {
+                const genre = this.genreRepo.create({ name });
+                await this.genreRepo.save(genre);
+                console.log(`✅ '${name}' 장르 저장 완료`);
+            }
+        }
+    }
+    async onApplicationBootstrap() {
+        await this.seedGenres();
+    }
 };
 exports.GenreService = GenreService;
 exports.GenreService = GenreService = __decorate([

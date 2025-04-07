@@ -39,8 +39,9 @@ export class AuthController {
     description: "JWT 토큰을 이용해 로그인한 유저의 정보를 반환합니다.",
   })
   @ApiResponse({ status: 200, description: "유저 정보 반환 성공" })
-  getProfile(@Req() req) {
-    return { user: req.user };
+  async getProfile(@Req() req) {
+    const user = await this.userService.findById(req.user.id); // 전체 정보 가져오기
+    return { user };
   }
 
   // ✅ 로컬 회원가입

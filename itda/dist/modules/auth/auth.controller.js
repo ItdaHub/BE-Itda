@@ -30,8 +30,9 @@ let AuthController = class AuthController {
         this.authService = authService;
         this.userService = userService;
     }
-    getProfile(req) {
-        return { user: req.user };
+    async getProfile(req) {
+        const user = await this.userService.findById(req.user.id);
+        return { user };
     }
     async register(registerDto) {
         return this.authService.register(registerDto);
@@ -177,7 +178,7 @@ __decorate([
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.Post)("register"),

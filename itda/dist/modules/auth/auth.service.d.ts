@@ -11,9 +11,8 @@ export declare class AuthService {
     private jwtService;
     constructor(entityManager: EntityManager, jwtService: JwtService);
     private createToken;
-    formatResponse(user: User): LoginResponse;
+    formatResponse(partialUser: User): Promise<LoginResponse>;
     login(user: User): Promise<LoginResponse>;
-    findById(id: number): Promise<User | null>;
     validateKakaoUser({ email, nickname, }: {
         email: string;
         nickname: string;

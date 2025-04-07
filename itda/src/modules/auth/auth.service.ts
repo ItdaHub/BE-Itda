@@ -44,9 +44,29 @@ export class AuthService {
   }
 
   // ✅ 공통 응답 포맷 함수 (타입 지정)
-  public formatResponse(user: User): LoginResponse {
+  public async formatResponse(partialUser: User): Promise<LoginResponse> {
+    const user = await this.entityManager.findOne(User, {
+      where: { id: partialUser.id },
+      relations: [
+        "payments",
+        "novels",
+        "participants",
+        "chapters",
+        "comments",
+        "likes",
+        "reports",
+        "notifications",
+        "votes",
+        "points",
+      ],
+    });
+
+    if (!user) {
+      throw new Error("유저를 찾을 수 없습니다.");
+    }
+
     const plainUser = instanceToPlain(user);
-    console.log("📦 변환된 user 객체:", plainUser);
+    console.log("📦 변환된 전체 user 정보:", plainUser);
 
     return {
       accessToken: this.createToken(user),
