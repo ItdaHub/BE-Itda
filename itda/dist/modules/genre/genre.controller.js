@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GenreController = void 0;
 const common_1 = require("@nestjs/common");
 const genre_service_1 = require("./genre.service");
+const swagger_1 = require("@nestjs/swagger");
 let GenreController = class GenreController {
     genreService;
     constructor(genreService) {
@@ -24,11 +25,17 @@ let GenreController = class GenreController {
 exports.GenreController = GenreController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({
+        summary: "장르 목록 조회",
+        description: "소설의 장르(카테고리)를 전부 조회합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "장르 목록 반환" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], GenreController.prototype, "getAllGenres", null);
 exports.GenreController = GenreController = __decorate([
+    (0, swagger_1.ApiTags)("Categories"),
     (0, common_1.Controller)("categories"),
     __metadata("design:paramtypes", [genre_service_1.GenreService])
 ], GenreController);

@@ -141,20 +141,32 @@ export class AuthService {
   }
 
   // ✅ 로컬 로그인 (타입 지정)
-  async validateUser(email: string, password: string): Promise<LoginResponse> {
-    const user = await this.entityManager.findOne(User, { where: { email } });
-    if (!user) throw new UnauthorizedException("이메일이 존재하지 않습니다.");
+  async validateUser(email: string, password: string): Promise<User> {
+    const user = await this.entityManager.findOne(User, {
+      where: { email },
+      select: ["id", "email", "password", "type", "nickname", "status"],
+    });
+    console.log("✅ 가져온 user:", user);
 
-    if (!user.password)
+    if (!user) {
+      console.log("❌ 이메일 없음:", email);
+      throw new UnauthorizedException("이메일이 존재하지 않습니다.");
+    }
+
+    if (!user.password || user.password.trim() === "") {
+      console.log("❌ 소셜 로그인 유저:", email);
       throw new UnauthorizedException(
         "소셜 로그인 유저는 비밀번호를 사용할 수 없습니다."
       );
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid)
+    if (!isPasswordValid) {
+      console.log("❌ 비밀번호 틀림:", email);
       throw new UnauthorizedException("비밀번호가 틀렸습니다.");
+    }
 
-    return this.formatResponse(user);
+    return user;
   }
 
   // ✅ 회원가입

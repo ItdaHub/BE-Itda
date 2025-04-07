@@ -28,7 +28,7 @@ export declare class AuthService {
         email: string;
         nickname: string;
     }): Promise<User>;
-    validateUser(email: string, password: string): Promise<LoginResponse>;
+    validateUser(email: string, password: string): Promise<User>;
     register(userDto: RegisterDto): Promise<{
         user: User;
     }>;
