@@ -9,6 +9,9 @@ export class Genre {
   @Column({ length: 50, unique: true })
   name: string;
 
+  @Column({ length: 50, unique: true })
+  value: string;
+
   @OneToMany(() => Novel, (novel) => novel.genre)
   novels: Novel[];
 }

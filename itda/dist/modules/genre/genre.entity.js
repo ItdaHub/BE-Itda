@@ -15,6 +15,7 @@ const novel_entity_1 = require("../novels/novel.entity");
 let Genre = class Genre {
     id;
     name;
+    value;
     novels;
 };
 exports.Genre = Genre;
@@ -26,6 +27,10 @@ __decorate([
     (0, typeorm_1.Column)({ length: 50, unique: true }),
     __metadata("design:type", String)
 ], Genre.prototype, "name", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 50, unique: true }),
+    __metadata("design:type", String)
+], Genre.prototype, "value", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => novel_entity_1.Novel, (novel) => novel.genre),
     __metadata("design:type", Array)

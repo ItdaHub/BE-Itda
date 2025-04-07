@@ -52,6 +52,9 @@ let NovelController = class NovelController {
         return this.novelService.findMyNovels(userId);
     }
     async searchNovelsByTitle(query) {
+        if (!query || query.trim() === "") {
+            throw new common_1.BadRequestException("검색어가 비어있습니다.");
+        }
         return this.novelService.searchNovelsByTitle(query);
     }
 };

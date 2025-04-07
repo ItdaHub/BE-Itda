@@ -8,6 +8,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Query,
+  BadRequestException,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import { NovelService } from "./novel.service";
@@ -22,7 +23,7 @@ import {
   ApiParam,
 } from "@nestjs/swagger";
 
-@ApiTags("Novel (소설)") // Swagger에서 이 컨트롤러를 'Novel' 그룹으로 표시
+@ApiTags("Novel (소설)")
 @Controller("novels")
 export class NovelController {
   constructor(private readonly novelService: NovelService) {}
@@ -113,6 +114,9 @@ export class NovelController {
   @ApiOperation({ summary: "소설 검색 (제목 기준)" })
   @ApiQuery({ name: "query", description: "검색어 (소설 제목 일부 또는 전체)" })
   async searchNovelsByTitle(@Query("query") query: string) {
+    if (!query || query.trim() === "") {
+      throw new BadRequestException("검색어가 비어있습니다.");
+    }
     return this.novelService.searchNovelsByTitle(query);
   }
 }
