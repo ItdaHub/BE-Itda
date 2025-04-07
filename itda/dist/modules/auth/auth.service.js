@@ -141,7 +141,7 @@ let AuthService = class AuthService {
         if (emailUser)
             throw new Error("이미 사용 중인 이메일입니다.");
         const nicknameUser = await this.entityManager.findOne(user_entity_1.User, {
-            where: { nickname },
+            where: { nickname, type },
         });
         if (nicknameUser)
             throw new Error("이미 사용 중인 닉네임입니다.");

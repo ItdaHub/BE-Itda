@@ -1,33 +1,47 @@
 import {
   IsEnum,
-  IsNotEmpty,
+  IsIn,
   IsNumber,
   IsString,
   Length,
   MinLength,
 } from "class-validator";
 
+// export enum NovelType {
+//   HOME = "home",
+//   RELAY = "relay",
+//   CONTEST = "contest",
+// }
+
+// export enum AgeGroup {
+//   TEEN = "teen",
+//   TWENTIES = "twenties",
+//   THIRTIES = "thirties",
+//   FORTIES = "forties",
+// }
+
 export class CreateNovelDto {
   @IsString()
   @Length(1, 10)
   title: string;
 
-  @IsEnum(["romance", "ropan", "fantasy", "hyenpan", "muhyeop"])
-  category: string;
+  @IsNumber()
+  categoryId: number;
 
-  @IsEnum(["five", "seven", "nine"])
-  peopleNum: string;
+  @IsNumber()
+  @IsIn([5, 7, 9])
+  peopleNum: 5 | 7 | 9;
 
   @IsString()
   @MinLength(10)
   @Length(10, 300)
   content: string;
 
-  @IsEnum(["home", "relay", "contest"])
-  type: "home" | "relay" | "contest";
+  // @IsEnum(NovelType)
+  // type: NovelType;
 
-  @IsEnum(["teen", "twenties", "thirties", "forties"])
-  age_group: "teen" | "twenties" | "thirties" | "forties";
+  // @IsEnum(AgeGroup)
+  // age_group: AgeGroup;
 
   userId: number;
 }

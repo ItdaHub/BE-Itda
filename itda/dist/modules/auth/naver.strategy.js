@@ -28,10 +28,12 @@ let NaverStrategy = class NaverStrategy extends (0, passport_1.PassportStrategy)
     }
     async validate(accessToken, refreshToken, profile) {
         console.log("📌 네이버 프로필:", profile);
+        console.log("🔍 네이버 프로필 전체:", profile);
+        console.log("🔍 네이버 프로필 _json:", profile._json);
         const email = profile?.email || profile._json?.email;
         const name = profile?.name || profile.displayName;
         const nickname = profile.nickname || email?.split("@")[0];
-        const birthYear = profile.birthyear || profile._json?.birthyear;
+        const birthYear = profile._json?.birthyear;
         const phone = profile.mobile || profile._json?.mobile;
         if (!email) {
             console.error("❌ 이메일이 없습니다.");

@@ -49,21 +49,20 @@ let NovelService = class NovelService {
         return novel;
     }
     async create(dto) {
-        const { title, category, peopleNum, content, userId, type } = dto;
+        const { title, categoryId, peopleNum, content, userId } = dto;
         const user = await this.userRepo.findOneBy({ id: userId });
         if (!user)
             throw new Error("작성자 유저를 찾을 수 없습니다");
-        const genre = await this.genreRepo.findOneBy({ name: category });
+        const genre = await this.genreRepo.findOneBy({ id: categoryId });
         if (!genre)
             throw new Error("해당 장르가 존재하지 않습니다");
-        const maxParticipants = this.mapPeopleNum(peopleNum);
+        const maxParticipants = peopleNum;
         const novel = this.novelRepo.create({
             title,
             creator: user,
             genre,
             max_participants: maxParticipants,
             status: "ongoing",
-            type,
         });
         await this.novelRepo.save(novel);
         const chapter = this.chapterRepo.create({
@@ -119,18 +118,6 @@ let NovelService = class NovelService {
             chapter_number: novel.chapters.length + 1,
         });
         return this.chapterRepo.save(chapter);
-    }
-    mapPeopleNum(value) {
-        switch (value) {
-            case "five":
-                return 5;
-            case "seven":
-                return 7;
-            case "nine":
-                return 9;
-            default:
-                throw new Error("유효하지 않은 인원수입니다.");
-        }
     }
     async getParticipants(novelId) {
         const participants = await this.participantRepo.find({

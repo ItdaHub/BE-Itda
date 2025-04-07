@@ -1,9 +1,7 @@
 export declare class CreateNovelDto {
     title: string;
-    category: string;
-    peopleNum: string;
+    categoryId: number;
+    peopleNum: 5 | 7 | 9;
     content: string;
-    type: "home" | "relay" | "contest";
-    age_group: "teen" | "twenties" | "thirties" | "forties";
     userId: number;
 }

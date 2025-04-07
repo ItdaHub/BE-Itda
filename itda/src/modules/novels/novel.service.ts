@@ -60,18 +60,18 @@ export class NovelService {
    * 소설 생성 + 첫 챕터 작성 + 참가자 등록
    */
   async create(dto: CreateNovelDto): Promise<Novel> {
-    const { title, category, peopleNum, content, userId, type } = dto;
+    const { title, categoryId, peopleNum, content, userId } = dto;
 
     // 유저 검증
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new Error("작성자 유저를 찾을 수 없습니다");
 
     // 장르 검증
-    const genre = await this.genreRepo.findOneBy({ name: category });
+    const genre = await this.genreRepo.findOneBy({ id: categoryId });
     if (!genre) throw new Error("해당 장르가 존재하지 않습니다");
 
-    // 인원 수 매핑
-    const maxParticipants = this.mapPeopleNum(peopleNum);
+    // 인원 수
+    const maxParticipants = peopleNum;
 
     // 소설 엔티티 생성 및 저장
     const novel = this.novelRepo.create({
@@ -80,7 +80,6 @@ export class NovelService {
       genre,
       max_participants: maxParticipants,
       status: "ongoing", // 기본 상태는 '진행중'
-      type,
     });
     await this.novelRepo.save(novel);
 
@@ -166,22 +165,6 @@ export class NovelService {
     });
 
     return this.chapterRepo.save(chapter);
-  }
-
-  /**
-   * 프론트에서 받은 문자열을 숫자 인원으로 매핑
-   */
-  private mapPeopleNum(value: string): 5 | 7 | 9 {
-    switch (value) {
-      case "five":
-        return 5;
-      case "seven":
-        return 7;
-      case "nine":
-        return 9;
-      default:
-        throw new Error("유효하지 않은 인원수입니다.");
-    }
   }
 
   // ✅ 참여자 조회

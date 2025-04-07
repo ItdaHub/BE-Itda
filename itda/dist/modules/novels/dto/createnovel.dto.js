@@ -13,11 +13,9 @@ exports.CreateNovelDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateNovelDto {
     title;
-    category;
+    categoryId;
     peopleNum;
     content;
-    type;
-    age_group;
     userId;
 }
 exports.CreateNovelDto = CreateNovelDto;
@@ -27,12 +25,13 @@ __decorate([
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "title", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(["romance", "ropan", "fantasy", "hyenpan", "muhyeop"]),
-    __metadata("design:type", String)
-], CreateNovelDto.prototype, "category", void 0);
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateNovelDto.prototype, "categoryId", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(["five", "seven", "nine"]),
-    __metadata("design:type", String)
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsIn)([5, 7, 9]),
+    __metadata("design:type", Number)
 ], CreateNovelDto.prototype, "peopleNum", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
@@ -40,12 +39,4 @@ __decorate([
     (0, class_validator_1.Length)(10, 300),
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "content", void 0);
-__decorate([
-    (0, class_validator_1.IsEnum)(["home", "relay", "contest"]),
-    __metadata("design:type", String)
-], CreateNovelDto.prototype, "type", void 0);
-__decorate([
-    (0, class_validator_1.IsEnum)(["teen", "twenties", "thirties", "forties"]),
-    __metadata("design:type", String)
-], CreateNovelDto.prototype, "age_group", void 0);
 //# sourceMappingURL=createnovel.dto.js.map

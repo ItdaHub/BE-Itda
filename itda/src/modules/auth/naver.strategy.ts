@@ -21,11 +21,13 @@ export class NaverStrategy extends PassportStrategy(Strategy, "naver") {
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
     console.log("📌 네이버 프로필:", profile);
+    console.log("🔍 네이버 프로필 전체:", profile);
+    console.log("🔍 네이버 프로필 _json:", profile._json);
 
     const email = profile?.email || profile._json?.email;
     const name = profile?.name || profile.displayName;
     const nickname = profile.nickname || email?.split("@")[0];
-    const birthYear = profile.birthyear || profile._json?.birthyear;
+    const birthYear = profile._json?.birthyear;
     const phone = profile.mobile || profile._json?.mobile;
 
     if (!email) {
