@@ -54,6 +54,8 @@ __decorate([
     __metadata("design:type", Date)
 ], Like.prototype, "created_at", void 0);
 exports.Like = Like = __decorate([
+    (0, typeorm_1.Unique)(["user", "novel"]),
+    (0, typeorm_1.Unique)(["user", "comment"]),
     (0, typeorm_1.Entity)("likes"),
     (0, typeorm_1.Check)(`(target_type = 'novel' AND novel_id IS NOT NULL AND comment_id IS NULL) OR 
         (target_type = 'comment' AND comment_id IS NOT NULL AND novel_id IS NULL)`)

@@ -39,15 +39,10 @@ export class NovelController {
   @Get(":id")
   @ApiOperation({ summary: "소설 상세 조회" })
   @ApiParam({ name: "id", description: "소설 ID" })
-  @ApiQuery({
-    name: "userId",
-    required: false,
-    description: "로그인한 사용자 ID (좋아요 여부 판단용)",
-  })
-  async getNovelDetail(
-    @Param("id", ParseIntPipe) id: number,
-    @Query("userId") userId?: number
-  ) {
+  @ApiBearerAuth() // Swagger 상 JWT 표시
+  @UseGuards(JwtAuthGuard) // 로그인한 경우에만 user 정보를 얻음
+  async getNovelDetail(@Param("id", ParseIntPipe) id: number, @Req() req) {
+    const userId = req.user?.id ?? null;
     return this.novelService.getNovelDetail(id, userId);
   }
 

@@ -27,7 +27,8 @@ let NovelController = class NovelController {
     async getAllNovels() {
         return this.novelService.getAllNovels();
     }
-    async getNovelDetail(id, userId) {
+    async getNovelDetail(id, req) {
+        const userId = req.user?.id ?? null;
         return this.novelService.getNovelDetail(id, userId);
     }
     async createNovel(dto, req) {
@@ -70,15 +71,12 @@ __decorate([
     (0, common_1.Get)(":id"),
     (0, swagger_1.ApiOperation)({ summary: "소설 상세 조회" }),
     (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
-    (0, swagger_1.ApiQuery)({
-        name: "userId",
-        required: false,
-        description: "로그인한 사용자 ID (좋아요 여부 판단용)",
-    }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Query)("userId")),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "getNovelDetail", null);
 __decorate([

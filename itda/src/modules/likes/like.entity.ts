@@ -5,11 +5,14 @@ import {
   CreateDateColumn,
   ManyToOne,
   Check,
+  Unique,
 } from "typeorm";
 import { User } from "../users/user.entity";
 import { Novel } from "../novels/novel.entity";
 import { Comment } from "../comments/comment.entity";
 
+@Unique(["user", "novel"]) // 소설 좋아요 중복 방지
+@Unique(["user", "comment"]) // 댓글 좋아요 중복 방지
 @Entity("likes")
 @Check(`(target_type = 'novel' AND novel_id IS NOT NULL AND comment_id IS NULL) OR 
         (target_type = 'comment' AND comment_id IS NOT NULL AND novel_id IS NULL)`)

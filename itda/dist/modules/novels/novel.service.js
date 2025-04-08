@@ -148,7 +148,15 @@ let NovelService = class NovelService {
     async getNovelDetail(novelId, userId) {
         const novel = await this.novelRepo.findOne({
             where: { id: novelId },
-            relations: ["creator", "genre", "likes", "participants", "chapters"],
+            relations: [
+                "creator",
+                "genre",
+                "likes",
+                "likes.user",
+                "participants",
+                "participants.user",
+                "chapters",
+            ],
         });
         if (!novel)
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
@@ -159,8 +167,11 @@ let NovelService = class NovelService {
         return {
             id: novel.id,
             title: novel.title,
-            genre: novel.genre.name,
-            author: novel.participants.map((p) => p.user.nickname).join(", "),
+            genre: novel.genre?.name ?? null,
+            author: novel.participants
+                .filter((p) => p.user && p.user.nickname)
+                .map((p) => p.user.nickname)
+                .join(", "),
             likeCount,
             isLiked,
             image: novel.cover_image,
@@ -176,6 +187,7 @@ let NovelService = class NovelService {
     async searchNovelsByTitle(query) {
         return this.novelRepo.find({
             where: { title: (0, typeorm_1.Like)(`%${query}%`) },
+            relations: ["genre", "creator", "chapters"],
             order: { created_at: "DESC" },
         });
     }
