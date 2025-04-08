@@ -23,6 +23,12 @@ export declare enum UserStatus {
     BANNED = "banned",
     DELETED = "deleted"
 }
+export declare enum AgeGroup {
+    TEEN = "teen",
+    TWENTIES = "twenties",
+    THIRTIES = "thirties",
+    FORTIES = "forties"
+}
 export declare class User {
     id: number;
     email: string;
@@ -46,4 +52,5 @@ export declare class User {
     notifications: Notification[];
     votes: Vote[];
     points: Point[];
+    age_group?: number;
 }

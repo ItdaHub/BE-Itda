@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsEnum, IsEmail } from "class-validator";
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsEmail,
+  IsInt,
+  Min,
+  Max,
+} from "class-validator";
 import { LoginType } from "../../users/user.entity";
 
 export class RegisterDto {
@@ -26,4 +34,10 @@ export class RegisterDto {
 
   @IsEnum(LoginType)
   type: LoginType;
+
+  @IsOptional()
+  @IsInt()
+  @Min(10)
+  @Max(40)
+  age_group?: number;
 }

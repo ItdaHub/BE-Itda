@@ -1,1 +1,1 @@
-export declare function calculateAge(birthYear: string): number;
+export declare function convertAgeToNumber(age: string): number | null;

@@ -17,6 +17,7 @@ const jwt_1 = require("@nestjs/jwt");
 const bcrypt = require("bcrypt");
 const user_entity_2 = require("../users/user.entity");
 const class_transformer_1 = require("class-transformer");
+const agegroup_util_1 = require("./utils/agegroup.util");
 let AuthService = class AuthService {
     entityManager;
     jwtService;
@@ -70,6 +71,9 @@ let AuthService = class AuthService {
         if (!user) {
             const isDuplicate = await this.checkNickName(nickname);
             const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
+            const age_group = birthYear
+                ? ((0, agegroup_util_1.convertBirthYearToAgeGroup)(birthYear) ?? undefined)
+                : undefined;
             user = (await this.register({
                 email,
                 name: fallbackNickname,
@@ -77,11 +81,20 @@ let AuthService = class AuthService {
                 birthYear,
                 type: user_entity_2.LoginType.KAKAO,
                 password: "",
+                age_group,
             })).user;
         }
         return user;
     }
-    async validateNaverUser({ email, name, nickname, birthYear, phone, }) {
+    async validateNaverUser({ email, name, nickname, birthYear, phone, age_group, }) {
+        console.log("🟡 네이버 로그인 요청 데이터:", {
+            email,
+            name,
+            nickname,
+            birthYear,
+            phone,
+            age_group,
+        });
         if (!email)
             throw new Error("이메일이 없습니다.");
         let user = await this.entityManager.findOne(user_entity_1.User, {
@@ -97,6 +110,7 @@ let AuthService = class AuthService {
                 name: name || finalNickname,
                 birthYear,
                 phone,
+                age_group,
                 type: user_entity_2.LoginType.NAVER,
                 password: "",
             })).user;
@@ -112,6 +126,9 @@ let AuthService = class AuthService {
         if (!user) {
             const isDuplicate = await this.checkNickName(nickname);
             const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
+            const age_group = birthYear
+                ? ((0, agegroup_util_1.convertBirthYearToAgeGroup)(birthYear) ?? undefined)
+                : undefined;
             user = (await this.register({
                 email,
                 name: fallbackNickname,
@@ -119,6 +136,7 @@ let AuthService = class AuthService {
                 birthYear,
                 type: user_entity_2.LoginType.GOOGLE,
                 password: "",
+                age_group,
             })).user;
         }
         return user;
@@ -144,9 +162,9 @@ let AuthService = class AuthService {
         }
         return user;
     }
-    a;
     async register(userDto) {
         console.log("🚀 회원 가입 요청:", userDto);
+        console.log("📌 age_group in register:", userDto.age_group);
         const { email, name, password, birthYear, phone, type } = userDto;
         const emailUser = await this.entityManager.findOne(user_entity_1.User, {
             where: { email, type },
@@ -172,6 +190,7 @@ let AuthService = class AuthService {
             type: type ?? user_entity_2.LoginType.LOCAL,
             password: hashedPassword,
             status: user_entity_2.UserStatus.ACTIVE,
+            age_group: userDto.age_group,
         });
         await this.entityManager.save(newUser);
         console.log("✅ 회원 가입 완료:", newUser);

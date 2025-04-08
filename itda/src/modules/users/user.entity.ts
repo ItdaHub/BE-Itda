@@ -36,6 +36,13 @@ export enum UserStatus {
   DELETED = "deleted",
 }
 
+export enum AgeGroup {
+  TEEN = "teen",
+  TWENTIES = "twenties",
+  THIRTIES = "thirties",
+  FORTIES = "forties",
+}
+
 @Entity("users")
 @Unique(["email", "type"])
 export class User {
@@ -112,4 +119,8 @@ export class User {
 
   @OneToMany(() => Point, (point) => point.user)
   points: Point[];
+
+  @Column({ type: "int", nullable: true })
+  @IsOptional()
+  age_group?: number;
 }

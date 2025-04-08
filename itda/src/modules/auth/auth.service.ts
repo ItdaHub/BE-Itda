@@ -6,7 +6,10 @@ import * as bcrypt from "bcrypt";
 import { LoginType, UserStatus } from "../users/user.entity";
 import { RegisterDto } from "./dto/register.dto";
 import { instanceToPlain } from "class-transformer";
-import { calculateAge } from "../users/utils/user.util";
+import {
+  convertBirthYearToAgeGroup,
+  convertNaverAgeToGroup,
+} from "./utils/agegroup.util";
 
 // ✅ 타입 선언 추가
 type LoginResponse = {
@@ -87,6 +90,10 @@ export class AuthService {
       const isDuplicate = await this.checkNickName(nickname);
       const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
 
+      const age_group = birthYear
+        ? (convertBirthYearToAgeGroup(birthYear) ?? undefined)
+        : undefined;
+
       user = (
         await this.register({
           email,
@@ -95,6 +102,7 @@ export class AuthService {
           birthYear,
           type: LoginType.KAKAO,
           password: "",
+          age_group, // 👈 추가
         })
       ).user;
     }
@@ -109,13 +117,24 @@ export class AuthService {
     nickname,
     birthYear,
     phone,
+    age_group,
   }: {
     email: string;
     name?: string;
     nickname?: string;
     birthYear?: string;
     phone?: string;
+    age_group?: number; // ✅ 숫자로 수정
   }) {
+    console.log("🟡 네이버 로그인 요청 데이터:", {
+      email,
+      name,
+      nickname,
+      birthYear,
+      phone,
+      age_group,
+    });
+
     if (!email) throw new Error("이메일이 없습니다.");
 
     let user = await this.entityManager.findOne(User, {
@@ -134,6 +153,7 @@ export class AuthService {
           name: name || finalNickname,
           birthYear,
           phone,
+          age_group, // ✅ 숫자 그대로 전달
           type: LoginType.NAVER,
           password: "",
         })
@@ -163,6 +183,10 @@ export class AuthService {
       const isDuplicate = await this.checkNickName(nickname);
       const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
 
+      const age_group = birthYear
+        ? (convertBirthYearToAgeGroup(birthYear) ?? undefined)
+        : undefined;
+
       user = (
         await this.register({
           email,
@@ -171,6 +195,7 @@ export class AuthService {
           birthYear,
           type: LoginType.GOOGLE,
           password: "",
+          age_group, // 👈 추가
         })
       ).user;
     }
@@ -208,9 +233,11 @@ export class AuthService {
   }
 
   // ✅ 회원가입
-  a; // ✅ 회원가입
   async register(userDto: RegisterDto): Promise<{ user: User }> {
     console.log("🚀 회원 가입 요청:", userDto);
+
+    // 👇 여기서 명확하게 찍어줘
+    console.log("📌 age_group in register:", userDto.age_group);
 
     const { email, name, password, birthYear, phone, type } = userDto;
 
@@ -245,6 +272,7 @@ export class AuthService {
       type: type ?? LoginType.LOCAL,
       password: hashedPassword,
       status: UserStatus.ACTIVE,
+      age_group: userDto.age_group,
     });
 
     await this.entityManager.save(newUser);

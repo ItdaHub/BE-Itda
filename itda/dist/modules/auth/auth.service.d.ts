@@ -18,12 +18,13 @@ export declare class AuthService {
         nickname: string;
         birthYear?: string;
     }): Promise<User>;
-    validateNaverUser({ email, name, nickname, birthYear, phone, }: {
+    validateNaverUser({ email, name, nickname, birthYear, phone, age_group, }: {
         email: string;
         name?: string;
         nickname?: string;
         birthYear?: string;
         phone?: string;
+        age_group?: number;
     }): Promise<User>;
     validateGoogleUser({ email, nickname, birthYear, }: {
         email: string;
@@ -31,7 +32,6 @@ export declare class AuthService {
         birthYear?: string;
     }): Promise<User>;
     validateUser(email: string, password: string): Promise<User>;
-    a: any;
     register(userDto: RegisterDto): Promise<{
         user: User;
     }>;

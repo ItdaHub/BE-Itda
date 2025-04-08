@@ -7,4 +7,5 @@ export declare class RegisterDto {
     birthYear?: string;
     phone?: string;
     type: LoginType;
+    age_group?: number;
 }

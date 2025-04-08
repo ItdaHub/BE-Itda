@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = exports.UserStatus = exports.UserType = exports.LoginType = void 0;
+exports.User = exports.AgeGroup = exports.UserStatus = exports.UserType = exports.LoginType = void 0;
 const class_validator_1 = require("class-validator");
 const typeorm_1 = require("typeorm");
 const payment_entity_1 = require("../payments/payment.entity");
@@ -40,6 +40,13 @@ var UserStatus;
     UserStatus["BANNED"] = "banned";
     UserStatus["DELETED"] = "deleted";
 })(UserStatus || (exports.UserStatus = UserStatus = {}));
+var AgeGroup;
+(function (AgeGroup) {
+    AgeGroup["TEEN"] = "teen";
+    AgeGroup["TWENTIES"] = "twenties";
+    AgeGroup["THIRTIES"] = "thirties";
+    AgeGroup["FORTIES"] = "forties";
+})(AgeGroup || (exports.AgeGroup = AgeGroup = {}));
 let User = class User {
     id;
     email;
@@ -63,6 +70,7 @@ let User = class User {
     notifications;
     votes;
     points;
+    age_group;
 };
 exports.User = User;
 __decorate([
@@ -161,6 +169,11 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => point_entity_1.Point, (point) => point.user),
     __metadata("design:type", Array)
 ], User.prototype, "points", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], User.prototype, "age_group", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)("users"),
     (0, typeorm_1.Unique)(["email", "type"])
