@@ -133,24 +133,29 @@ let AuthService = class AuthService {
         }
         return user;
     }
+    a;
     async register(userDto) {
         console.log("🚀 회원 가입 요청:", userDto);
-        const { email, name, nickname, password, birthYear, phone, type } = userDto;
+        const { email, name, password, birthYear, phone, type } = userDto;
         const emailUser = await this.entityManager.findOne(user_entity_1.User, {
             where: { email, type },
         });
         if (emailUser)
             throw new Error("이미 사용 중인 이메일입니다.");
-        const nicknameUser = await this.entityManager.findOne(user_entity_1.User, {
+        const baseNickname = userDto.nickname || email.split("@")[0];
+        let nickname = baseNickname;
+        let suffix = 1;
+        while (await this.entityManager.findOne(user_entity_1.User, {
             where: { nickname, type },
-        });
-        if (nicknameUser)
-            throw new Error("이미 사용 중인 닉네임입니다.");
+        })) {
+            nickname = `${baseNickname}${suffix}`;
+            suffix++;
+        }
         const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
         const newUser = this.entityManager.create(user_entity_1.User, {
             email,
             name: name || "사용자",
-            nickname: nickname || email.split("@")[0],
+            nickname,
             birthYear,
             phone,
             type: type ?? user_entity_2.LoginType.LOCAL,

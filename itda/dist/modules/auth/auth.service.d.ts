@@ -31,6 +31,7 @@ export declare class AuthService {
         birthYear?: string;
     }): Promise<User>;
     validateUser(email: string, password: string): Promise<User>;
+    a: any;
     register(userDto: RegisterDto): Promise<{
         user: User;
     }>;
