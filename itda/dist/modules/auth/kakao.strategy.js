@@ -24,9 +24,6 @@ let KakaoStrategy = class KakaoStrategy extends (0, passport_1.PassportStrategy)
             callbackURL: configService.get("KAKAO_CALLBACK_URL", ""),
         });
         this.authService = authService;
-        console.log("Kakao client ID:", process.env.KAKAO_CLIENT_ID);
-        console.log("Kakao KAKAO_CLIENT_SECRET:", process.env.KAKAO_CLIENT_SECRET);
-        console.log("Kakao redirect URI:", process.env.KAKAO_CALLBACK_URL);
         console.log("카카오 로그인 설정 완료 ✅");
     }
     async validate(accessToken, refreshToken, profile) {

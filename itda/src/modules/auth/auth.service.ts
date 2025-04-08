@@ -84,11 +84,14 @@ export class AuthService {
     });
 
     if (!user) {
+      const isDuplicate = await this.checkNickName(nickname);
+      const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
+
       user = (
         await this.register({
           email,
-          name: nickname,
-          nickname,
+          name: fallbackNickname,
+          nickname: fallbackNickname,
           birthYear,
           type: LoginType.KAKAO,
           password: "",
@@ -113,16 +116,22 @@ export class AuthService {
     birthYear?: string;
     phone?: string;
   }) {
+    if (!email) throw new Error("이메일이 없습니다.");
+
     let user = await this.entityManager.findOne(User, {
       where: { email, type: LoginType.NAVER },
     });
 
     if (!user) {
+      const baseNickname = nickname || email.split("@")[0];
+      const isDuplicate = await this.checkNickName(baseNickname);
+      const finalNickname = isDuplicate ? email.split("@")[0] : baseNickname;
+
       user = (
         await this.register({
           email,
-          nickname: nickname || email.split("@")[0],
-          name: name || "사용자",
+          nickname: finalNickname,
+          name: name || finalNickname,
           birthYear,
           phone,
           type: LoginType.NAVER,
@@ -144,16 +153,21 @@ export class AuthService {
     nickname: string;
     birthYear?: string;
   }) {
+    if (!email) throw new Error("이메일이 없습니다.");
+
     let user = await this.entityManager.findOne(User, {
       where: { email, type: LoginType.GOOGLE },
     });
 
     if (!user) {
+      const isDuplicate = await this.checkNickName(nickname);
+      const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
+
       user = (
         await this.register({
           email,
-          name: nickname,
-          nickname,
+          name: fallbackNickname,
+          nickname: fallbackNickname,
           birthYear,
           type: LoginType.GOOGLE,
           password: "",

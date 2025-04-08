@@ -15,11 +15,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, "kakao") {
       clientSecret: configService.get<string>("KAKAO_CLIENT_SECRET", ""),
       callbackURL: configService.get<string>("KAKAO_CALLBACK_URL", ""),
     });
-
-    console.log("Kakao client ID:", process.env.KAKAO_CLIENT_ID);
-    console.log("Kakao KAKAO_CLIENT_SECRET:", process.env.KAKAO_CLIENT_SECRET);
-    console.log("Kakao redirect URI:", process.env.KAKAO_CALLBACK_URL);
-
     console.log("카카오 로그인 설정 완료 ✅");
   }
 

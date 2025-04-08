@@ -68,10 +68,12 @@ let AuthService = class AuthService {
             where: { email, type: user_entity_2.LoginType.KAKAO },
         });
         if (!user) {
+            const isDuplicate = await this.checkNickName(nickname);
+            const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
             user = (await this.register({
                 email,
-                name: nickname,
-                nickname,
+                name: fallbackNickname,
+                nickname: fallbackNickname,
                 birthYear,
                 type: user_entity_2.LoginType.KAKAO,
                 password: "",
@@ -80,14 +82,19 @@ let AuthService = class AuthService {
         return user;
     }
     async validateNaverUser({ email, name, nickname, birthYear, phone, }) {
+        if (!email)
+            throw new Error("이메일이 없습니다.");
         let user = await this.entityManager.findOne(user_entity_1.User, {
             where: { email, type: user_entity_2.LoginType.NAVER },
         });
         if (!user) {
+            const baseNickname = nickname || email.split("@")[0];
+            const isDuplicate = await this.checkNickName(baseNickname);
+            const finalNickname = isDuplicate ? email.split("@")[0] : baseNickname;
             user = (await this.register({
                 email,
-                nickname: nickname || email.split("@")[0],
-                name: name || "사용자",
+                nickname: finalNickname,
+                name: name || finalNickname,
                 birthYear,
                 phone,
                 type: user_entity_2.LoginType.NAVER,
@@ -97,14 +104,18 @@ let AuthService = class AuthService {
         return user;
     }
     async validateGoogleUser({ email, nickname, birthYear, }) {
+        if (!email)
+            throw new Error("이메일이 없습니다.");
         let user = await this.entityManager.findOne(user_entity_1.User, {
             where: { email, type: user_entity_2.LoginType.GOOGLE },
         });
         if (!user) {
+            const isDuplicate = await this.checkNickName(nickname);
+            const fallbackNickname = isDuplicate ? email.split("@")[0] : nickname;
             user = (await this.register({
                 email,
-                name: nickname,
-                nickname,
+                name: fallbackNickname,
+                nickname: fallbackNickname,
                 birthYear,
                 type: user_entity_2.LoginType.GOOGLE,
                 password: "",
