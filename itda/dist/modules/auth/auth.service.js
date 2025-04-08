@@ -61,21 +61,21 @@ let AuthService = class AuthService {
     async login(user) {
         return this.formatResponse(user);
     }
-    async validateKakaoUser({ email, nickname, }) {
+    async validateKakaoUser({ email, nickname, birthYear, }) {
         if (!email)
             throw new Error("이메일이 없습니다.");
         let user = await this.entityManager.findOne(user_entity_1.User, {
             where: { email, type: user_entity_2.LoginType.KAKAO },
         });
         if (!user) {
-            user = this.entityManager.create(user_entity_1.User, {
+            user = (await this.register({
                 email,
+                name: nickname,
                 nickname,
+                birthYear,
                 type: user_entity_2.LoginType.KAKAO,
                 password: "",
-                status: user_entity_2.UserStatus.ACTIVE,
-            });
-            await this.entityManager.save(user);
+            })).user;
         }
         return user;
     }
@@ -96,7 +96,7 @@ let AuthService = class AuthService {
         }
         return user;
     }
-    async validateGoogleUser({ email, nickname, }) {
+    async validateGoogleUser({ email, nickname, birthYear, }) {
         let user = await this.entityManager.findOne(user_entity_1.User, {
             where: { email, type: user_entity_2.LoginType.GOOGLE },
         });
@@ -105,6 +105,7 @@ let AuthService = class AuthService {
                 email,
                 name: nickname,
                 nickname,
+                birthYear,
                 type: user_entity_2.LoginType.GOOGLE,
                 password: "",
             })).user;

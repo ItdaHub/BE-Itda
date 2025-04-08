@@ -13,9 +13,10 @@ export declare class AuthService {
     private createToken;
     formatResponse(partialUser: User): Promise<LoginResponse>;
     login(user: User): Promise<LoginResponse>;
-    validateKakaoUser({ email, nickname, }: {
+    validateKakaoUser({ email, nickname, birthYear, }: {
         email: string;
         nickname: string;
+        birthYear?: string;
     }): Promise<User>;
     validateNaverUser({ email, name, nickname, birthYear, phone, }: {
         email: string;
@@ -24,9 +25,10 @@ export declare class AuthService {
         birthYear?: string;
         phone?: string;
     }): Promise<User>;
-    validateGoogleUser({ email, nickname, }: {
+    validateGoogleUser({ email, nickname, birthYear, }: {
         email: string;
         nickname: string;
+        birthYear?: string;
     }): Promise<User>;
     validateUser(email: string, password: string): Promise<User>;
     register(userDto: RegisterDto): Promise<{

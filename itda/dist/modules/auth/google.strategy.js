@@ -15,6 +15,7 @@ const config_1 = require("@nestjs/config");
 const passport_1 = require("@nestjs/passport");
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
+const axios_1 = require("axios");
 let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrategy)(passport_google_oauth20_1.Strategy, "google") {
     authService;
     constructor(authService, configService) {
@@ -22,7 +23,11 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
             clientID: configService.get("GOOGLE_CLIENT_ID", ""),
             clientSecret: configService.get("GOOGLE_CLIENT_SECRET", ""),
             callbackURL: configService.get("GOOGLE_CALLBACK_URL", ""),
-            scope: ["email", "profile"],
+            scope: [
+                "email",
+                "profile",
+                "https://www.googleapis.com/auth/user.birthday.read",
+            ],
         });
         this.authService = authService;
         console.log("구글 로그인 설정 완료 ✅");
@@ -37,8 +42,34 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
             console.error("❌ 이메일을 찾을 수 없습니다.");
             throw new Error("이메일이 없습니다.");
         }
-        console.log(`✅ 로그인 성공: ${nickname} (${email})`);
-        const user = await this.authService.validateGoogleUser({ email, nickname });
+        let birthYear = null;
+        try {
+            const peopleResponse = await axios_1.default.get("https://people.googleapis.com/v1/people/me", {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                params: {
+                    personFields: "birthdays",
+                },
+            });
+            const birthdays = peopleResponse.data.birthdays;
+            const birthDate = birthdays?.[0]?.date;
+            if (birthDate?.year) {
+                birthYear = String(birthDate.year);
+                console.log("🎂 출생년도:", birthYear);
+            }
+            else {
+                console.log("🎂 생일 정보 없음 (year 없음)");
+            }
+        }
+        catch (err) {
+            console.error("❌ 생일 정보 가져오기 실패:", err.response?.data || err);
+        }
+        const user = await this.authService.validateGoogleUser({
+            email,
+            nickname,
+            birthYear: birthYear ?? undefined,
+        });
         return user;
     }
 };

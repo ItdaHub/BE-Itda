@@ -24,25 +24,27 @@ let KakaoStrategy = class KakaoStrategy extends (0, passport_1.PassportStrategy)
             callbackURL: configService.get("KAKAO_CALLBACK_URL", ""),
         });
         this.authService = authService;
+        console.log("Kakao client ID:", process.env.KAKAO_CLIENT_ID);
+        console.log("Kakao KAKAO_CLIENT_SECRET:", process.env.KAKAO_CLIENT_SECRET);
+        console.log("Kakao redirect URI:", process.env.KAKAO_CALLBACK_URL);
         console.log("카카오 로그인 설정 완료 ✅");
     }
     async validate(accessToken, refreshToken, profile) {
         console.log("📌 카카오 프로필:", profile);
         const kakaoData = profile._json || JSON.parse(profile._raw || "{}");
-        console.log("📌 profile._json 전체:", JSON.stringify(kakaoData, null, 2));
         const kakaoAccount = kakaoData.kakao_account;
-        if (!kakaoAccount) {
-            console.error("❌ 카카오 계정 정보가 없습니다.");
-            throw new Error("카카오 계정 정보가 없습니다.");
-        }
         const email = kakaoAccount?.email;
         const nickname = kakaoData?.properties?.nickname;
+        const birthYear = kakaoAccount?.birthyear || null;
+        console.log("🎂 출생년도:", birthYear);
         if (!email || !nickname) {
-            console.error("❌ 필수 정보 누락 - 이메일 또는 닉네임");
             throw new Error("이메일 또는 닉네임이 없습니다.");
         }
-        console.log(`✅ 로그인 성공: ${nickname} (${email})`);
-        const user = await this.authService.validateKakaoUser({ email, nickname });
+        const user = await this.authService.validateKakaoUser({
+            email,
+            nickname,
+            birthYear: birthYear ?? undefined,
+        });
         return user;
     }
 };

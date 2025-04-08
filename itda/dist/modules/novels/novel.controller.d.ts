@@ -10,7 +10,7 @@ export declare class NovelController {
     createNovel(dto: CreateNovelDto, req: any): Promise<Novel>;
     addChapter(novelId: string, dto: AddChapterDto, req: any): Promise<import("../chapter/chapter.entity").Chapter>;
     getParticipants(novelId: string): Promise<import("./participant.entity").Participant[]>;
-    getFilteredNovels(type: string, genre: string): Promise<Novel[]>;
+    getFilteredNovels(type: string, genre: string, age: string): Promise<Novel[]>;
     getMyNovels(req: any): Promise<Novel[]>;
     searchNovelsByTitle(query: string): Promise<Novel[]>;
 }

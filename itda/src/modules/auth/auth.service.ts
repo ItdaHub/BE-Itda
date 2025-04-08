@@ -8,18 +8,6 @@ import { RegisterDto } from "./dto/register.dto";
 import { instanceToPlain } from "class-transformer";
 import { calculateAge } from "../users/utils/user.util";
 
-// 회원가입 시 나이 계산해서 저장(추가 할거면 하기)
-//const birthYear = userDto.birthYear;
-// const age = birthYear ? calculateAge(birthYear) : 0;
-
-// const newUser = this.entityManager.create(User, {
-//   // ...
-//   birthYear,
-//   age, // 여기 추가!
-// });
-
-// 같은 이메일로 로그인 했을때 타입이 다르면 로그인 가능
-
 // ✅ 타입 선언 추가
 type LoginResponse = {
   accessToken: string;
@@ -83,9 +71,11 @@ export class AuthService {
   async validateKakaoUser({
     email,
     nickname,
+    birthYear,
   }: {
     email: string;
     nickname: string;
+    birthYear?: string;
   }) {
     if (!email) throw new Error("이메일이 없습니다.");
 
@@ -94,14 +84,16 @@ export class AuthService {
     });
 
     if (!user) {
-      user = this.entityManager.create(User, {
-        email,
-        nickname,
-        type: LoginType.KAKAO,
-        password: "",
-        status: UserStatus.ACTIVE,
-      });
-      await this.entityManager.save(user);
+      user = (
+        await this.register({
+          email,
+          name: nickname,
+          nickname,
+          birthYear,
+          type: LoginType.KAKAO,
+          password: "",
+        })
+      ).user;
     }
 
     return user;
@@ -146,9 +138,11 @@ export class AuthService {
   async validateGoogleUser({
     email,
     nickname,
+    birthYear,
   }: {
     email: string;
     nickname: string;
+    birthYear?: string;
   }) {
     let user = await this.entityManager.findOne(User, {
       where: { email, type: LoginType.GOOGLE },
@@ -160,6 +154,7 @@ export class AuthService {
           email,
           name: nickname,
           nickname,
+          birthYear,
           type: LoginType.GOOGLE,
           password: "",
         })

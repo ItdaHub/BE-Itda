@@ -45,8 +45,8 @@ let NovelController = class NovelController {
     async getParticipants(novelId) {
         return this.novelService.getParticipants(parseInt(novelId, 10));
     }
-    async getFilteredNovels(type, genre) {
-        return this.novelService.getFilteredNovels(type, genre);
+    async getFilteredNovels(type, genre, age) {
+        return this.novelService.getFilteredNovels(type, genre, age);
     }
     getMyNovels(req) {
         const userId = req.user.id;
@@ -114,13 +114,15 @@ __decorate([
 ], NovelController.prototype, "getParticipants", null);
 __decorate([
     (0, common_1.Get)("filter"),
-    (0, swagger_1.ApiOperation)({ summary: "소설 필터링 (타입 + 장르)" }),
+    (0, swagger_1.ApiOperation)({ summary: "소설 필터링 (타입 + 장르 + 연령대)" }),
     (0, swagger_1.ApiQuery)({ name: "type", required: false, description: "소설 타입" }),
     (0, swagger_1.ApiQuery)({ name: "genre", required: false, description: "소설 장르" }),
+    (0, swagger_1.ApiQuery)({ name: "age", required: false, description: "연령대" }),
     __param(0, (0, common_1.Query)("type")),
     __param(1, (0, common_1.Query)("genre")),
+    __param(2, (0, common_1.Query)("age")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "getFilteredNovels", null);
 __decorate([

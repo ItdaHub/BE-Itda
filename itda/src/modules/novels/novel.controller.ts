@@ -84,14 +84,16 @@ export class NovelController {
 
   // 🔍 타입/장르로 소설 필터링
   @Get("filter")
-  @ApiOperation({ summary: "소설 필터링 (타입 + 장르)" })
+  @ApiOperation({ summary: "소설 필터링 (타입 + 장르 + 연령대)" })
   @ApiQuery({ name: "type", required: false, description: "소설 타입" })
   @ApiQuery({ name: "genre", required: false, description: "소설 장르" })
+  @ApiQuery({ name: "age", required: false, description: "연령대" }) // 👈 추가
   async getFilteredNovels(
     @Query("type") type: string,
-    @Query("genre") genre: string
+    @Query("genre") genre: string,
+    @Query("age") age: string // 👈 추가
   ): Promise<Novel[]> {
-    return this.novelService.getFilteredNovels(type, genre);
+    return this.novelService.getFilteredNovels(type, genre, age);
   }
 
   // ✍️ 내가 쓴 소설 목록
