@@ -182,7 +182,7 @@ export class AuthController {
     description: "카카오 로그인 인증 페이지로 리디렉트합니다.",
   })
   async kakaoLogin(@Res() res: Response) {
-    const KAKAO_CLIENT_ID = "170ea69c85667e150fa103eab9a19c35";
+    const KAKAO_CLIENT_ID = process.env.KAKAO_CLIENT_ID;
     const REDIRECT_URI = encodeURIComponent(
       "http://localhost:5001/auth/callback/kakao"
     );
@@ -220,7 +220,7 @@ export class AuthController {
     description: "네이버 로그인 인증 페이지로 리디렉트합니다.",
   })
   async naverLogin(@Res() res: Response) {
-    const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
+    const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
     const REDIRECT_URI = encodeURIComponent(
       "http://localhost:5001/auth/callback/naver"
     );

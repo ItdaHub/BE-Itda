@@ -14,6 +14,10 @@ import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
 
+// 통합 랭킹 => 찜 70%, 조회수 30%
+// 찜 => 같으면 가나다순
+// 연령별은 찜70 + 조회수30 + 연령대
+
 @Injectable()
 export class NovelService {
   constructor(

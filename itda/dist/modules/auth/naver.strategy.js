@@ -22,6 +22,7 @@ let NaverStrategy = class NaverStrategy extends (0, passport_1.PassportStrategy)
             clientID: configService.get("NAVER_CLIENT_ID", ""),
             clientSecret: configService.get("NAVER_CLIENT_SECRET", ""),
             callbackURL: configService.get("NAVER_CALLBACK_URL", ""),
+            scope: ["name", "email", "nickname", "mobile", "birthyear"],
         });
         this.authService = authService;
         console.log("네이버 로그인 설정 완료 ✅");
@@ -30,6 +31,8 @@ let NaverStrategy = class NaverStrategy extends (0, passport_1.PassportStrategy)
         console.log("📌 네이버 프로필:", profile);
         console.log("🔍 네이버 프로필 전체:", profile);
         console.log("🔍 네이버 프로필 _json:", profile._json);
+        console.log("✅ 네이버 프로필 전체 profile:", profile);
+        console.log("✅ 네이버 프로필 _json:", JSON.stringify(profile._json, null, 2));
         const email = profile?.email || profile._json?.email;
         const name = profile?.name || profile.displayName;
         const nickname = profile.nickname || email?.split("@")[0];

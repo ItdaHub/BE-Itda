@@ -23,7 +23,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, "kakao") {
     console.log("카카오 로그인 설정 완료 ✅");
   }
 
-  // ✅ done 안 쓰고 Promise 패턴으로 리턴
   async validate(accessToken: string, refreshToken: string, profile: any) {
     console.log("📌 카카오 프로필:", profile);
 

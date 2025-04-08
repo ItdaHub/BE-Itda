@@ -97,7 +97,7 @@ let AuthController = class AuthController {
         return res.json({ message: "로그아웃 되었습니다." });
     }
     async kakaoLogin(res) {
-        const KAKAO_CLIENT_ID = "170ea69c85667e150fa103eab9a19c35";
+        const KAKAO_CLIENT_ID = process.env.KAKAO_CLIENT_ID;
         const REDIRECT_URI = encodeURIComponent("http://localhost:5001/auth/callback/kakao");
         const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
         res.redirect(kakaoAuthUrl);
@@ -113,7 +113,7 @@ let AuthController = class AuthController {
         res.redirect("http://localhost:3000/auth/callback");
     }
     async naverLogin(res) {
-        const NAVER_CLIENT_ID = "CS8Gw4DSASCoHi8BhBmA";
+        const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
         const REDIRECT_URI = encodeURIComponent("http://localhost:5001/auth/callback/naver");
         const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=email name nickname age birthday mobile`;
         res.redirect(naverAuthUrl);
