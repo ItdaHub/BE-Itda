@@ -13,23 +13,17 @@ import { Genre } from "../genre/genre.entity";
 import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
-import { AgeGroup } from "./dto/filternovel.dto";
+
+type CreateNovelInput = CreateNovelDto & { userId: number };
 
 @Injectable()
 export class NovelService {
   constructor(
-    @InjectRepository(Novel)
-    private readonly novelRepo: Repository<Novel>,
-
-    @InjectRepository(Genre)
-    private readonly genreRepo: Repository<Genre>,
-
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
-
+    @InjectRepository(Novel) private readonly novelRepo: Repository<Novel>,
+    @InjectRepository(Genre) private readonly genreRepo: Repository<Genre>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Chapter)
     private readonly chapterRepo: Repository<Chapter>,
-
     @InjectRepository(Participant)
     private readonly participantRepo: Repository<Participant>
   ) {}
@@ -43,30 +37,24 @@ export class NovelService {
       where: { id },
       relations: ["chapters", "creator", "genre"],
     });
-
-    if (!novel) {
-      throw new NotFoundException("해당 소설이 존재하지 않습니다.");
-    }
-
+    if (!novel) throw new NotFoundException("해당 소설이 존재하지 않습니다.");
     return novel;
   }
 
-  async create(dto: CreateNovelDto): Promise<Novel> {
+  async create(dto: CreateNovelInput): Promise<Novel> {
     const { title, categoryId, peopleNum, content, userId, type } = dto;
 
     const user = await this.userRepo.findOneBy({ id: userId });
-    if (!user) throw new Error("작성자 유저를 찾을 수 없습니다");
+    if (!user) throw new NotFoundException("작성자 유저를 찾을 수 없습니다.");
 
     const genre = await this.genreRepo.findOneBy({ id: categoryId });
-    if (!genre) throw new Error("해당 장르가 존재하지 않습니다");
-
-    const maxParticipants = peopleNum;
+    if (!genre) throw new NotFoundException("해당 장르가 존재하지 않습니다.");
 
     const novel = this.novelRepo.create({
       title,
       creator: user,
       genre,
-      max_participants: maxParticipants as 5 | 7 | 9,
+      max_participants: peopleNum as 5 | 7 | 9,
       status: "ongoing",
       type,
     });
@@ -102,10 +90,10 @@ export class NovelService {
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new NotFoundException("작성자를 찾을 수 없습니다.");
 
-    const hasUserWrittenBefore = novel.chapters.some(
+    const hasWritten = novel.chapters.some(
       (chapter) => chapter.author.id === userId
     );
-    if (hasUserWrittenBefore) {
+    if (hasWritten) {
       throw new BadRequestException(
         "해당 사용자는 이미 이 소설에 작성한 적이 있습니다."
       );
@@ -113,25 +101,23 @@ export class NovelService {
 
     const lastChapter = novel.chapters[novel.chapters.length - 1];
     if (lastChapter?.author?.id === userId) {
-      throw new BadRequestException(
-        "바로 앞 차례에 글을 쓴 사용자는 연속으로 작성할 수 없습니다."
-      );
+      throw new BadRequestException("연속으로 작성할 수 없습니다.");
     }
 
-    const currentParticipantCount = await this.participantRepo.count({
+    const participantCount = await this.participantRepo.count({
       where: { novel: { id: novelId } },
     });
 
-    if (currentParticipantCount >= novel.max_participants) {
+    if (participantCount >= novel.max_participants) {
       throw new BadRequestException("참여자 수를 초과했습니다.");
     }
 
-    const newParticipant = this.participantRepo.create({
+    const participant = this.participantRepo.create({
       novel,
       user,
-      order_number: currentParticipantCount + 1,
+      order_number: participantCount + 1,
     });
-    await this.participantRepo.save(newParticipant);
+    await this.participantRepo.save(participant);
 
     const chapter = this.chapterRepo.create({
       novel,
@@ -144,13 +130,11 @@ export class NovelService {
   }
 
   async getParticipants(novelId: number): Promise<Participant[]> {
-    const participants = await this.participantRepo.find({
+    return this.participantRepo.find({
       where: { novel: { id: novelId } },
       relations: ["user"],
       order: { order_number: "ASC" },
     });
-
-    return participants;
   }
 
   async getFilteredNovels(
@@ -162,17 +146,16 @@ export class NovelService {
       .createQueryBuilder("novel")
       .leftJoinAndSelect("novel.creator", "user")
       .leftJoinAndSelect("novel.genre", "genre")
-      .leftJoinAndSelect("novel.chapters", "chapter")
       .leftJoinAndSelect("novel.likes", "likes")
       .loadRelationCountAndMap("novel.likeCount", "novel.likes");
 
-    console.log("필터링 조건:", { type, genre, age });
-
-    if (type === "first") {
-      query.andWhere("chapter.chapter_number = 1");
+    if (type === "new") {
+      query
+        .leftJoin("novel.chapters", "chapter_new")
+        .andWhere("chapter_new.chapter_number = 1");
     }
 
-    if (genre !== undefined && genre !== "all" && genre !== "전체") {
+    if (genre && genre !== "all" && genre !== "전체") {
       if (typeof genre === "number" || !isNaN(Number(genre))) {
         query.andWhere("genre.id = :genreId", { genreId: Number(genre) });
       } else {
@@ -184,9 +167,7 @@ export class NovelService {
       query.andWhere("user.age_group = :age", { age });
     }
 
-    query.orderBy("novel.created_at", "DESC");
-
-    return await query.getMany();
+    return query.orderBy("novel.created_at", "DESC").getMany();
   }
 
   async getNovelDetail(novelId: number, userId?: number): Promise<any> {
@@ -202,7 +183,6 @@ export class NovelService {
         "chapters",
       ],
     });
-
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
 
     const likeCount = novel.likes.length;
@@ -216,7 +196,7 @@ export class NovelService {
       genre: novel.genre?.name ?? null,
       categoryId: novel.genre?.id ?? null,
       author: novel.participants
-        .filter((p) => p.user && p.user.nickname)
+        .filter((p) => p.user?.nickname)
         .map((p) => p.user.nickname)
         .join(", "),
       likeCount,
@@ -248,47 +228,27 @@ export class NovelService {
       relations: ["likes", "creator", "genre", "chapters"],
     });
 
-    const ranked = novels
-      .map((novel) => {
-        const score =
-          (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3;
-        return { ...novel, score };
-      })
-      .sort((a, b) => {
-        if (b.score === a.score) {
-          return a.title.localeCompare(b.title);
-        }
-        return b.score - a.score;
-      })
+    return novels
+      .map((novel) => ({
+        ...novel,
+        score: (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3,
+      }))
+      .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
       .slice(0, 8);
-
-    return ranked;
   }
 
   async getRankedNovelsByAge(ageGroup: number): Promise<Novel[]> {
     const novels = await this.novelRepo.find({
+      where: { creator: { age_group: ageGroup } },
       relations: ["likes", "creator", "genre", "chapters"],
-      where: {
-        creator: {
-          age_group: ageGroup,
-        },
-      },
     });
 
-    const ranked = novels
-      .map((novel) => {
-        const score =
-          (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3;
-        return { ...novel, score };
-      })
-      .sort((a, b) => {
-        if (b.score === a.score) {
-          return a.title.localeCompare(b.title);
-        }
-        return b.score - a.score;
-      })
+    return novels
+      .map((novel) => ({
+        ...novel,
+        score: (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3,
+      }))
+      .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
       .slice(0, 8);
-
-    return ranked;
   }
 }

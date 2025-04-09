@@ -1,7 +1,7 @@
 import { IsOptional, IsEnum } from "class-validator";
 
 export enum NovelType {
-  FIRST = "first",
+  NEW = "new",
   RELAY = "relay",
 }
 

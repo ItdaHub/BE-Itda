@@ -1,5 +1,5 @@
 export declare enum NovelType {
-    FIRST = "first",
+    NEW = "new",
     RELAY = "relay"
 }
 export declare enum AgeGroup {

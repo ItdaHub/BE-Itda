@@ -67,7 +67,7 @@ __decorate([
     __metadata("design:type", String)
 ], Novel.prototype, "cover_image", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: ["first", "relay"], nullable: true }),
+    (0, typeorm_1.Column)({ type: "enum", enum: ["new", "relay"], nullable: true }),
     __metadata("design:type", String)
 ], Novel.prototype, "type", void 0);
 __decorate([

@@ -14,7 +14,7 @@ export declare class Novel {
     max_participants: 5 | 7 | 9;
     status: "ongoing" | "completed";
     cover_image: string;
-    type: "first" | "relay";
+    type: "new" | "relay";
     created_at: Date;
     genre: Genre;
     participants: Participant[];

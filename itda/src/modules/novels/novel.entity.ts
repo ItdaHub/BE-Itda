@@ -36,8 +36,8 @@ export class Novel {
   @Column({ length: 255, nullable: true })
   cover_image: string;
 
-  @Column({ type: "enum", enum: ["first", "relay"], nullable: true })
-  type: "first" | "relay";
+  @Column({ type: "enum", enum: ["new", "relay"], nullable: true })
+  type: "new" | "relay";
 
   @CreateDateColumn()
   created_at: Date;

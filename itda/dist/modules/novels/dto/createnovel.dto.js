@@ -17,7 +17,6 @@ class CreateNovelDto {
     title;
     content;
     type;
-    userId;
 }
 exports.CreateNovelDto = CreateNovelDto;
 __decorate([
@@ -41,13 +40,9 @@ __decorate([
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "content", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(["first", "relay"], {
-        message: "type은 'first' 또는 'relay'만 가능합니다.",
+    (0, class_validator_1.IsEnum)(["new", "relay"], {
+        message: "type은 'new' 또는 'relay'만 가능합니다.",
     }),
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "type", void 0);
-__decorate([
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], CreateNovelDto.prototype, "userId", void 0);
 //# sourceMappingURL=createnovel.dto.js.map

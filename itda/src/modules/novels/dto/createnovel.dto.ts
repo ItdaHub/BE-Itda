@@ -24,11 +24,11 @@ export class CreateNovelDto {
   @MaxLength(300)
   content: string;
 
-  @IsEnum(["first", "relay"], {
-    message: "type은 'first' 또는 'relay'만 가능합니다.",
+  @IsEnum(["new", "relay"], {
+    message: "type은 'new' 또는 'relay'만 가능합니다.",
   })
-  type: "first" | "relay";
+  type: "new" | "relay";
 
-  @IsInt()
-  userId: number;
+  // @IsInt()
+  // userId: number;
 }

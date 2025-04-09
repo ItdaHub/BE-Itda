@@ -13,7 +13,7 @@ exports.FilterNovelDto = exports.AgeGroup = exports.NovelType = void 0;
 const class_validator_1 = require("class-validator");
 var NovelType;
 (function (NovelType) {
-    NovelType["FIRST"] = "first";
+    NovelType["NEW"] = "new";
     NovelType["RELAY"] = "relay";
 })(NovelType || (exports.NovelType = NovelType = {}));
 var AgeGroup;

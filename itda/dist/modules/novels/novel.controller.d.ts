@@ -6,7 +6,7 @@ export declare class NovelController {
     private readonly novelService;
     constructor(novelService: NovelService);
     getAllNovels(): Promise<Novel[]>;
-    getFilteredNovels(type?: "first" | "relay", genre?: string, req?: any): Promise<Novel[]>;
+    getFilteredNovels(type?: "new" | "relay", genre?: string, req?: any): Promise<Novel[]>;
     createNovel(dto: CreateNovelDto, req: any): Promise<Novel>;
     addChapter(novelId: string, dto: AddChapterDto, req: any): Promise<import("../chapter/chapter.entity").Chapter>;
     getMyNovels(req: any): Promise<Novel[]>;

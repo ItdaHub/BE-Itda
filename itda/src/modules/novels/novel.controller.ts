@@ -38,7 +38,7 @@ export class NovelController {
   // 🔍 타입/장르로 소설 필터링
   @Get("filter")
   async getFilteredNovels(
-    @Query("type") type?: "first" | "relay",
+    @Query("type") type?: "new" | "relay",
     @Query("genre") genre?: string,
     @Req() req?: any
   ): Promise<Novel[]> {
