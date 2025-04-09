@@ -14,7 +14,7 @@ export declare class Novel {
     max_participants: 5 | 7 | 9;
     status: "ongoing" | "completed";
     cover_image: string;
-    type?: string;
+    type: "first" | "relay";
     created_at: Date;
     genre: Genre;
     participants: Participant[];
@@ -25,5 +25,6 @@ export declare class Novel {
     comments: Comment[];
     notifications: Notification[];
     author: User;
-    age_group: "teen" | "twenties" | "thirties" | "forties";
+    age_group: number;
+    viewCount: number;
 }

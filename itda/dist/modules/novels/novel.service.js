@@ -49,7 +49,7 @@ let NovelService = class NovelService {
         return novel;
     }
     async create(dto) {
-        const { title, categoryId, peopleNum, content, userId } = dto;
+        const { title, categoryId, peopleNum, content, userId, type } = dto;
         const user = await this.userRepo.findOneBy({ id: userId });
         if (!user)
             throw new Error("작성자 유저를 찾을 수 없습니다");
@@ -63,6 +63,7 @@ let NovelService = class NovelService {
             genre,
             max_participants: maxParticipants,
             status: "ongoing",
+            type,
         });
         await this.novelRepo.save(novel);
         const chapter = this.chapterRepo.create({
@@ -130,19 +131,27 @@ let NovelService = class NovelService {
     async getFilteredNovels(type, genre, age) {
         const query = this.novelRepo
             .createQueryBuilder("novel")
+            .leftJoinAndSelect("novel.creator", "user")
             .leftJoinAndSelect("novel.genre", "genre")
-            .leftJoinAndSelect("novel.creator", "creator")
-            .leftJoinAndSelect("novel.chapters", "chapters")
-            .orderBy("novel.id", "DESC");
-        if (type) {
-            query.andWhere("novel.type = :type", { type });
+            .leftJoinAndSelect("novel.chapters", "chapter")
+            .leftJoinAndSelect("novel.likes", "likes")
+            .loadRelationCountAndMap("novel.likeCount", "novel.likes");
+        console.log("필터링 조건:", { type, genre, age });
+        if (type === "first") {
+            query.andWhere("chapter.chapter_number = 1");
         }
-        if (genre) {
-            query.andWhere("genre.name = :genre", { genre });
+        if (genre !== undefined && genre !== "all" && genre !== "전체") {
+            if (typeof genre === "number" || !isNaN(Number(genre))) {
+                query.andWhere("genre.id = :genreId", { genreId: Number(genre) });
+            }
+            else {
+                query.andWhere("genre.name = :genreName", { genreName: genre });
+            }
         }
-        if (age) {
-            query.andWhere("novel.age = :age", { age });
+        if (age !== undefined) {
+            query.andWhere("user.age_group = :age", { age });
         }
+        query.orderBy("novel.created_at", "DESC");
         return await query.getMany();
     }
     async getNovelDetail(novelId, userId) {
@@ -168,6 +177,7 @@ let NovelService = class NovelService {
             id: novel.id,
             title: novel.title,
             genre: novel.genre?.name ?? null,
+            categoryId: novel.genre?.id ?? null,
             author: novel.participants
                 .filter((p) => p.user && p.user.nickname)
                 .map((p) => p.user.nickname)
@@ -175,6 +185,8 @@ let NovelService = class NovelService {
             likeCount,
             isLiked,
             image: novel.cover_image,
+            type: novel.type,
+            createdAt: novel.created_at.toISOString(),
         };
     }
     async findMyNovels(userId) {
@@ -190,6 +202,47 @@ let NovelService = class NovelService {
             relations: ["genre", "creator", "chapters"],
             order: { created_at: "DESC" },
         });
+    }
+    async getRankedNovels() {
+        const novels = await this.novelRepo.find({
+            relations: ["likes", "creator", "genre", "chapters"],
+        });
+        const ranked = novels
+            .map((novel) => {
+            const score = (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3;
+            return { ...novel, score };
+        })
+            .sort((a, b) => {
+            if (b.score === a.score) {
+                return a.title.localeCompare(b.title);
+            }
+            return b.score - a.score;
+        })
+            .slice(0, 8);
+        return ranked;
+    }
+    async getRankedNovelsByAge(ageGroup) {
+        const novels = await this.novelRepo.find({
+            relations: ["likes", "creator", "genre", "chapters"],
+            where: {
+                creator: {
+                    age_group: ageGroup,
+                },
+            },
+        });
+        const ranked = novels
+            .map((novel) => {
+            const score = (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3;
+            return { ...novel, score };
+        })
+            .sort((a, b) => {
+            if (b.score === a.score) {
+                return a.title.localeCompare(b.title);
+            }
+            return b.score - a.score;
+        })
+            .slice(0, 8);
+        return ranked;
     }
 };
 exports.NovelService = NovelService;

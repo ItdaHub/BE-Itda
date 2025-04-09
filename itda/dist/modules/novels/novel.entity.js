@@ -39,6 +39,7 @@ let Novel = class Novel {
     notifications;
     author;
     age_group;
+    viewCount;
 };
 exports.Novel = Novel;
 __decorate([
@@ -66,7 +67,7 @@ __decorate([
     __metadata("design:type", String)
 ], Novel.prototype, "cover_image", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 50, nullable: true }),
+    (0, typeorm_1.Column)({ type: "enum", enum: ["first", "relay"], nullable: true }),
     __metadata("design:type", String)
 ], Novel.prototype, "type", void 0);
 __decorate([
@@ -110,13 +111,13 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Novel.prototype, "author", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: "enum",
-        enum: ["teen", "twenties", "thirties", "forties"],
-        nullable: true,
-    }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    __metadata("design:type", Number)
 ], Novel.prototype, "age_group", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], Novel.prototype, "viewCount", void 0);
 exports.Novel = Novel = __decorate([
     (0, typeorm_1.Entity)("novels")
 ], Novel);

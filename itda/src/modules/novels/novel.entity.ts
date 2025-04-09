@@ -36,8 +36,8 @@ export class Novel {
   @Column({ length: 255, nullable: true })
   cover_image: string;
 
-  @Column({ type: "varchar", length: 50, nullable: true })
-  type?: string;
+  @Column({ type: "enum", enum: ["first", "relay"], nullable: true })
+  type: "first" | "relay";
 
   @CreateDateColumn()
   created_at: Date;
@@ -69,10 +69,9 @@ export class Novel {
   @ManyToOne(() => User, (user) => user.novels)
   author: User;
 
-  @Column({
-    type: "enum",
-    enum: ["teen", "twenties", "thirties", "forties"],
-    nullable: true,
-  })
-  age_group: "teen" | "twenties" | "thirties" | "forties";
+  @Column({ type: "int", nullable: true })
+  age_group: number;
+
+  @Column({ default: 0 })
+  viewCount: number;
 }

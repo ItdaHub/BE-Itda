@@ -27,9 +27,10 @@ let NovelController = class NovelController {
     async getAllNovels() {
         return this.novelService.getAllNovels();
     }
-    async getNovelDetail(id, req) {
-        const userId = req.user?.id ?? null;
-        return this.novelService.getNovelDetail(id, userId);
+    async getFilteredNovels(type, genre, req) {
+        const userId = req.user?.id;
+        const genreNumber = genre ? parseInt(genre, 10) : undefined;
+        return this.novelService.getFilteredNovels(type, genreNumber, userId);
     }
     async createNovel(dto, req) {
         const userId = req.user.id;
@@ -42,12 +43,6 @@ let NovelController = class NovelController {
             userId,
         });
     }
-    async getParticipants(novelId) {
-        return this.novelService.getParticipants(parseInt(novelId, 10));
-    }
-    async getFilteredNovels(type, genre, age) {
-        return this.novelService.getFilteredNovels(type, genre, age);
-    }
     getMyNovels(req) {
         const userId = req.user.id;
         return this.novelService.findMyNovels(userId);
@@ -57,6 +52,19 @@ let NovelController = class NovelController {
             throw new common_1.BadRequestException("검색어가 비어있습니다.");
         }
         return this.novelService.searchNovelsByTitle(query);
+    }
+    async getNovelDetail(id, req) {
+        const userId = req.user?.id ?? null;
+        return this.novelService.getNovelDetail(id, userId);
+    }
+    async getParticipants(novelId) {
+        return this.novelService.getParticipants(parseInt(novelId, 10));
+    }
+    getTotalRanking() {
+        return this.novelService.getRankedNovels();
+    }
+    getRankingByAge(ageGroup) {
+        return this.novelService.getRankedNovelsByAge(ageGroup);
     }
 };
 exports.NovelController = NovelController;
@@ -68,17 +76,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "getAllNovels", null);
 __decorate([
-    (0, common_1.Get)(":id"),
-    (0, swagger_1.ApiOperation)({ summary: "소설 상세 조회" }),
-    (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Req)()),
+    (0, common_1.Get)("filter"),
+    __param(0, (0, common_1.Query)("type")),
+    __param(1, (0, common_1.Query)("genre")),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
-], NovelController.prototype, "getNovelDetail", null);
+], NovelController.prototype, "getFilteredNovels", null);
 __decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Post)(),
@@ -104,28 +109,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "addChapter", null);
 __decorate([
-    (0, common_1.Get)(":id/participants"),
-    (0, swagger_1.ApiOperation)({ summary: "소설에 참여한 사용자 목록 조회" }),
-    (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
-    __param(0, (0, common_1.Param)("id")),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], NovelController.prototype, "getParticipants", null);
-__decorate([
-    (0, common_1.Get)("filter"),
-    (0, swagger_1.ApiOperation)({ summary: "소설 필터링 (타입 + 장르 + 연령대)" }),
-    (0, swagger_1.ApiQuery)({ name: "type", required: false, description: "소설 타입" }),
-    (0, swagger_1.ApiQuery)({ name: "genre", required: false, description: "소설 장르" }),
-    (0, swagger_1.ApiQuery)({ name: "age", required: false, description: "연령대" }),
-    __param(0, (0, common_1.Query)("type")),
-    __param(1, (0, common_1.Query)("genre")),
-    __param(2, (0, common_1.Query)("age")),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
-    __metadata("design:returntype", Promise)
-], NovelController.prototype, "getFilteredNovels", null);
-__decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Get)("/my"),
     (0, swagger_1.ApiOperation)({ summary: "내가 쓴 소설 목록 조회" }),
@@ -144,6 +127,41 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "searchNovelsByTitle", null);
+__decorate([
+    (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "소설 상세 조회 (비회원도 접근 가능)" }),
+    (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], NovelController.prototype, "getNovelDetail", null);
+__decorate([
+    (0, common_1.Get)(":id/participants"),
+    (0, swagger_1.ApiOperation)({ summary: "소설에 참여한 사용자 목록 조회" }),
+    (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], NovelController.prototype, "getParticipants", null);
+__decorate([
+    (0, common_1.Get)("/rankings"),
+    (0, swagger_1.ApiOperation)({ summary: "통합 소설 랭킹 (좋아요 + 조회수 기반)" }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], NovelController.prototype, "getTotalRanking", null);
+__decorate([
+    (0, common_1.Get)("/rankings/:ageGroup"),
+    (0, swagger_1.ApiOperation)({ summary: "연령대별 소설 랭킹" }),
+    (0, swagger_1.ApiParam)({ name: "ageGroup", type: Number }),
+    __param(0, (0, common_1.Param)("ageGroup")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], NovelController.prototype, "getRankingByAge", null);
 exports.NovelController = NovelController = __decorate([
     (0, swagger_1.ApiTags)("Novel (소설)"),
     (0, common_1.Controller)("novels"),

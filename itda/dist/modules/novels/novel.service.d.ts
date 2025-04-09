@@ -18,8 +18,10 @@ export declare class NovelService {
     create(dto: CreateNovelDto): Promise<Novel>;
     addChapter(novelId: number, dto: AddChapterDto): Promise<Chapter>;
     getParticipants(novelId: number): Promise<Participant[]>;
-    getFilteredNovels(type?: string, genre?: string, age?: string): Promise<Novel[]>;
+    getFilteredNovels(type?: string, genre?: string | number, age?: number): Promise<Novel[]>;
     getNovelDetail(novelId: number, userId?: number): Promise<any>;
     findMyNovels(userId: number): Promise<Novel[]>;
     searchNovelsByTitle(query: string): Promise<Novel[]>;
+    getRankedNovels(): Promise<Novel[]>;
+    getRankedNovelsByAge(ageGroup: number): Promise<Novel[]>;
 }

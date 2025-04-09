@@ -1,7 +1,8 @@
 export declare class CreateNovelDto {
-    title: string;
     categoryId: number;
-    peopleNum: 5 | 7 | 9;
+    peopleNum: number;
+    title: string;
     content: string;
+    type: "first" | "relay";
     userId: number;
 }

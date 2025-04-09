@@ -13,10 +13,7 @@ import { Genre } from "../genre/genre.entity";
 import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
-
-// 통합 랭킹 => 찜 70%, 조회수 30%
-// 찜 => 같으면 가나다순
-// 연령별은 찜70 + 조회수30 + 연령대
+import { AgeGroup } from "./dto/filternovel.dto";
 
 @Injectable()
 export class NovelService {
@@ -37,16 +34,10 @@ export class NovelService {
     private readonly participantRepo: Repository<Participant>
   ) {}
 
-  /**
-   * 전체 소설 목록 조회
-   */
   async getAllNovels(): Promise<Novel[]> {
     return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
   }
 
-  /**
-   * ID로 소설 상세 조회
-   */
   async getNovelById(id: number): Promise<Novel> {
     const novel = await this.novelRepo.findOne({
       where: { id },
@@ -60,34 +51,27 @@ export class NovelService {
     return novel;
   }
 
-  /**
-   * 소설 생성 + 첫 챕터 작성 + 참가자 등록
-   */
   async create(dto: CreateNovelDto): Promise<Novel> {
-    const { title, categoryId, peopleNum, content, userId } = dto;
+    const { title, categoryId, peopleNum, content, userId, type } = dto;
 
-    // 유저 검증
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new Error("작성자 유저를 찾을 수 없습니다");
 
-    // 장르 검증
     const genre = await this.genreRepo.findOneBy({ id: categoryId });
     if (!genre) throw new Error("해당 장르가 존재하지 않습니다");
 
-    // 인원 수
     const maxParticipants = peopleNum;
 
-    // 소설 엔티티 생성 및 저장
     const novel = this.novelRepo.create({
       title,
       creator: user,
       genre,
-      max_participants: maxParticipants,
-      status: "ongoing", // 기본 상태는 '진행중'
+      max_participants: maxParticipants as 5 | 7 | 9,
+      status: "ongoing",
+      type,
     });
     await this.novelRepo.save(novel);
 
-    // 첫 챕터 생성 및 저장
     const chapter = this.chapterRepo.create({
       novel,
       author: user,
@@ -96,7 +80,6 @@ export class NovelService {
     });
     await this.chapterRepo.save(chapter);
 
-    // 참가자 등록 (creator는 order_number = 1)
     const participant = this.participantRepo.create({
       novel,
       user,
@@ -107,24 +90,18 @@ export class NovelService {
     return novel;
   }
 
-  /**
-   * 이어쓰기 (새 챕터 작성) + 참가자 등록
-   */
   async addChapter(novelId: number, dto: AddChapterDto): Promise<Chapter> {
     const { userId, content } = dto;
 
-    // 소설 존재 여부 확인
     const novel = await this.novelRepo.findOne({
       where: { id: novelId },
       relations: ["chapters"],
     });
     if (!novel) throw new NotFoundException("해당 소설이 존재하지 않습니다.");
 
-    // 작성자 유저 검증
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new NotFoundException("작성자를 찾을 수 없습니다.");
 
-    // 해당 사용자가 이미 작성했는지 확인
     const hasUserWrittenBefore = novel.chapters.some(
       (chapter) => chapter.author.id === userId
     );
@@ -134,7 +111,6 @@ export class NovelService {
       );
     }
 
-    // 바로 전 챕터 작성자가 본인인지 확인 (연속 작성 금지)
     const lastChapter = novel.chapters[novel.chapters.length - 1];
     if (lastChapter?.author?.id === userId) {
       throw new BadRequestException(
@@ -142,17 +118,14 @@ export class NovelService {
       );
     }
 
-    // 현재 참여자 수 확인
     const currentParticipantCount = await this.participantRepo.count({
       where: { novel: { id: novelId } },
     });
 
-    // 인원 제한 초과 여부 체크
     if (currentParticipantCount >= novel.max_participants) {
       throw new BadRequestException("참여자 수를 초과했습니다.");
     }
 
-    // 새 참가자 등록 (order_number는 현재 참여자 수 + 1)
     const newParticipant = this.participantRepo.create({
       novel,
       user,
@@ -160,7 +133,6 @@ export class NovelService {
     });
     await this.participantRepo.save(newParticipant);
 
-    // 새 챕터 생성 및 저장
     const chapter = this.chapterRepo.create({
       novel,
       author: user,
@@ -171,47 +143,52 @@ export class NovelService {
     return this.chapterRepo.save(chapter);
   }
 
-  // ✅ 참여자 조회
-  // 가공이 필요하다면 코드 작성해야함
   async getParticipants(novelId: number): Promise<Participant[]> {
     const participants = await this.participantRepo.find({
       where: { novel: { id: novelId } },
-      relations: ["user"], // 유저 정보도 포함해서
+      relations: ["user"],
       order: { order_number: "ASC" },
     });
 
     return participants;
   }
 
-  // 타입 + 장르 + 연령 필터링
   async getFilteredNovels(
     type?: string,
-    genre?: string,
-    age?: string
-  ): Promise<Novel[]> {
+    genre?: string | number,
+    age?: number
+  ) {
     const query = this.novelRepo
       .createQueryBuilder("novel")
+      .leftJoinAndSelect("novel.creator", "user")
       .leftJoinAndSelect("novel.genre", "genre")
-      .leftJoinAndSelect("novel.creator", "creator")
-      .leftJoinAndSelect("novel.chapters", "chapters")
-      .orderBy("novel.id", "DESC");
+      .leftJoinAndSelect("novel.chapters", "chapter")
+      .leftJoinAndSelect("novel.likes", "likes")
+      .loadRelationCountAndMap("novel.likeCount", "novel.likes");
 
-    if (type) {
-      query.andWhere("novel.type = :type", { type });
+    console.log("필터링 조건:", { type, genre, age });
+
+    if (type === "first") {
+      query.andWhere("chapter.chapter_number = 1");
     }
 
-    if (genre) {
-      query.andWhere("genre.name = :genre", { genre });
+    if (genre !== undefined && genre !== "all" && genre !== "전체") {
+      if (typeof genre === "number" || !isNaN(Number(genre))) {
+        query.andWhere("genre.id = :genreId", { genreId: Number(genre) });
+      } else {
+        query.andWhere("genre.name = :genreName", { genreName: genre });
+      }
     }
 
-    if (age) {
-      query.andWhere("novel.age = :age", { age });
+    if (age !== undefined) {
+      query.andWhere("user.age_group = :age", { age });
     }
+
+    query.orderBy("novel.created_at", "DESC");
 
     return await query.getMany();
   }
 
-  // 소설 상세조회
   async getNovelDetail(novelId: number, userId?: number): Promise<any> {
     const novel = await this.novelRepo.findOne({
       where: { id: novelId },
@@ -237,32 +214,81 @@ export class NovelService {
       id: novel.id,
       title: novel.title,
       genre: novel.genre?.name ?? null,
+      categoryId: novel.genre?.id ?? null,
       author: novel.participants
-        .filter((p) => p.user && p.user.nickname) // null 또는 undefined 방지
+        .filter((p) => p.user && p.user.nickname)
         .map((p) => p.user.nickname)
         .join(", "),
-
       likeCount,
       isLiked,
       image: novel.cover_image,
+      type: novel.type,
+      createdAt: novel.created_at.toISOString(),
     };
   }
 
-  // 내가쓴 글 보기
   async findMyNovels(userId: number) {
     return this.novelRepo.find({
-      where: { creator: { id: userId } }, // 만약 소설 작성자가 creator라면
-      relations: ["creator"], // 또는 "author" 관계에 맞춰서
+      where: { creator: { id: userId } },
+      relations: ["creator"],
       order: { created_at: "DESC" },
     });
   }
 
-  // 검색(제목 기준)
   async searchNovelsByTitle(query: string): Promise<Novel[]> {
     return this.novelRepo.find({
       where: { title: Like(`%${query}%`) },
       relations: ["genre", "creator", "chapters"],
       order: { created_at: "DESC" },
     });
+  }
+
+  async getRankedNovels(): Promise<Novel[]> {
+    const novels = await this.novelRepo.find({
+      relations: ["likes", "creator", "genre", "chapters"],
+    });
+
+    const ranked = novels
+      .map((novel) => {
+        const score =
+          (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3;
+        return { ...novel, score };
+      })
+      .sort((a, b) => {
+        if (b.score === a.score) {
+          return a.title.localeCompare(b.title);
+        }
+        return b.score - a.score;
+      })
+      .slice(0, 8);
+
+    return ranked;
+  }
+
+  async getRankedNovelsByAge(ageGroup: number): Promise<Novel[]> {
+    const novels = await this.novelRepo.find({
+      relations: ["likes", "creator", "genre", "chapters"],
+      where: {
+        creator: {
+          age_group: ageGroup,
+        },
+      },
+    });
+
+    const ranked = novels
+      .map((novel) => {
+        const score =
+          (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3;
+        return { ...novel, score };
+      })
+      .sort((a, b) => {
+        if (b.score === a.score) {
+          return a.title.localeCompare(b.title);
+        }
+        return b.score - a.score;
+      })
+      .slice(0, 8);
+
+    return ranked;
   }
 }

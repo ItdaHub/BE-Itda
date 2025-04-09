@@ -1,47 +1,34 @@
 import {
   IsEnum,
-  IsIn,
-  IsNumber,
+  IsInt,
+  IsNotEmpty,
   IsString,
-  Length,
+  MaxLength,
   MinLength,
 } from "class-validator";
 
-// export enum NovelType {
-//   HOME = "home",
-//   RELAY = "relay",
-//   CONTEST = "contest",
-// }
-
-// export enum AgeGroup {
-//   TEEN = "teen",
-//   TWENTIES = "twenties",
-//   THIRTIES = "thirties",
-//   FORTIES = "forties",
-// }
-
 export class CreateNovelDto {
+  @IsInt()
+  categoryId: number; // 장르 ID 숫자형
+
+  @IsInt()
+  peopleNum: number; // 참여 인원
+
   @IsString()
-  @Length(1, 10)
+  @IsNotEmpty()
+  @MaxLength(10)
   title: string;
-
-  @IsNumber()
-  categoryId: number;
-
-  @IsNumber()
-  @IsIn([5, 7, 9])
-  peopleNum: 5 | 7 | 9;
 
   @IsString()
   @MinLength(10)
-  @Length(10, 300)
+  @MaxLength(300)
   content: string;
 
-  // @IsEnum(NovelType)
-  // type: NovelType;
+  @IsEnum(["first", "relay"], {
+    message: "type은 'first' 또는 'relay'만 가능합니다.",
+  })
+  type: "first" | "relay";
 
-  // @IsEnum(AgeGroup)
-  // age_group: AgeGroup;
-
+  @IsInt()
   userId: number;
 }

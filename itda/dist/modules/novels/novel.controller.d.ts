@@ -6,11 +6,13 @@ export declare class NovelController {
     private readonly novelService;
     constructor(novelService: NovelService);
     getAllNovels(): Promise<Novel[]>;
-    getNovelDetail(id: number, req: any): Promise<any>;
+    getFilteredNovels(type?: "first" | "relay", genre?: string, req?: any): Promise<Novel[]>;
     createNovel(dto: CreateNovelDto, req: any): Promise<Novel>;
     addChapter(novelId: string, dto: AddChapterDto, req: any): Promise<import("../chapter/chapter.entity").Chapter>;
-    getParticipants(novelId: string): Promise<import("./participant.entity").Participant[]>;
-    getFilteredNovels(type: string, genre: string, age: string): Promise<Novel[]>;
     getMyNovels(req: any): Promise<Novel[]>;
     searchNovelsByTitle(query: string): Promise<Novel[]>;
+    getNovelDetail(id: number, req: any): Promise<any>;
+    getParticipants(novelId: string): Promise<import("./participant.entity").Participant[]>;
+    getTotalRanking(): Promise<Novel[]>;
+    getRankingByAge(ageGroup: number): Promise<Novel[]>;
 }

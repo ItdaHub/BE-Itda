@@ -35,15 +35,16 @@ export class NovelController {
     return this.novelService.getAllNovels();
   }
 
-  // 📖 소설 상세 조회 (좋아요 상태 포함)
-  @Get(":id")
-  @ApiOperation({ summary: "소설 상세 조회" })
-  @ApiParam({ name: "id", description: "소설 ID" })
-  @ApiBearerAuth() // Swagger 상 JWT 표시
-  @UseGuards(JwtAuthGuard) // 로그인한 경우에만 user 정보를 얻음
-  async getNovelDetail(@Param("id", ParseIntPipe) id: number, @Req() req) {
-    const userId = req.user?.id ?? null;
-    return this.novelService.getNovelDetail(id, userId);
+  // 🔍 타입/장르로 소설 필터링
+  @Get("filter")
+  async getFilteredNovels(
+    @Query("type") type?: "first" | "relay",
+    @Query("genre") genre?: string,
+    @Req() req?: any
+  ): Promise<Novel[]> {
+    const userId = req.user?.id;
+    const genreNumber = genre ? parseInt(genre, 10) : undefined;
+    return this.novelService.getFilteredNovels(type, genreNumber, userId);
   }
 
   // 📝 소설 처음 작성 (소설 + 첫 번째 챕터)
@@ -74,28 +75,6 @@ export class NovelController {
     });
   }
 
-  // 👥 소설 참여자 목록 조회
-  @Get(":id/participants")
-  @ApiOperation({ summary: "소설에 참여한 사용자 목록 조회" })
-  @ApiParam({ name: "id", description: "소설 ID" })
-  async getParticipants(@Param("id") novelId: string) {
-    return this.novelService.getParticipants(parseInt(novelId, 10));
-  }
-
-  // 🔍 타입/장르로 소설 필터링
-  @Get("filter")
-  @ApiOperation({ summary: "소설 필터링 (타입 + 장르 + 연령대)" })
-  @ApiQuery({ name: "type", required: false, description: "소설 타입" })
-  @ApiQuery({ name: "genre", required: false, description: "소설 장르" })
-  @ApiQuery({ name: "age", required: false, description: "연령대" }) // 👈 추가
-  async getFilteredNovels(
-    @Query("type") type: string,
-    @Query("genre") genre: string,
-    @Query("age") age: string // 👈 추가
-  ): Promise<Novel[]> {
-    return this.novelService.getFilteredNovels(type, genre, age);
-  }
-
   // ✍️ 내가 쓴 소설 목록
   @UseGuards(JwtAuthGuard)
   @Get("/my")
@@ -115,5 +94,37 @@ export class NovelController {
       throw new BadRequestException("검색어가 비어있습니다.");
     }
     return this.novelService.searchNovelsByTitle(query);
+  }
+
+  // 📖 소설 상세 조회 (좋아요 상태 포함)
+  @Get(":id")
+  @ApiOperation({ summary: "소설 상세 조회 (비회원도 접근 가능)" })
+  @ApiParam({ name: "id", description: "소설 ID" })
+  async getNovelDetail(@Param("id", ParseIntPipe) id: number, @Req() req) {
+    const userId = req.user?.id ?? null;
+    return this.novelService.getNovelDetail(id, userId);
+  }
+
+  // 👥 소설 참여자 목록 조회
+  @Get(":id/participants")
+  @ApiOperation({ summary: "소설에 참여한 사용자 목록 조회" })
+  @ApiParam({ name: "id", description: "소설 ID" })
+  async getParticipants(@Param("id") novelId: string) {
+    return this.novelService.getParticipants(parseInt(novelId, 10));
+  }
+
+  // 통합 랭킹
+  @Get("/rankings")
+  @ApiOperation({ summary: "통합 소설 랭킹 (좋아요 + 조회수 기반)" })
+  getTotalRanking() {
+    return this.novelService.getRankedNovels();
+  }
+
+  // 연령대별 랭킹
+  @Get("/rankings/:ageGroup")
+  @ApiOperation({ summary: "연령대별 소설 랭킹" })
+  @ApiParam({ name: "ageGroup", type: Number })
+  getRankingByAge(@Param("ageGroup") ageGroup: number) {
+    return this.novelService.getRankedNovelsByAge(ageGroup);
   }
 }

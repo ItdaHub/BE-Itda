@@ -12,31 +12,42 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateNovelDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateNovelDto {
-    title;
     categoryId;
     peopleNum;
+    title;
     content;
+    type;
     userId;
 }
 exports.CreateNovelDto = CreateNovelDto;
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Length)(1, 10),
-    __metadata("design:type", String)
-], CreateNovelDto.prototype, "title", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], CreateNovelDto.prototype, "categoryId", void 0);
 __decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsIn)([5, 7, 9]),
+    (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], CreateNovelDto.prototype, "peopleNum", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MaxLength)(10),
+    __metadata("design:type", String)
+], CreateNovelDto.prototype, "title", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(10),
-    (0, class_validator_1.Length)(10, 300),
+    (0, class_validator_1.MaxLength)(300),
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "content", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(["first", "relay"], {
+        message: "type은 'first' 또는 'relay'만 가능합니다.",
+    }),
+    __metadata("design:type", String)
+], CreateNovelDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], CreateNovelDto.prototype, "userId", void 0);
 //# sourceMappingURL=createnovel.dto.js.map
