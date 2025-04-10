@@ -32,12 +32,16 @@ export class ChapterController {
     return this.chapterService.getChaptersByNovel(novelId);
   }
 
-  @Get("content/:chapterId")
+  @Get("content/:novelId/:chapterId")
   @ApiOperation({ summary: "챕터 본문(슬라이드 콘텐츠) 조회" })
+  @ApiParam({ name: "novelId", type: Number })
   @ApiParam({ name: "chapterId", type: Number })
   @ApiResponse({ status: 200, description: "챕터 콘텐츠 반환 성공" })
-  async getChapterContent(@Param("chapterId", ParseIntPipe) chapterId: number) {
-    return this.chapterService.getChapterContent(chapterId);
+  async getChapterContent(
+    @Param("novelId", ParseIntPipe) novelId: number,
+    @Param("chapterId", ParseIntPipe) chapterId: number
+  ) {
+    return this.chapterService.getChapterContent(novelId, chapterId);
   }
 
   @UseGuards(JwtAuthGuard)

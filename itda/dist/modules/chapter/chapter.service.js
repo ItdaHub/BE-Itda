@@ -38,17 +38,32 @@ let ChapterService = class ChapterService {
             relations: ["comments"],
         });
     }
-    async getChapterContent(chapterId) {
-        const chapter = await this.chapterRepository.findOne({
-            where: { id: chapterId },
+    async getChapterContent(novelId, chapterId) {
+        const novel = await this.novelRepository.findOne({
+            where: { id: novelId },
         });
-        if (!chapter)
-            return null;
-        const slides = chapter.content.split(/\n{2,}/).map((text, index) => ({
+        if (!novel) {
+            throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
+        }
+        const chapter = await this.chapterRepository.findOne({
+            where: { id: chapterId, novel: { id: novelId } },
+            relations: ["author"],
+        });
+        if (!chapter) {
+            throw new common_1.NotFoundException(`Chapter with ID ${chapterId} not found`);
+        }
+        const slides = chapter.content
+            .split(/\n{2,}/)
+            .map((text, index) => ({
             index,
             text: text.trim(),
-        }));
-        return slides;
+        }))
+            .filter((slide) => slide.text.length > 0);
+        return {
+            slides,
+            authorNickname: chapter.author?.nickname || "알 수 없음",
+            writerId: chapter.author?.id,
+        };
     }
     async createChapter(novelId, content, user) {
         const novel = await this.novelRepository.findOne({

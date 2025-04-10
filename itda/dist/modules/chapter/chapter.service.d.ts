@@ -6,9 +6,13 @@ export declare class ChapterService {
     private readonly novelRepository;
     constructor(chapterRepository: Repository<Chapter>, novelRepository: Repository<Novel>);
     getChaptersByNovel(novelId: number): Promise<Chapter[]>;
-    getChapterContent(chapterId: number): Promise<{
-        index: number;
-        text: string;
-    }[] | null>;
+    getChapterContent(novelId: number, chapterId: number): Promise<{
+        slides: {
+            index: number;
+            text: string;
+        }[];
+        authorNickname: string;
+        writerId: number;
+    }>;
     createChapter(novelId: number, content: string, user: any): Promise<Chapter>;
 }

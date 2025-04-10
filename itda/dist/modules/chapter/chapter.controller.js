@@ -26,8 +26,8 @@ let ChapterController = class ChapterController {
     async getChaptersByNovel(novelId) {
         return this.chapterService.getChaptersByNovel(novelId);
     }
-    async getChapterContent(chapterId) {
-        return this.chapterService.getChapterContent(chapterId);
+    async getChapterContent(novelId, chapterId) {
+        return this.chapterService.getChapterContent(novelId, chapterId);
     }
     async createChapter(novelId, createChapterDto, req) {
         const user = req.user;
@@ -46,13 +46,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ChapterController.prototype, "getChaptersByNovel", null);
 __decorate([
-    (0, common_1.Get)("content/:chapterId"),
+    (0, common_1.Get)("content/:novelId/:chapterId"),
     (0, swagger_1.ApiOperation)({ summary: "챕터 본문(슬라이드 콘텐츠) 조회" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
     (0, swagger_1.ApiParam)({ name: "chapterId", type: Number }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "챕터 콘텐츠 반환 성공" }),
-    __param(0, (0, common_1.Param)("chapterId", common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Param)("chapterId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], ChapterController.prototype, "getChapterContent", null);
 __decorate([
