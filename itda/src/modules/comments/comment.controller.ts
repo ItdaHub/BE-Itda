@@ -44,12 +44,14 @@ export class CommentsController {
     });
   }
 
-  // ✅ 댓글 조회 (소설 ID 기준, 선택적으로 챕터 ID나 userId 필터링 가능)
+  // ✅ 댓글 조회 (좋아요 여부 포함)
   @Get(":novelId")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
-    summary: "댓글 목록 조회",
+    summary: "댓글 목록 조회 (좋아요 여부 포함)",
     description:
-      "소설 ID를 기준으로 댓글을 조회하며, 챕터 ID나 유저 ID로 필터링할 수 있습니다.",
+      "소설 ID를 기준으로 댓글을 조회하며, 챕터 ID나 유저 ID로 필터링할 수 있습니다. 로그인한 유저가 좋아요 누른 댓글은 isLiked=true로 표시됩니다.",
   })
   @ApiParam({ name: "novelId", type: Number, description: "소설 ID" })
   @ApiQuery({
@@ -66,11 +68,16 @@ export class CommentsController {
   })
   @ApiResponse({ status: 200, description: "댓글 목록 반환 성공" })
   async getComments(
+    @Req() req,
     @Param("novelId") novelId: number,
     @Query("chapterId") chapterId?: number,
     @Query("userId") userId?: number
   ) {
-    return this.commentsService.getComments(novelId, chapterId, userId);
+    const loginUserId = req.user?.id;
+    console.log("현재 유저:", req.user); // ✅ 여기 확인
+
+    // userId로 필터링은 아직 서비스에서 구현 안 됨 → 적용하려면 서비스 로직도 수정 필요
+    return this.commentsService.getComments(novelId, chapterId, loginUserId); // ✅ 여기
   }
 
   // ✅ 댓글 삭제

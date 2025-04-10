@@ -75,46 +75,84 @@ export class CommentsService {
       relations: [
         "user",
         "likes",
+        "likes.user",
         "childComments",
         "childComments.user",
         "childComments.likes",
+        "childComments.likes.user",
+        "childComments.parent_comment",
+        "parent_comment",
       ],
       order: { created_at: "ASC" },
     });
 
-    const formatComment = (comment: Comment) => ({
-      id: comment.id,
-      writer: comment.user.nickname,
-      writerId: comment.user.id,
-      comment: comment.content,
-      date: comment.created_at,
-      likeNum: comment.likes.length,
-      isliked: currentUserId
-        ? comment.likes.some((like) => like.user.id === currentUserId)
-        : false,
-      parentId: comment.parent_comment?.id ?? null,
-    });
+    const formatComment = (comment: Comment) => {
+      const createdAt =
+        comment.created_at instanceof Date
+          ? comment.created_at.toISOString()
+          : null;
 
-    return rootComments.map((root) => ({
-      ...formatComment(root),
-      childComments: root.childComments
-        .sort((a, b) => +a.created_at - +b.created_at)
-        .map(formatComment),
-    }));
+      // 현재 로그인 유저가 해당 댓글에 좋아요 눌렀는지 확인
+      const isLikedByUser = currentUserId
+        ? comment.likes?.some((like) => like.user?.id === currentUserId)
+        : false;
+
+      return {
+        id: comment.id,
+        writer: comment.user?.nickname ?? comment.user?.email ?? "익명",
+        writerId: comment.user?.id ?? null,
+        comment: comment.content,
+        date: createdAt,
+        likeNum: comment.likes?.length ?? 0,
+        isliked: isLikedByUser,
+        parentId: comment.parent_comment?.id ?? null,
+      };
+    };
+
+    const flatComments = rootComments.flatMap((root) => {
+      console.log(
+        "🧷 루트 댓글:",
+        root.id,
+        root.likes?.map((l) => l.user?.id)
+      );
+      const rootFormatted = formatComment(root);
+
+      const childFormatted = (root.childComments ?? []).map((child) => {
+        console.log(
+          "↪️ 대댓글:",
+          child.id,
+          child.likes?.map((l) => l.user?.id)
+        );
+        return formatComment(child);
+      });
+
+      return [rootFormatted, ...childFormatted];
+    });
+    return flatComments;
   }
 
-  // 댓글 삭제
   async deleteComment(id: number) {
-    const comment = await this.commentRepo.findOneByOrFail({ id });
+    const comment = await this.commentRepo.findOne({
+      where: { id },
+      relations: ["childComments"],
+    });
 
-    // 대댓글이 있을 경우 함께 삭제하거나 처리 로직 추가 가능
+    if (!comment) {
+      throw new Error("댓글을 찾을 수 없습니다.");
+    }
+
+    // 대댓글이 있으면 먼저 삭제
+    if (comment.childComments && comment.childComments.length > 0) {
+      await this.commentRepo.remove(comment.childComments);
+    }
+
     await this.commentRepo.remove(comment);
-    return { message: "댓글이 삭제되었습니다." };
+
+    return { message: "댓글 및 대댓글이 삭제되었습니다." };
   }
 
   // 댓글 신고
   async reportComment(commentId: number, userId: number, reason: string) {
-    // 중복 신고 방지
     const alreadyReported = await this.reportRepository.findOne({
       where: {
         reporter: { id: userId },
@@ -145,7 +183,7 @@ export class CommentsService {
   async findByUser(userId: number): Promise<Comment[]> {
     return this.commentRepo.find({
       where: { user: { id: userId } },
-      relations: ["novel", "chapter"], // 필요하면 추가
+      relations: ["novel", "chapter"],
       order: { created_at: "DESC" },
     });
   }

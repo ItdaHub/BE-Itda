@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 let AiService = class AiService {
     configService;
+    Gemini_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
     constructor(configService) {
         this.configService = configService;
     }

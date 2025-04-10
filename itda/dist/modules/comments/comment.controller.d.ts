@@ -3,22 +3,12 @@ export declare class CommentsController {
     private readonly commentsService;
     constructor(commentsService: CommentsService);
     create(body: any): Promise<import("./comment.entity").Comment>;
-    getComments(novelId: number, chapterId?: number, userId?: number): Promise<{
-        childComments: {
-            id: number;
-            writer: string;
-            writerId: number;
-            comment: string;
-            date: Date;
-            likeNum: number;
-            isliked: boolean;
-            parentId: number | null;
-        }[];
+    getComments(req: any, novelId: number, chapterId?: number, userId?: number): Promise<{
         id: number;
         writer: string;
         writerId: number;
         comment: string;
-        date: Date;
+        date: string | null;
         likeNum: number;
         isliked: boolean;
         parentId: number | null;

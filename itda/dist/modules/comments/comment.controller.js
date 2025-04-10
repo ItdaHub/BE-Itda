@@ -32,8 +32,10 @@ let CommentsController = class CommentsController {
             parentId,
         });
     }
-    async getComments(novelId, chapterId, userId) {
-        return this.commentsService.getComments(novelId, chapterId, userId);
+    async getComments(req, novelId, chapterId, userId) {
+        const loginUserId = req.user?.id;
+        console.log("현재 유저:", req.user);
+        return this.commentsService.getComments(novelId, chapterId, loginUserId);
     }
     async deleteComment(id) {
         return this.commentsService.deleteComment(id);
@@ -61,9 +63,11 @@ __decorate([
 ], CommentsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(":novelId"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({
-        summary: "댓글 목록 조회",
-        description: "소설 ID를 기준으로 댓글을 조회하며, 챕터 ID나 유저 ID로 필터링할 수 있습니다.",
+        summary: "댓글 목록 조회 (좋아요 여부 포함)",
+        description: "소설 ID를 기준으로 댓글을 조회하며, 챕터 ID나 유저 ID로 필터링할 수 있습니다. 로그인한 유저가 좋아요 누른 댓글은 isLiked=true로 표시됩니다.",
     }),
     (0, swagger_1.ApiParam)({ name: "novelId", type: Number, description: "소설 ID" }),
     (0, swagger_1.ApiQuery)({
@@ -79,11 +83,12 @@ __decorate([
         description: "작성자 ID",
     }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "댓글 목록 반환 성공" }),
-    __param(0, (0, common_1.Param)("novelId")),
-    __param(1, (0, common_1.Query)("chapterId")),
-    __param(2, (0, common_1.Query)("userId")),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)("novelId")),
+    __param(2, (0, common_1.Query)("chapterId")),
+    __param(3, (0, common_1.Query)("userId")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, Number]),
+    __metadata("design:paramtypes", [Object, Number, Number, Number]),
     __metadata("design:returntype", Promise)
 ], CommentsController.prototype, "getComments", null);
 __decorate([

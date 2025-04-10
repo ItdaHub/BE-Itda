@@ -11,6 +11,10 @@ export class CreateCommentDto {
   @IsInt()
   chapterId?: number;
 
+  @IsOptional()
+  @IsInt()
+  parentId?: number;
+
   @IsString()
   @IsNotEmpty()
   content: string;

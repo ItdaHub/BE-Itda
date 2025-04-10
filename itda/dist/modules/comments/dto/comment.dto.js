@@ -15,6 +15,7 @@ class CreateCommentDto {
     userId;
     novelId;
     chapterId;
+    parentId;
     content;
 }
 exports.CreateCommentDto = CreateCommentDto;
@@ -31,6 +32,11 @@ __decorate([
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], CreateCommentDto.prototype, "chapterId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], CreateCommentDto.prototype, "parentId", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),

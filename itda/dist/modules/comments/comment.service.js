@@ -65,35 +65,58 @@ let CommentsService = class CommentsService {
             relations: [
                 "user",
                 "likes",
+                "likes.user",
                 "childComments",
                 "childComments.user",
                 "childComments.likes",
+                "childComments.likes.user",
+                "childComments.parent_comment",
+                "parent_comment",
             ],
             order: { created_at: "ASC" },
         });
-        const formatComment = (comment) => ({
-            id: comment.id,
-            writer: comment.user.nickname,
-            writerId: comment.user.id,
-            comment: comment.content,
-            date: comment.created_at,
-            likeNum: comment.likes.length,
-            isliked: currentUserId
-                ? comment.likes.some((like) => like.user.id === currentUserId)
-                : false,
-            parentId: comment.parent_comment?.id ?? null,
+        const formatComment = (comment) => {
+            const createdAt = comment.created_at instanceof Date
+                ? comment.created_at.toISOString()
+                : null;
+            const isLikedByUser = currentUserId
+                ? comment.likes?.some((like) => like.user?.id === currentUserId)
+                : false;
+            return {
+                id: comment.id,
+                writer: comment.user?.nickname ?? comment.user?.email ?? "익명",
+                writerId: comment.user?.id ?? null,
+                comment: comment.content,
+                date: createdAt,
+                likeNum: comment.likes?.length ?? 0,
+                isliked: isLikedByUser,
+                parentId: comment.parent_comment?.id ?? null,
+            };
+        };
+        const flatComments = rootComments.flatMap((root) => {
+            console.log("🧷 루트 댓글:", root.id, root.likes?.map((l) => l.user?.id));
+            const rootFormatted = formatComment(root);
+            const childFormatted = (root.childComments ?? []).map((child) => {
+                console.log("↪️ 대댓글:", child.id, child.likes?.map((l) => l.user?.id));
+                return formatComment(child);
+            });
+            return [rootFormatted, ...childFormatted];
         });
-        return rootComments.map((root) => ({
-            ...formatComment(root),
-            childComments: root.childComments
-                .sort((a, b) => +a.created_at - +b.created_at)
-                .map(formatComment),
-        }));
+        return flatComments;
     }
     async deleteComment(id) {
-        const comment = await this.commentRepo.findOneByOrFail({ id });
+        const comment = await this.commentRepo.findOne({
+            where: { id },
+            relations: ["childComments"],
+        });
+        if (!comment) {
+            throw new Error("댓글을 찾을 수 없습니다.");
+        }
+        if (comment.childComments && comment.childComments.length > 0) {
+            await this.commentRepo.remove(comment.childComments);
+        }
         await this.commentRepo.remove(comment);
-        return { message: "댓글이 삭제되었습니다." };
+        return { message: "댓글 및 대댓글이 삭제되었습니다." };
     }
     async reportComment(commentId, userId, reason) {
         const alreadyReported = await this.reportRepository.findOne({

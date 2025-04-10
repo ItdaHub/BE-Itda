@@ -19,21 +19,11 @@ export declare class CommentsService {
         parentId?: number;
     }): Promise<Comment>;
     getComments(novelId: number, chapterId?: number, currentUserId?: number): Promise<{
-        childComments: {
-            id: number;
-            writer: string;
-            writerId: number;
-            comment: string;
-            date: Date;
-            likeNum: number;
-            isliked: boolean;
-            parentId: number | null;
-        }[];
         id: number;
         writer: string;
         writerId: number;
         comment: string;
-        date: Date;
+        date: string | null;
         likeNum: number;
         isliked: boolean;
         parentId: number | null;
