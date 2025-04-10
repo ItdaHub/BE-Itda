@@ -10,4 +10,5 @@ export declare class ChapterService {
         index: number;
         text: string;
     }[] | null>;
+    createChapter(novelId: number, content: string, user: any): Promise<Chapter>;
 }

@@ -50,6 +50,25 @@ let ChapterService = class ChapterService {
         }));
         return slides;
     }
+    async createChapter(novelId, content, user) {
+        const novel = await this.novelRepository.findOne({
+            where: { id: novelId },
+            relations: ["chapters"],
+        });
+        if (!novel) {
+            throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
+        }
+        const chapterCount = await this.chapterRepository.count({
+            where: { novel: { id: novelId } },
+        });
+        const newChapter = this.chapterRepository.create({
+            content,
+            chapter_number: chapterCount + 1,
+            novel,
+            author: user,
+        });
+        return await this.chapterRepository.save(newChapter);
+    }
 };
 exports.ChapterService = ChapterService;
 exports.ChapterService = ChapterService = __decorate([
