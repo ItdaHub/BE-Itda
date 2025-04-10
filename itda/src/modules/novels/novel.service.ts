@@ -149,20 +149,31 @@ export class NovelService {
       .leftJoinAndSelect("novel.likes", "likes")
       .loadRelationCountAndMap("novel.likeCount", "novel.likes");
 
+    // 📘 타입 필터링
     if (type === "new") {
       query
         .leftJoin("novel.chapters", "chapter_new")
         .andWhere("chapter_new.chapter_number = 1");
+    } else if (type === "relay") {
+      query.andWhere("novel.type = :type", { type });
     }
 
-    if (genre && genre !== "all" && genre !== "전체") {
-      if (typeof genre === "number" || !isNaN(Number(genre))) {
-        query.andWhere("genre.id = :genreId", { genreId: Number(genre) });
+    // 🎭 장르 필터링 (id 또는 value 사용)
+    if (typeof genre === "string" && genre !== "all" && genre !== "전체") {
+      const foundGenre = await this.genreRepo.findOne({
+        where: { value: genre },
+      });
+      if (foundGenre) {
+        query.andWhere("genre.id = :genreId", { genreId: foundGenre.id });
       } else {
-        query.andWhere("genre.name = :genreName", { genreName: genre });
+        throw new NotFoundException(`장르 '${genre}'를 찾을 수 없습니다.`);
       }
+    } else if (!isNaN(Number(genre))) {
+      const genreId = Number(genre);
+      query.andWhere("genre.id = :genreId", { genreId });
     }
 
+    // 👶 연령 필터링
     if (age !== undefined) {
       query.andWhere("user.age_group = :age", { age });
     }

@@ -40,11 +40,11 @@ export class NovelController {
   async getFilteredNovels(
     @Query("type") type?: "new" | "relay",
     @Query("genre") genre?: string,
+    @Query("age") age?: number,
     @Req() req?: any
   ): Promise<Novel[]> {
     const userId = req.user?.id;
-    const genreNumber = genre ? parseInt(genre, 10) : undefined;
-    return this.novelService.getFilteredNovels(type, genreNumber, userId);
+    return this.novelService.getFilteredNovels(type, genre, age);
   }
 
   // 📝 소설 처음 작성 (소설 + 첫 번째 챕터)

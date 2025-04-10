@@ -27,10 +27,9 @@ let NovelController = class NovelController {
     async getAllNovels() {
         return this.novelService.getAllNovels();
     }
-    async getFilteredNovels(type, genre, req) {
+    async getFilteredNovels(type, genre, age, req) {
         const userId = req.user?.id;
-        const genreNumber = genre ? parseInt(genre, 10) : undefined;
-        return this.novelService.getFilteredNovels(type, genreNumber, userId);
+        return this.novelService.getFilteredNovels(type, genre, age);
     }
     async createNovel(dto, req) {
         const userId = req.user.id;
@@ -79,9 +78,10 @@ __decorate([
     (0, common_1.Get)("filter"),
     __param(0, (0, common_1.Query)("type")),
     __param(1, (0, common_1.Query)("genre")),
-    __param(2, (0, common_1.Req)()),
+    __param(2, (0, common_1.Query)("age")),
+    __param(3, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:paramtypes", [String, String, Number, Object]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "getFilteredNovels", null);
 __decorate([
