@@ -15,6 +15,7 @@ import { NovelService } from "./novel.service";
 import { CreateNovelDto } from "./dto/createnovel.dto";
 import { AddChapterDto } from "./dto/addchapter.dto";
 import { Novel } from "./novel.entity";
+import { OptionalJwtAuthGuard } from "../auth/optionaljwt.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -97,6 +98,7 @@ export class NovelController {
   }
 
   // 📖 소설 상세 조회 (좋아요 상태 포함)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(":id")
   @ApiOperation({ summary: "소설 상세 조회 (비회원도 접근 가능)" })
   @ApiParam({ name: "id", description: "소설 ID" })

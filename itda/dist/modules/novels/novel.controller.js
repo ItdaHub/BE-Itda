@@ -18,6 +18,7 @@ const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 const novel_service_1 = require("./novel.service");
 const createnovel_dto_1 = require("./dto/createnovel.dto");
 const addchapter_dto_1 = require("./dto/addchapter.dto");
+const optionaljwt_guard_1 = require("../auth/optionaljwt.guard");
 const swagger_1 = require("@nestjs/swagger");
 let NovelController = class NovelController {
     novelService;
@@ -128,6 +129,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "searchNovelsByTitle", null);
 __decorate([
+    (0, common_1.UseGuards)(optionaljwt_guard_1.OptionalJwtAuthGuard),
     (0, common_1.Get)(":id"),
     (0, swagger_1.ApiOperation)({ summary: "소설 상세 조회 (비회원도 접근 가능)" }),
     (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
