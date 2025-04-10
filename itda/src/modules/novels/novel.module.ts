@@ -1,4 +1,3 @@
-// src/modules/novels/novel.module.ts
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { NovelController } from "./novel.controller";
@@ -17,5 +16,6 @@ import { Participant } from "./participant.entity";
   ],
   controllers: [NovelController],
   providers: [NovelService],
+  exports: [NovelService],
 })
 export class NovelModule {}

@@ -1,6 +1,10 @@
 import { ConfigService } from "@nestjs/config";
 export declare class AiService {
     private readonly configService;
-    private readonly Gemini_API;
+    private readonly apiUrl;
     constructor(configService: ConfigService);
+    generateNovel(prompt: string): Promise<{
+        title: string;
+        firstChapter: string;
+    }>;
 }

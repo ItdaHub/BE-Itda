@@ -9,19 +9,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AiService = void 0;
-const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
-let AiService = class AiService {
-    configService;
-    Gemini_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-    constructor(configService) {
-        this.configService = configService;
-    }
-};
-exports.AiService = AiService;
-exports.AiService = AiService = __decorate([
-    (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [config_1.ConfigService])
-], AiService);
-//# sourceMappingURL=ai.service.js.map
+exports.CreateAiDto = void 0;
+const class_validator_1 = require("class-validator");
+class CreateAiDto {
+    prompt;
+    genre;
+}
+exports.CreateAiDto = CreateAiDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateAiDto.prototype, "prompt", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateAiDto.prototype, "genre", void 0);
+//# sourceMappingURL=create-ai.dto.js.map

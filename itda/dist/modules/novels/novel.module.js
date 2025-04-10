@@ -28,6 +28,7 @@ exports.NovelModule = NovelModule = __decorate([
         ],
         controllers: [novel_controller_1.NovelController],
         providers: [novel_service_1.NovelService],
+        exports: [novel_service_1.NovelService],
     })
 ], NovelModule);
 //# sourceMappingURL=novel.module.js.map

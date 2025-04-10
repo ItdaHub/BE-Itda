@@ -108,7 +108,7 @@ export class CommentsController {
     return this.commentsService.reportComment(commentId, userId, reason);
   }
 
-  // ✅ 내가 작성한 댓글 조회
+  // ✅ 내가 작성한 댓글 조회 (수정됨!)
   @Get("my-comments")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -119,6 +119,6 @@ export class CommentsController {
   @ApiResponse({ status: 200, description: "내 댓글 목록 반환 성공" })
   async getMyComments(@Req() req) {
     const userId = req.user.id;
-    return this.commentsService.findByUser(userId);
+    return this.commentsService.findByUser(userId); // 🔁 서비스로 위임
   }
 }

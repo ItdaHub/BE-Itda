@@ -26,7 +26,7 @@ import { Payment } from "./modules/payments/payment.entity";
 import { Point } from "./modules/payments/point.entity";
 import { AdminNotification } from "./modules/notifications/admin_notification.entity";
 import { Announcement } from "./modules/notifications/announcement.entity";
-import { AiModule } from "./ai/ai.module";
+import { AiModule } from "./modules/ai/ai.module";
 import { GenreModule } from "./modules/genre/genre.module";
 import { ChapterModule } from "./modules/chapter/chapter.module";
 import { CommentsModule } from "./modules/comments/comment.module";
