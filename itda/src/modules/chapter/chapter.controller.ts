@@ -7,6 +7,7 @@ import {
   Body,
   Req,
   UseGuards,
+  Query,
 } from "@nestjs/common";
 import { ChapterService } from "./chapter.service";
 import {
@@ -15,6 +16,7 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiQuery,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import { CreateChapterDto } from "./dto/createchapter.dto";
@@ -27,7 +29,6 @@ export class ChapterController {
   @Get(":novelId")
   @ApiOperation({ summary: "소설의 챕터 목록 조회" })
   @ApiParam({ name: "novelId", type: Number })
-  @ApiResponse({ status: 200, description: "챕터 목록 반환 성공" })
   async getChaptersByNovel(@Param("novelId", ParseIntPipe) novelId: number) {
     return this.chapterService.getChaptersByNovel(novelId);
   }
@@ -36,7 +37,6 @@ export class ChapterController {
   @ApiOperation({ summary: "챕터 본문(슬라이드 콘텐츠) 조회" })
   @ApiParam({ name: "novelId", type: Number })
   @ApiParam({ name: "chapterId", type: Number })
-  @ApiResponse({ status: 200, description: "챕터 콘텐츠 반환 성공" })
   async getChapterContent(
     @Param("novelId", ParseIntPipe) novelId: number,
     @Param("chapterId", ParseIntPipe) chapterId: number
@@ -50,9 +50,8 @@ export class ChapterController {
     summary: "소설에 이어쓰기 등록",
     description: "소설 ID에 해당하는 챕터를 새로 등록합니다 (이어쓰기).",
   })
-  @ApiParam({ name: "novelId", type: Number, description: "소설 ID" })
-  @ApiBody({ type: CreateChapterDto }) // 👉 Swagger에서도 DTO 기반으로 문서 생성됨
-  @ApiResponse({ status: 201, description: "챕터 등록 성공" })
+  @ApiParam({ name: "novelId", type: Number })
+  @ApiBody({ type: CreateChapterDto })
   async createChapter(
     @Param("novelId", ParseIntPipe) novelId: number,
     @Body() createChapterDto: CreateChapterDto,
@@ -64,5 +63,21 @@ export class ChapterController {
       createChapterDto.content,
       user
     );
+  }
+
+  @Get("participation/:novelId")
+  @ApiOperation({ summary: "유저가 소설에 이어쓴 기록이 있는지 확인" })
+  @ApiParam({ name: "novelId", type: Number })
+  @ApiQuery({ name: "userId", required: true, type: Number })
+  async hasUserParticipated(
+    @Param("novelId", ParseIntPipe) novelId: number,
+    @Query("userId", ParseIntPipe) userId: number
+  ) {
+    return {
+      hasParticipated: await this.chapterService.hasUserParticipatedInNovel(
+        novelId,
+        userId
+      ),
+    };
   }
 }

@@ -15,4 +15,5 @@ export declare class ChapterService {
         writerId: number;
     }>;
     createChapter(novelId: number, content: string, user: any): Promise<Chapter>;
+    hasUserParticipatedInNovel(novelId: number, userId: number): Promise<boolean>;
 }

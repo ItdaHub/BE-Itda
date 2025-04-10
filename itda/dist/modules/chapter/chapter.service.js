@@ -73,6 +73,15 @@ let ChapterService = class ChapterService {
         if (!novel) {
             throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
         }
+        const alreadyWrote = await this.chapterRepository.findOne({
+            where: {
+                novel: { id: novelId },
+                author: { id: user.id },
+            },
+        });
+        if (alreadyWrote) {
+            throw new Error("이미 이 소설에 이어쓴 기록이 있습니다.");
+        }
         const chapterCount = await this.chapterRepository.count({
             where: { novel: { id: novelId } },
         });
@@ -83,6 +92,15 @@ let ChapterService = class ChapterService {
             author: user,
         });
         return await this.chapterRepository.save(newChapter);
+    }
+    async hasUserParticipatedInNovel(novelId, userId) {
+        const alreadyParticipated = await this.chapterRepository.findOne({
+            where: {
+                novel: { id: novelId },
+                author: { id: userId },
+            },
+        });
+        return !!alreadyParticipated;
     }
 };
 exports.ChapterService = ChapterService;

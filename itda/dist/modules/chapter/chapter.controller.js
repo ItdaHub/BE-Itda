@@ -33,13 +33,17 @@ let ChapterController = class ChapterController {
         const user = req.user;
         return this.chapterService.createChapter(novelId, createChapterDto.content, user);
     }
+    async hasUserParticipated(novelId, userId) {
+        return {
+            hasParticipated: await this.chapterService.hasUserParticipatedInNovel(novelId, userId),
+        };
+    }
 };
 exports.ChapterController = ChapterController;
 __decorate([
     (0, common_1.Get)(":novelId"),
     (0, swagger_1.ApiOperation)({ summary: "소설의 챕터 목록 조회" }),
     (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: "챕터 목록 반환 성공" }),
     __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -50,7 +54,6 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: "챕터 본문(슬라이드 콘텐츠) 조회" }),
     (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
     (0, swagger_1.ApiParam)({ name: "chapterId", type: Number }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: "챕터 콘텐츠 반환 성공" }),
     __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Param)("chapterId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
@@ -64,9 +67,8 @@ __decorate([
         summary: "소설에 이어쓰기 등록",
         description: "소설 ID에 해당하는 챕터를 새로 등록합니다 (이어쓰기).",
     }),
-    (0, swagger_1.ApiParam)({ name: "novelId", type: Number, description: "소설 ID" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
     (0, swagger_1.ApiBody)({ type: createchapter_dto_1.CreateChapterDto }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: "챕터 등록 성공" }),
     __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
@@ -74,6 +76,17 @@ __decorate([
     __metadata("design:paramtypes", [Number, createchapter_dto_1.CreateChapterDto, Object]),
     __metadata("design:returntype", Promise)
 ], ChapterController.prototype, "createChapter", null);
+__decorate([
+    (0, common_1.Get)("participation/:novelId"),
+    (0, swagger_1.ApiOperation)({ summary: "유저가 소설에 이어쓴 기록이 있는지 확인" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
+    (0, swagger_1.ApiQuery)({ name: "userId", required: true, type: Number }),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Query)("userId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], ChapterController.prototype, "hasUserParticipated", null);
 exports.ChapterController = ChapterController = __decorate([
     (0, swagger_1.ApiTags)("Chapters"),
     (0, common_1.Controller)("chapters"),

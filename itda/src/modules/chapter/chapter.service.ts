@@ -29,41 +29,6 @@ export class ChapterService {
     });
   }
 
-  // async getChapterContent(
-  //   novelId: number,
-  //   chapterId: number
-  // ): Promise<{ index: number; text: string; isPaid: boolean }[]> {
-  //   const novel = await this.novelRepository.findOne({
-  //     where: { id: novelId },
-  //   });
-
-  //   if (!novel) {
-  //     throw new NotFoundException(`Novel with ID ${novelId} not found`);
-  //   }
-
-  //   const chapter = await this.chapterRepository.findOne({
-  //     where: { id: chapterId, novel: { id: novelId } },
-  //   });
-
-  //   if (!chapter) {
-  //     throw new NotFoundException(`Chapter with ID ${chapterId} not found`);
-  //   }
-
-  //   const rawSlides = chapter.content
-  //     .split(/\n{2,}/)
-  //     .map((text) => text.trim())
-  //     .filter((text) => text.length > 0);
-
-  //   const paidStartIndex = Math.floor(rawSlides.length / 2);
-
-  //   const slides = rawSlides.map((text, index) => ({
-  //     index,
-  //     text,
-  //     isPaid: index >= paidStartIndex,
-  //   }));
-
-  //   return slides;
-  // }
   async getChapterContent(
     novelId: number,
     chapterId: number
@@ -82,7 +47,7 @@ export class ChapterService {
 
     const chapter = await this.chapterRepository.findOne({
       where: { id: chapterId, novel: { id: novelId } },
-      relations: ["author"], // author 관계 포함
+      relations: ["author"],
     });
 
     if (!chapter) {
@@ -118,6 +83,17 @@ export class ChapterService {
       throw new NotFoundException(`Novel with ID ${novelId} not found`);
     }
 
+    const alreadyWrote = await this.chapterRepository.findOne({
+      where: {
+        novel: { id: novelId },
+        author: { id: user.id },
+      },
+    });
+
+    if (alreadyWrote) {
+      throw new Error("이미 이 소설에 이어쓴 기록이 있습니다.");
+    }
+
     const chapterCount = await this.chapterRepository.count({
       where: { novel: { id: novelId } },
     });
@@ -130,5 +106,19 @@ export class ChapterService {
     });
 
     return await this.chapterRepository.save(newChapter);
+  }
+
+  async hasUserParticipatedInNovel(
+    novelId: number,
+    userId: number
+  ): Promise<boolean> {
+    const alreadyParticipated = await this.chapterRepository.findOne({
+      where: {
+        novel: { id: novelId },
+        author: { id: userId },
+      },
+    });
+
+    return !!alreadyParticipated;
   }
 }

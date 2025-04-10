@@ -13,4 +13,7 @@ export declare class ChapterController {
         writerId: number;
     }>;
     createChapter(novelId: number, createChapterDto: CreateChapterDto, req: any): Promise<import("./chapter.entity").Chapter>;
+    hasUserParticipated(novelId: number, userId: number): Promise<{
+        hasParticipated: boolean;
+    }>;
 }
