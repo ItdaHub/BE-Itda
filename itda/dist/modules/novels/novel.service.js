@@ -175,6 +175,8 @@ let NovelService = class NovelService {
         });
         if (!novel)
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
+        novel.viewCount += 1;
+        await this.novelRepo.save(novel);
         const likeCount = novel.likes.length;
         const isLiked = userId
             ? novel.likes.some((like) => like.user.id === userId)

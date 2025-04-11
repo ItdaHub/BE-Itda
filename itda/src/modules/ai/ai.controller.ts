@@ -21,13 +21,12 @@ export class AiController {
     const { prompt, genre } = body;
     const userId = req.user.id;
 
-    // Gemini로 소설 생성
-    const aiResponse = await this.aiService.generateNovel(prompt);
+    // Gemini로 소설 생성 (본문만 string으로 반환)
+    const content = await this.aiService.generateNovel(prompt);
 
     // 클라이언트에 응답만 해줌 (DB 저장은 안 함)
     return {
-      title: aiResponse.title,
-      content: aiResponse.firstChapter,
+      content,
       genre,
       userId,
     };

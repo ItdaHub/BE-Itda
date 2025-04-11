@@ -31,15 +31,14 @@ let AiService = class AiService {
         const data = await response.json();
         if (!response.ok) {
             console.error("Gemini API Error:", data);
-            return { title: "AI 응답 없음", firstChapter: "" };
+            return "";
         }
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
         if (!text)
-            return { title: "AI 응답 없음", firstChapter: "" };
-        const [titleLine, ...chapterLines] = text.split("\n");
-        const title = titleLine.replace(/제목\s*[:：-]?\s*/, "").trim();
-        const firstChapter = chapterLines.join("\n").trim();
-        return { title, firstChapter };
+            return "";
+        const lines = text.split("\n");
+        const contentOnly = lines.slice(1).join("\n").trim();
+        return contentOnly;
     }
 };
 exports.AiService = AiService;

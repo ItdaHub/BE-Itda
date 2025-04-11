@@ -29,10 +29,9 @@ let AiController = class AiController {
     async generateWithAI(body, req) {
         const { prompt, genre } = body;
         const userId = req.user.id;
-        const aiResponse = await this.aiService.generateNovel(prompt);
+        const content = await this.aiService.generateNovel(prompt);
         return {
-            title: aiResponse.title,
-            content: aiResponse.firstChapter,
+            content,
             genre,
             userId,
         };

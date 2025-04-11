@@ -149,7 +149,6 @@ export class NovelService {
       .leftJoinAndSelect("novel.likes", "likes")
       .loadRelationCountAndMap("novel.likeCount", "novel.likes");
 
-    // 📘 타입 필터링
     if (type === "new") {
       query
         .leftJoin("novel.chapters", "chapter_new")
@@ -158,7 +157,6 @@ export class NovelService {
       query.andWhere("novel.type = :type", { type });
     }
 
-    // 🎭 장르 필터링 (id 또는 value 사용)
     if (typeof genre === "string" && genre !== "all" && genre !== "전체") {
       const foundGenre = await this.genreRepo.findOne({
         where: { value: genre },
@@ -173,7 +171,6 @@ export class NovelService {
       query.andWhere("genre.id = :genreId", { genreId });
     }
 
-    // 👶 연령 필터링
     if (age !== undefined) {
       query.andWhere("user.age_group = :age", { age });
     }
@@ -195,6 +192,9 @@ export class NovelService {
       ],
     });
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
+
+    novel.viewCount += 1;
+    await this.novelRepo.save(novel);
 
     const likeCount = novel.likes.length;
     const isLiked = userId

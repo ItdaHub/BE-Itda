@@ -3,8 +3,5 @@ export declare class AiService {
     private readonly configService;
     private readonly apiUrl;
     constructor(configService: ConfigService);
-    generateNovel(prompt: string): Promise<{
-        title: string;
-        firstChapter: string;
-    }>;
+    generateNovel(prompt: string): Promise<string>;
 }

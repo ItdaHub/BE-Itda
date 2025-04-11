@@ -9,9 +9,7 @@ export class AiService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async generateNovel(
-    prompt: string
-  ): Promise<{ title: string; firstChapter: string }> {
+  async generateNovel(prompt: string): Promise<string> {
     const apiKey = this.configService.get<string>("GOOGLE_GEMINI_KEY");
 
     const response = await fetch(`${this.apiUrl}?key=${apiKey}`, {
@@ -26,16 +24,15 @@ export class AiService {
 
     if (!response.ok) {
       console.error("Gemini API Error:", data);
-      return { title: "AI 응답 없음", firstChapter: "" };
+      return "";
     }
 
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!text) return { title: "AI 응답 없음", firstChapter: "" };
+    if (!text) return "";
 
-    const [titleLine, ...chapterLines] = text.split("\n");
-    const title = titleLine.replace(/제목\s*[:：-]?\s*/, "").trim();
-    const firstChapter = chapterLines.join("\n").trim();
+    const lines = text.split("\n");
+    const contentOnly = lines.slice(1).join("\n").trim(); // 제목 제외하고 본문만
 
-    return { title, firstChapter };
+    return contentOnly;
   }
 }
