@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET!, // ❗️ JWT_SECRET 반드시 .env에 정의
+      secretOrKey: process.env.JWT_SECRET!,
     });
   }
 
@@ -30,6 +30,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       id: payload.id,
       email: payload.email,
       type: payload.type,
-    }; // 이게 req.user로 들어감
+    };
   }
 }

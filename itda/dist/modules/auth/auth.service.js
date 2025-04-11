@@ -30,7 +30,7 @@ let AuthService = class AuthService {
         console.log("🧪 JWT payload:", payload);
         return this.jwtService.sign(payload, {
             secret: process.env.JWT_SECRET,
-            expiresIn: "1h",
+            expiresIn: "7d",
         });
     }
     async formatResponse(partialUser) {
