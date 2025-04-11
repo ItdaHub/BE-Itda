@@ -15,7 +15,7 @@ export class AiController {
 
   @Post("/generate")
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: "AI로 소설 생성" })
+  @ApiOperation({ summary: "AI로 소설 생성 (저장 X)" })
   @ApiBearerAuth()
   async generateWithAI(@Body() body: CreateAiDto, @Req() req) {
     const { prompt, genre } = body;
@@ -24,19 +24,12 @@ export class AiController {
     // Gemini로 소설 생성
     const aiResponse = await this.aiService.generateNovel(prompt);
 
-    // novelService에 넘길 payload 구성
-    const novelPayload: any = {
+    // 클라이언트에 응답만 해줌 (DB 저장은 안 함)
+    return {
       title: aiResponse.title,
       content: aiResponse.firstChapter,
+      genre,
       userId,
     };
-
-    // genre 필드가 CreateNovelInput에 존재할 경우만 포함
-    if (genre) {
-      novelPayload.genre = genre;
-    }
-
-    // 생성된 소설을 데이터베이스에 저장
-    return this.novelService.create(novelPayload);
   }
 }

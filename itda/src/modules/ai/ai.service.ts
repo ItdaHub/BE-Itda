@@ -18,7 +18,7 @@ export class AiService {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }], // 요청 데이터 구조에 맞게 수정
+        contents: [{ parts: [{ text: prompt }] }],
       }),
     });
 

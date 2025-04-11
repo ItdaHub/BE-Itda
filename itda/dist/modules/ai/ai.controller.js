@@ -30,22 +30,19 @@ let AiController = class AiController {
         const { prompt, genre } = body;
         const userId = req.user.id;
         const aiResponse = await this.aiService.generateNovel(prompt);
-        const novelPayload = {
+        return {
             title: aiResponse.title,
             content: aiResponse.firstChapter,
+            genre,
             userId,
         };
-        if (genre) {
-            novelPayload.genre = genre;
-        }
-        return this.novelService.create(novelPayload);
     }
 };
 exports.AiController = AiController;
 __decorate([
     (0, common_1.Post)("/generate"),
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
-    (0, swagger_1.ApiOperation)({ summary: "AI로 소설 생성" }),
+    (0, swagger_1.ApiOperation)({ summary: "AI로 소설 생성 (저장 X)" }),
     (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),

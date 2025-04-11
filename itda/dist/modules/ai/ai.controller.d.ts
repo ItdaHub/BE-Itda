@@ -5,5 +5,10 @@ export declare class AiController {
     private readonly aiService;
     private readonly novelService;
     constructor(aiService: AiService, novelService: NovelService);
-    generateWithAI(body: CreateAiDto, req: any): Promise<import("../novels/novel.entity").Novel>;
+    generateWithAI(body: CreateAiDto, req: any): Promise<{
+        title: string;
+        content: string;
+        genre: string | undefined;
+        userId: any;
+    }>;
 }
