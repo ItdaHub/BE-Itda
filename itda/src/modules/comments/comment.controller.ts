@@ -4,7 +4,6 @@ import {
   Body,
   Get,
   Param,
-  Query,
   Delete,
   UseGuards,
   Req,
@@ -16,11 +15,9 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiQuery,
   ApiBearerAuth,
 } from "@nestjs/swagger";
 
-// 💬 댓글 관련 API 컨트롤러
 @ApiTags("Comments")
 @Controller("comments")
 export class CommentsController {
@@ -44,40 +41,36 @@ export class CommentsController {
     });
   }
 
-  // ✅ 댓글 조회 (좋아요 여부 포함)
-  @Get(":novelId")
+  // ✅ 소설 댓글 조회
+  @Get("/novel/:novelId")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: "댓글 목록 조회 (좋아요 여부 포함)",
+    summary: "소설 댓글 조회 (좋아요 여부 포함)",
     description:
-      "소설 ID를 기준으로 댓글을 조회하며, 챕터 ID나 유저 ID로 필터링할 수 있습니다. 로그인한 유저가 좋아요 누른 댓글은 isLiked=true로 표시됩니다.",
+      "소설 ID 기준으로 소설 댓글을 조회합니다. 로그인한 유저가 좋아요 누른 댓글은 isLiked=true로 표시됩니다.",
   })
   @ApiParam({ name: "novelId", type: Number, description: "소설 ID" })
-  @ApiQuery({
-    name: "chapterId",
-    required: false,
-    type: Number,
-    description: "챕터 ID",
-  })
-  @ApiQuery({
-    name: "userId",
-    required: false,
-    type: Number,
-    description: "작성자 ID",
-  })
-  @ApiResponse({ status: 200, description: "댓글 목록 반환 성공" })
-  async getComments(
-    @Req() req,
-    @Param("novelId") novelId: number,
-    @Query("chapterId") chapterId?: number,
-    @Query("userId") userId?: number
-  ) {
+  @ApiResponse({ status: 200, description: "소설 댓글 목록 반환 성공" })
+  async getNovelComments(@Req() req, @Param("novelId") novelId: number) {
     const loginUserId = req.user?.id;
-    console.log("현재 유저:", req.user); // ✅ 여기 확인
+    return this.commentsService.getComments(novelId, undefined, loginUserId);
+  }
 
-    // userId로 필터링은 아직 서비스에서 구현 안 됨 → 적용하려면 서비스 로직도 수정 필요
-    return this.commentsService.getComments(novelId, chapterId, loginUserId); // ✅ 여기
+  // ✅ 챕터 댓글 조회
+  @Get("/chapter/:chapterId")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "챕터 댓글 조회 (좋아요 여부 포함)",
+    description:
+      "챕터 ID 기준으로 챕터 댓글을 조회합니다. 로그인한 유저가 좋아요 누른 댓글은 isLiked=true로 표시됩니다.",
+  })
+  @ApiParam({ name: "chapterId", type: Number, description: "챕터 ID" })
+  @ApiResponse({ status: 200, description: "챕터 댓글 목록 반환 성공" })
+  async getChapterComments(@Req() req, @Param("chapterId") chapterId: number) {
+    const loginUserId = req.user?.id;
+    return this.commentsService.getComments(undefined, chapterId, loginUserId);
   }
 
   // ✅ 댓글 삭제
@@ -108,7 +101,7 @@ export class CommentsController {
     return this.commentsService.reportComment(commentId, userId, reason);
   }
 
-  // ✅ 내가 작성한 댓글 조회 (수정됨!)
+  // ✅ 내가 작성한 댓글 조회
   @Get("my-comments")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -119,6 +112,6 @@ export class CommentsController {
   @ApiResponse({ status: 200, description: "내 댓글 목록 반환 성공" })
   async getMyComments(@Req() req) {
     const userId = req.user.id;
-    return this.commentsService.findByUser(userId); // 🔁 서비스로 위임
+    return this.commentsService.findByUser(userId);
   }
 }

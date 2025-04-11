@@ -57,17 +57,21 @@ export class CommentsService {
 
   // 댓글 가공
   async getComments(
-    novelId: number,
+    novelId?: number,
     chapterId?: number,
     currentUserId?: number
   ) {
     const whereCondition: any = {
-      novel: { id: novelId },
       parent_comment: IsNull(),
     };
 
     if (chapterId) {
+      // ✅ 챕터 댓글만 보기
       whereCondition.chapter = { id: chapterId };
+    } else if (novelId) {
+      // ✅ 소설 댓글만 보기 (chapter는 null인 것만)
+      whereCondition.novel = { id: novelId };
+      whereCondition.chapter = IsNull();
     }
 
     const rootComments = await this.commentRepo.find({
@@ -92,7 +96,6 @@ export class CommentsService {
           ? comment.created_at.toISOString()
           : null;
 
-      // 현재 로그인 유저가 해당 댓글에 좋아요 눌렀는지 확인
       const isLikedByUser = currentUserId
         ? comment.likes?.some((like) => like.user?.id === currentUserId)
         : false;
@@ -110,24 +113,11 @@ export class CommentsService {
     };
 
     const flatComments = rootComments.flatMap((root) => {
-      console.log(
-        "🧷 루트 댓글:",
-        root.id,
-        root.likes?.map((l) => l.user?.id)
-      );
       const rootFormatted = formatComment(root);
-
-      const childFormatted = (root.childComments ?? []).map((child) => {
-        console.log(
-          "↪️ 대댓글:",
-          child.id,
-          child.likes?.map((l) => l.user?.id)
-        );
-        return formatComment(child);
-      });
-
+      const childFormatted = (root.childComments ?? []).map(formatComment);
       return [rootFormatted, ...childFormatted];
     });
+
     return flatComments;
   }
 
@@ -141,7 +131,6 @@ export class CommentsService {
       throw new Error("댓글을 찾을 수 없습니다.");
     }
 
-    // 대댓글이 있으면 먼저 삭제
     if (comment.childComments && comment.childComments.length > 0) {
       await this.commentRepo.remove(comment.childComments);
     }
@@ -151,7 +140,6 @@ export class CommentsService {
     return { message: "댓글 및 대댓글이 삭제되었습니다." };
   }
 
-  // 댓글 신고
   async reportComment(commentId: number, userId: number, reason: string) {
     const alreadyReported = await this.reportRepository.findOne({
       where: {
@@ -179,7 +167,6 @@ export class CommentsService {
     return { message: "댓글 신고가 접수되었습니다." };
   }
 
-  // ✨ 유저가 작성한 댓글 목록 가져오기
   async findByUser(userId: number): Promise<Comment[]> {
     return this.commentRepo.find({
       where: { user: { id: userId } },

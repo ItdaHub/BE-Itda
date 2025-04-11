@@ -54,11 +54,14 @@ let CommentsService = class CommentsService {
     }
     async getComments(novelId, chapterId, currentUserId) {
         const whereCondition = {
-            novel: { id: novelId },
             parent_comment: (0, typeorm_2.IsNull)(),
         };
         if (chapterId) {
             whereCondition.chapter = { id: chapterId };
+        }
+        else if (novelId) {
+            whereCondition.novel = { id: novelId };
+            whereCondition.chapter = (0, typeorm_2.IsNull)();
         }
         const rootComments = await this.commentRepo.find({
             where: whereCondition,
@@ -94,12 +97,8 @@ let CommentsService = class CommentsService {
             };
         };
         const flatComments = rootComments.flatMap((root) => {
-            console.log("🧷 루트 댓글:", root.id, root.likes?.map((l) => l.user?.id));
             const rootFormatted = formatComment(root);
-            const childFormatted = (root.childComments ?? []).map((child) => {
-                console.log("↪️ 대댓글:", child.id, child.likes?.map((l) => l.user?.id));
-                return formatComment(child);
-            });
+            const childFormatted = (root.childComments ?? []).map(formatComment);
             return [rootFormatted, ...childFormatted];
         });
         return flatComments;

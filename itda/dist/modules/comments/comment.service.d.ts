@@ -18,7 +18,7 @@ export declare class CommentsService {
         chapterId?: number;
         parentId?: number;
     }): Promise<Comment>;
-    getComments(novelId: number, chapterId?: number, currentUserId?: number): Promise<{
+    getComments(novelId?: number, chapterId?: number, currentUserId?: number): Promise<{
         id: number;
         writer: string;
         writerId: number;
