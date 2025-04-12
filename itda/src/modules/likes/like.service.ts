@@ -100,7 +100,7 @@ export class LikeService {
   }
 
   // ✅ 내가 찜한 소설 목록 조회
-  async findLikedNovels(userId: number): Promise<Novel[]> {
+  async findLikedNovels(userId: number): Promise<any[]> {
     const likes = await this.entityManager.find(Like, {
       where: {
         user: { id: userId },
@@ -109,7 +109,22 @@ export class LikeService {
       relations: ["novel"],
     });
 
-    return likes.map((like) => like.novel).filter(Boolean) as Novel[];
+    const novels = likes.map((like) => like.novel).filter(Boolean) as Novel[];
+
+    return await Promise.all(
+      novels.map(async (novel) => {
+        const likeCount = await this.countNovelLikes(novel.id);
+        return {
+          id: novel.id,
+          title: novel.title,
+          genre: novel.genre,
+          imageUrl: (novel as any).imageUrl, // <- 타입 단언
+          views: (novel as any).views,
+          created_at: novel.created_at,
+          likes: likeCount,
+        };
+      })
+    );
   }
 
   // 📌 유저 조회

@@ -34,6 +34,7 @@ let Novel = class Novel {
     chapters;
     aiGeneratedImages;
     likes;
+    likeCount;
     votes;
     comments;
     notifications;
@@ -94,6 +95,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => like_entity_1.Like, (like) => like.novel),
     __metadata("design:type", Array)
 ], Novel.prototype, "likes", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], Novel.prototype, "likeCount", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => vote_entity_1.Vote, (vote) => vote.novel),
     __metadata("design:type", Array)

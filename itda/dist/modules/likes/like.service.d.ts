@@ -1,5 +1,4 @@
 import { EntityManager } from "typeorm";
-import { Novel } from "../novels/novel.entity";
 export declare class LikeService {
     private readonly entityManager;
     constructor(entityManager: EntityManager);
@@ -11,7 +10,7 @@ export declare class LikeService {
     }>;
     countNovelLikes(novelId: number): Promise<number>;
     countCommentLikes(commentId: number): Promise<number>;
-    findLikedNovels(userId: number): Promise<Novel[]>;
+    findLikedNovels(userId: number): Promise<any[]>;
     private findUserById;
     private findNovelById;
     private findCommentById;

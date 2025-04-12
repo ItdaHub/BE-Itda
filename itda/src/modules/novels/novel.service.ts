@@ -175,7 +175,17 @@ export class NovelService {
       query.andWhere("user.age_group = :age", { age });
     }
 
-    return query.orderBy("novel.created_at", "DESC").getMany();
+    const results = await query.orderBy("novel.created_at", "DESC").getMany();
+
+    return results.map((novel) => ({
+      id: novel.id,
+      title: novel.title,
+      genre: novel.genre?.name ?? null,
+      imageUrl: novel.cover_image, // 프론트와 맞춤
+      likes: novel.likeCount ?? novel.likes?.length ?? 0,
+      views: novel.viewCount ?? 0,
+      created_at: novel.created_at,
+    }));
   }
 
   async getNovelDetail(novelId: number, userId?: number): Promise<any> {
@@ -245,7 +255,7 @@ export class NovelService {
         score: (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3,
       }))
       .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
-      .slice(0, 8);
+      .slice(0, 10);
   }
 
   async getRankedNovelsByAge(ageGroup: number): Promise<Novel[]> {
@@ -260,6 +270,6 @@ export class NovelService {
         score: (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3,
       }))
       .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
-      .slice(0, 8);
+      .slice(0, 10);
   }
 }

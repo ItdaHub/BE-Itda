@@ -57,6 +57,9 @@ export class Novel {
   @OneToMany(() => Like, (like) => like.novel)
   likes: Like[];
 
+  @Column({ default: 0 })
+  likeCount: number;
+
   @OneToMany(() => Vote, (vote) => vote.novel)
   votes: Vote[];
 

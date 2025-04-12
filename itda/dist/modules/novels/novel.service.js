@@ -158,7 +158,16 @@ let NovelService = class NovelService {
         if (age !== undefined) {
             query.andWhere("user.age_group = :age", { age });
         }
-        return query.orderBy("novel.created_at", "DESC").getMany();
+        const results = await query.orderBy("novel.created_at", "DESC").getMany();
+        return results.map((novel) => ({
+            id: novel.id,
+            title: novel.title,
+            genre: novel.genre?.name ?? null,
+            imageUrl: novel.cover_image,
+            likes: novel.likeCount ?? novel.likes?.length ?? 0,
+            views: novel.viewCount ?? 0,
+            created_at: novel.created_at,
+        }));
     }
     async getNovelDetail(novelId, userId) {
         const novel = await this.novelRepo.findOne({
@@ -221,7 +230,7 @@ let NovelService = class NovelService {
             score: (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3,
         }))
             .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
-            .slice(0, 8);
+            .slice(0, 10);
     }
     async getRankedNovelsByAge(ageGroup) {
         const novels = await this.novelRepo.find({
@@ -234,7 +243,7 @@ let NovelService = class NovelService {
             score: (novel.likes?.length || 0) * 0.7 + (novel.viewCount || 0) * 0.3,
         }))
             .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
-            .slice(0, 8);
+            .slice(0, 10);
     }
 };
 exports.NovelService = NovelService;

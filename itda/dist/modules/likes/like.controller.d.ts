@@ -8,7 +8,7 @@ export declare class LikeController {
     toggleCommentLike(req: any, commentId: number): Promise<{
         liked: boolean;
     }>;
-    getMyLikes(req: any): Promise<import("../novels/novel.entity").Novel[]>;
+    getMyLikes(req: any): Promise<any[]>;
     countNovelLikes(novelId: number): Promise<number>;
     countCommentLikes(commentId: number): Promise<number>;
 }

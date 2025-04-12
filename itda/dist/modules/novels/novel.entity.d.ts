@@ -21,6 +21,7 @@ export declare class Novel {
     chapters: Chapter[];
     aiGeneratedImages: AIGeneratedImage[];
     likes: Like[];
+    likeCount: number;
     votes: Vote[];
     comments: Comment[];
     notifications: Notification[];

@@ -101,7 +101,19 @@ let LikeService = class LikeService {
             },
             relations: ["novel"],
         });
-        return likes.map((like) => like.novel).filter(Boolean);
+        const novels = likes.map((like) => like.novel).filter(Boolean);
+        return await Promise.all(novels.map(async (novel) => {
+            const likeCount = await this.countNovelLikes(novel.id);
+            return {
+                id: novel.id,
+                title: novel.title,
+                genre: novel.genre,
+                imageUrl: novel.imageUrl,
+                views: novel.views,
+                created_at: novel.created_at,
+                likes: likeCount,
+            };
+        }));
     }
     async findUserById(userId) {
         const user = await this.entityManager.findOne(user_entity_1.User, {
