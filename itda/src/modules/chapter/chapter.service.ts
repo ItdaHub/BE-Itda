@@ -74,7 +74,8 @@ export class ChapterService {
   async createChapter(
     novelId: number,
     content: string,
-    user: any
+    user: any,
+    chapterNumber?: number // 이어쓰기 시, 해당 챕터 번호를 전달받음
   ): Promise<Chapter> {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
@@ -85,6 +86,7 @@ export class ChapterService {
       throw new NotFoundException(`Novel with ID ${novelId} not found`);
     }
 
+    // 이미 이어쓴 기록이 있는지 확인
     const alreadyWrote = await this.chapterRepository.findOne({
       where: {
         novel: { id: novelId },
@@ -96,13 +98,25 @@ export class ChapterService {
       throw new Error("이미 이 소설에 이어쓴 기록이 있습니다.");
     }
 
-    const chapterCount = await this.chapterRepository.count({
-      where: { novel: { id: novelId } },
-    });
+    let newChapterNumber: number;
+
+    if (chapterNumber) {
+      // 이어쓰기인 경우: 전달받은 chapterNumber를 사용
+      newChapterNumber = chapterNumber;
+    } else {
+      // 새로 쓰는 경우: 현재 소설의 챕터 수 + 1로 설정
+      const chapterCount = await this.chapterRepository.count({
+        where: { novel: { id: novelId } },
+      });
+      console.log(`현재 소설의 총 챕터 수: ${chapterCount}`); // 현재 챕터 수 출력
+      newChapterNumber = chapterCount + 1;
+    }
+
+    console.log(`새로운 챕터 번호: ${newChapterNumber}`); // 새로운 챕터 번호 출력
 
     const newChapter = this.chapterRepository.create({
       content,
-      chapter_number: chapterCount + 1,
+      chapter_number: newChapterNumber, // 챕터 번호 설정
       novel,
       author: user,
     });

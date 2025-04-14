@@ -13,6 +13,7 @@ exports.CreateChapterDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateChapterDto {
     content;
+    chapterNumber;
 }
 exports.CreateChapterDto = CreateChapterDto;
 __decorate([
@@ -20,4 +21,9 @@ __decorate([
     (0, class_validator_1.MinLength)(10, { message: "내용은 최소 10자 이상이어야 합니다." }),
     __metadata("design:type", String)
 ], CreateChapterDto.prototype, "content", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateChapterDto.prototype, "chapterNumber", void 0);
 //# sourceMappingURL=createchapter.dto.js.map

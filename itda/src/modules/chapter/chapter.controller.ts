@@ -58,9 +58,12 @@ export class ChapterController {
     @Req() req
   ) {
     const user = req.user;
+    // chapterNumber를 DTO에서 받도록 수정
+    const { content, chapterNumber } = createChapterDto;
     return this.chapterService.createChapter(
       novelId,
-      createChapterDto.content,
+      content,
+      chapterNumber,
       user
     );
   }

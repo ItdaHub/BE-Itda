@@ -66,7 +66,7 @@ let ChapterService = class ChapterService {
             chapterNumber: chapter.chapter_number,
         };
     }
-    async createChapter(novelId, content, user) {
+    async createChapter(novelId, content, user, chapterNumber) {
         const novel = await this.novelRepository.findOne({
             where: { id: novelId },
             relations: ["chapters"],
@@ -83,12 +83,21 @@ let ChapterService = class ChapterService {
         if (alreadyWrote) {
             throw new Error("이미 이 소설에 이어쓴 기록이 있습니다.");
         }
-        const chapterCount = await this.chapterRepository.count({
-            where: { novel: { id: novelId } },
-        });
+        let newChapterNumber;
+        if (chapterNumber) {
+            newChapterNumber = chapterNumber;
+        }
+        else {
+            const chapterCount = await this.chapterRepository.count({
+                where: { novel: { id: novelId } },
+            });
+            console.log(`현재 소설의 총 챕터 수: ${chapterCount}`);
+            newChapterNumber = chapterCount + 1;
+        }
+        console.log(`새로운 챕터 번호: ${newChapterNumber}`);
         const newChapter = this.chapterRepository.create({
             content,
-            chapter_number: chapterCount + 1,
+            chapter_number: newChapterNumber,
             novel,
             author: user,
         });

@@ -87,18 +87,22 @@ let NovelService = class NovelService {
         const { userId, content } = dto;
         const novel = await this.novelRepo.findOne({
             where: { id: novelId },
-            relations: ["chapters"],
         });
         if (!novel)
             throw new common_1.NotFoundException("해당 소설이 존재하지 않습니다.");
         const user = await this.userRepo.findOneBy({ id: userId });
         if (!user)
             throw new common_1.NotFoundException("작성자를 찾을 수 없습니다.");
-        const hasWritten = novel.chapters.some((chapter) => chapter.author.id === userId);
+        const existingChapters = await this.chapterRepo.find({
+            where: { novel: { id: novelId } },
+            order: { chapter_number: "ASC" },
+            relations: ["author"],
+        });
+        const hasWritten = existingChapters.some((chapter) => chapter.author.id === userId);
         if (hasWritten) {
             throw new common_1.BadRequestException("해당 사용자는 이미 이 소설에 작성한 적이 있습니다.");
         }
-        const lastChapter = novel.chapters[novel.chapters.length - 1];
+        const lastChapter = existingChapters[existingChapters.length - 1];
         if (lastChapter?.author?.id === userId) {
             throw new common_1.BadRequestException("연속으로 작성할 수 없습니다.");
         }
@@ -118,7 +122,7 @@ let NovelService = class NovelService {
             novel,
             author: user,
             content,
-            chapter_number: novel.chapters.length + 1,
+            chapter_number: existingChapters.length + 1,
         });
         return this.chapterRepo.save(chapter);
     }

@@ -89,14 +89,19 @@ export class NovelService {
 
     const novel = await this.novelRepo.findOne({
       where: { id: novelId },
-      relations: ["chapters"],
     });
     if (!novel) throw new NotFoundException("해당 소설이 존재하지 않습니다.");
 
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new NotFoundException("작성자를 찾을 수 없습니다.");
 
-    const hasWritten = novel.chapters.some(
+    const existingChapters = await this.chapterRepo.find({
+      where: { novel: { id: novelId } },
+      order: { chapter_number: "ASC" },
+      relations: ["author"],
+    });
+
+    const hasWritten = existingChapters.some(
       (chapter) => chapter.author.id === userId
     );
     if (hasWritten) {
@@ -105,7 +110,7 @@ export class NovelService {
       );
     }
 
-    const lastChapter = novel.chapters[novel.chapters.length - 1];
+    const lastChapter = existingChapters[existingChapters.length - 1];
     if (lastChapter?.author?.id === userId) {
       throw new BadRequestException("연속으로 작성할 수 없습니다.");
     }
@@ -129,7 +134,7 @@ export class NovelService {
       novel,
       author: user,
       content,
-      chapter_number: novel.chapters.length + 1,
+      chapter_number: existingChapters.length + 1,
     });
 
     return this.chapterRepo.save(chapter);
