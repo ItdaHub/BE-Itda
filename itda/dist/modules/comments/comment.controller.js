@@ -40,6 +40,9 @@ let CommentsController = class CommentsController {
         const loginUserId = req.user?.id;
         return this.commentsService.getComments(undefined, chapterId, loginUserId);
     }
+    async deleteComments(dto) {
+        return this.commentsService.deleteComments(dto.ids);
+    }
     async deleteComment(id) {
         return this.commentsService.deleteComment(id);
     }
@@ -96,6 +99,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number]),
     __metadata("design:returntype", Promise)
 ], CommentsController.prototype, "getChapterComments", null);
+__decorate([
+    (0, common_1.Delete)("/bulk-delete"),
+    (0, swagger_1.ApiOperation)({
+        summary: "댓글 여러 개 삭제",
+        description: "여러 댓글 ID를 통해 해당 댓글들을 삭제합니다.",
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CommentsController.prototype, "deleteComments", null);
 __decorate([
     (0, common_1.Delete)(":id"),
     (0, swagger_1.ApiOperation)({

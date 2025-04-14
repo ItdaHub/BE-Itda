@@ -31,6 +31,7 @@ export declare class CommentsService {
     deleteComment(id: number): Promise<{
         message: string;
     }>;
+    deleteComments(ids: number[]): Promise<void>;
     reportComment(commentId: number, userId: number, reason: string): Promise<{
         message: string;
     }>;

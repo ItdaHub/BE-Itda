@@ -73,6 +73,16 @@ export class CommentsController {
     return this.commentsService.getComments(undefined, chapterId, loginUserId);
   }
 
+  // ✅ 댓글 여러개  삭제
+  @Delete("/bulk-delete")
+  @ApiOperation({
+    summary: "댓글 여러 개 삭제",
+    description: "여러 댓글 ID를 통해 해당 댓글들을 삭제합니다.",
+  })
+  async deleteComments(@Body() dto: { ids: number[] }) {
+    return this.commentsService.deleteComments(dto.ids);
+  }
+
   // ✅ 댓글 삭제
   @Delete(":id")
   @ApiOperation({

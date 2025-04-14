@@ -23,6 +23,9 @@ export declare class CommentsController {
         isliked: boolean;
         parentId: number | null;
     }[]>;
+    deleteComments(dto: {
+        ids: number[];
+    }): Promise<void>;
     deleteComment(id: number): Promise<{
         message: string;
     }>;

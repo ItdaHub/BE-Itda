@@ -140,6 +140,27 @@ export class CommentsService {
     return { message: "댓글 및 대댓글이 삭제되었습니다." };
   }
 
+  async deleteComments(ids: number[]): Promise<void> {
+    const comments = await this.commentRepo.find({
+      where: ids.map((id) => ({ id })),
+      relations: ["childComments"],
+    });
+
+    if (comments.length !== ids.length) {
+      throw new Error("댓글을 찾을 수 없습니다.");
+    }
+
+    // 대댓글 먼저 모아서 삭제
+    const allChildComments = comments.flatMap(
+      (comment) => comment.childComments
+    );
+    if (allChildComments.length > 0) {
+      await this.commentRepo.remove(allChildComments);
+    }
+
+    await this.commentRepo.remove(comments);
+  }
+
   async reportComment(commentId: number, userId: number, reason: string) {
     const alreadyReported = await this.reportRepository.findOne({
       where: {
