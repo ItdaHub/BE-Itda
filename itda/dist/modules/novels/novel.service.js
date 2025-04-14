@@ -45,7 +45,11 @@ let NovelService = class NovelService {
         });
         if (!novel)
             throw new common_1.NotFoundException("해당 소설이 존재하지 않습니다.");
-        return novel;
+        const nextChapterNumber = novel.chapters.length + 1;
+        return {
+            ...novel,
+            nextChapterNumber,
+        };
     }
     async create(dto) {
         const { title, categoryId, peopleNum, content, userId, type } = dto;

@@ -32,13 +32,19 @@ export class NovelService {
     return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
   }
 
-  async getNovelById(id: number): Promise<Novel> {
+  async getNovelById(id: number): Promise<any> {
     const novel = await this.novelRepo.findOne({
       where: { id },
       relations: ["chapters", "creator", "genre"],
     });
     if (!novel) throw new NotFoundException("해당 소설이 존재하지 않습니다.");
-    return novel;
+
+    const nextChapterNumber = novel.chapters.length + 1;
+
+    return {
+      ...novel,
+      nextChapterNumber,
+    };
   }
 
   async create(dto: CreateNovelInput): Promise<Novel> {

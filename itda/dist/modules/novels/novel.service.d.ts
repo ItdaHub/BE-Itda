@@ -17,7 +17,7 @@ export declare class NovelService {
     private readonly participantRepo;
     constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>);
     getAllNovels(): Promise<Novel[]>;
-    getNovelById(id: number): Promise<Novel>;
+    getNovelById(id: number): Promise<any>;
     create(dto: CreateNovelInput): Promise<Novel>;
     addChapter(novelId: number, dto: AddChapterDto): Promise<Chapter>;
     getParticipants(novelId: number): Promise<Participant[]>;
