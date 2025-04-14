@@ -57,6 +57,9 @@ let NovelController = class NovelController {
         const userId = req.user.id;
         return this.novelService.create({ ...dto, userId });
     }
+    async getChapters(novelId) {
+        return this.novelService.getChapters(parseInt(novelId, 10));
+    }
     async addChapter(novelId, dto, req) {
         const userId = req.user.id;
         return this.novelService.addChapter(parseInt(novelId, 10), {
@@ -130,6 +133,16 @@ __decorate([
     __metadata("design:paramtypes", [createnovel_dto_1.CreateNovelDto, Object]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "createNovel", null);
+__decorate([
+    (0, common_1.UseGuards)(optionaljwt_guard_1.OptionalJwtAuthGuard),
+    (0, common_1.Get)(":id/chapters"),
+    (0, swagger_1.ApiOperation)({ summary: "소설의 챕터 목록 조회" }),
+    (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], NovelController.prototype, "getChapters", null);
 __decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Post)(":id/chapters"),

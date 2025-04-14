@@ -11,6 +11,7 @@ export declare class NovelController {
     getRanking(age?: string): Promise<Novel[]>;
     getMyNovels(req: any): Promise<Novel[]>;
     createNovel(dto: CreateNovelDto, req: any): Promise<Novel>;
+    getChapters(novelId: string): Promise<import("../chapter/chapter.entity").Chapter[]>;
     addChapter(novelId: string, dto: AddChapterDto, req: any): Promise<import("../chapter/chapter.entity").Chapter>;
     getParticipants(novelId: string): Promise<import("./participant.entity").Participant[]>;
     getNovelDetail(id: number, req: any): Promise<any>;

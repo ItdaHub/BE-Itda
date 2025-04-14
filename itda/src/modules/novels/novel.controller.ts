@@ -94,6 +94,14 @@ export class NovelController {
     return this.novelService.create({ ...dto, userId });
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get(":id/chapters")
+  @ApiOperation({ summary: "소설의 챕터 목록 조회" })
+  @ApiParam({ name: "id", description: "소설 ID" })
+  async getChapters(@Param("id") novelId: string) {
+    return this.novelService.getChapters(parseInt(novelId, 10));
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post(":id/chapters")
   @ApiOperation({ summary: "소설에 이어쓰기 (챕터 추가)" })

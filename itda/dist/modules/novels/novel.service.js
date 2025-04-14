@@ -126,6 +126,12 @@ let NovelService = class NovelService {
         });
         return this.chapterRepo.save(chapter);
     }
+    async getChapters(novelId) {
+        return this.chapterRepo.find({
+            where: { novel: { id: novelId } },
+            order: { chapter_number: "ASC" },
+        });
+    }
     async getParticipants(novelId) {
         return this.participantRepo.find({
             where: { novel: { id: novelId } },
@@ -212,6 +218,14 @@ let NovelService = class NovelService {
             image: novel.cover_image,
             type: novel.type,
             createdAt: novel.created_at.toISOString(),
+            chapters: novel.chapters
+                .sort((a, b) => a.chapter_number - b.chapter_number)
+                .map((chapter) => ({
+                id: chapter.id,
+                content: chapter.content,
+                chapterNumber: chapter.chapter_number,
+                authorId: chapter.author?.id,
+            })),
         };
     }
     async findMyNovels(userId) {

@@ -140,6 +140,13 @@ export class NovelService {
     return this.chapterRepo.save(chapter);
   }
 
+  async getChapters(novelId: number): Promise<Chapter[]> {
+    return this.chapterRepo.find({
+      where: { novel: { id: novelId } },
+      order: { chapter_number: "ASC" },
+    });
+  }
+
   async getParticipants(novelId: number): Promise<Participant[]> {
     return this.participantRepo.find({
       where: { novel: { id: novelId } },
@@ -236,6 +243,16 @@ export class NovelService {
       image: novel.cover_image,
       type: novel.type,
       createdAt: novel.created_at.toISOString(),
+
+      // ✅ 여기에 회차 정보 추가
+      chapters: novel.chapters
+        .sort((a, b) => a.chapter_number - b.chapter_number)
+        .map((chapter) => ({
+          id: chapter.id,
+          content: chapter.content,
+          chapterNumber: chapter.chapter_number,
+          authorId: chapter.author?.id,
+        })),
     };
   }
 
