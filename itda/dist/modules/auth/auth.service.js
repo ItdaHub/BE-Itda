@@ -18,12 +18,15 @@ const bcrypt = require("bcrypt");
 const user_entity_2 = require("../users/user.entity");
 const class_transformer_1 = require("class-transformer");
 const agegroup_util_1 = require("./utils/agegroup.util");
+const mail_service_1 = require("../mail/mail.service");
 let AuthService = class AuthService {
     entityManager;
     jwtService;
-    constructor(entityManager, jwtService) {
+    mailService;
+    constructor(entityManager, jwtService, mailService) {
         this.entityManager = entityManager;
         this.jwtService = jwtService;
+        this.mailService = mailService;
     }
     createToken(user) {
         const payload = { id: user.id, email: user.email, type: user.type };
@@ -206,11 +209,23 @@ let AuthService = class AuthService {
         });
         return !!user;
     }
+    async sendPasswordResetToken(email) {
+        const user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
+        if (!user)
+            throw new Error("해당 이메일을 사용하는 사용자가 없습니다.");
+        const token = this.jwtService.sign({ email }, {
+            secret: process.env.JWT_SECRET,
+            expiresIn: "10m",
+        });
+        await this.mailService.sendPasswordResetEmail(email, token);
+        console.log("📨 비밀번호 재설정 메일 전송 완료");
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [typeorm_1.EntityManager,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        mail_service_1.MailService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

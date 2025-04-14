@@ -40,8 +40,11 @@ const genre_module_1 = require("./modules/genre/genre.module");
 const chapter_module_1 = require("./modules/chapter/chapter.module");
 const comment_module_1 = require("./modules/comments/comment.module");
 const writers_module_1 = require("./modules/writers/writers.module");
-const user_service_1 = require("./modules/users/user.service");
-const mail_module_1 = require("./modules/mail/mail.module");
+const mailer_1 = require("@nestjs-modules/mailer");
+const mail_service_1 = require("./modules/mail/mail.service");
+const path = require("path");
+const handlebars = require("handlebars");
+const fs = require("fs");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -90,10 +93,34 @@ exports.AppModule = AppModule = __decorate([
             chapter_module_1.ChapterModule,
             comment_module_1.CommentsModule,
             writers_module_1.WritersModule,
-            mail_module_1.MailModule,
+            mailer_1.MailerModule.forRoot({
+                transport: {
+                    host: "smtp.gmail.com",
+                    secure: true,
+                    auth: {
+                        user: process.env.NODEMAILER_EMAIL,
+                        pass: process.env.NODEMAILER_PASSWORD_KEY,
+                    },
+                },
+                defaults: {
+                    from: '"ITDA" <no-reply@itda.com>',
+                },
+                template: {
+                    dir: path.join(__dirname, "./modules/mail/templates"),
+                    adapter: {
+                        compile: async (filePath, context) => {
+                            const template = handlebars.compile(await fs.promises.readFile(filePath, "utf-8"));
+                            return template(context);
+                        },
+                    },
+                    options: {
+                        strict: true,
+                    },
+                },
+            }),
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, like_service_1.LikeService, user_service_1.UserService],
+        providers: [app_service_1.AppService, like_service_1.LikeService, mail_service_1.MailService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

@@ -23,12 +23,16 @@ const emailchech_dto_1 = require("./dto/emailchech.dto");
 const jwtauth_guard_1 = require("./jwtauth.guard");
 const user_service_1 = require("../users/user.service");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const mail_service_1 = require("../mail/mail.service");
 let AuthController = class AuthController {
     authService;
     userService;
-    constructor(authService, userService) {
+    mailService;
+    constructor(authService, userService, mailService) {
         this.authService = authService;
         this.userService = userService;
+        this.mailService = mailService;
     }
     async getProfile(req) {
         const user = await this.userService.findById(req.user.id);
@@ -164,6 +168,56 @@ let AuthController = class AuthController {
         user.password = hashedPassword;
         await this.userService.save(user);
         return { message: "Password updated successfully" };
+    }
+    async forgotPassword(email) {
+        const user = await this.userService.findByEmail(email);
+        if (!user) {
+            throw new common_1.BadRequestException("존재하지 않는 이메일입니다.");
+        }
+        const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+        });
+        await this.mailService.sendPasswordResetEmail(email, token);
+        return { message: "비밀번호 재설정 메일을 전송했습니다." };
+    }
+    async resetPassword(body) {
+        const { token, newPassword } = body;
+        try {
+            if (!process.env.JWT_REFRESH_SECRET) {
+                throw new Error("JWT_REFRESH_SECRET is not defined");
+            }
+            const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+            const user = await this.userService.findByEmail(payload.email);
+            if (!user)
+                throw new common_1.NotFoundException("유저를 찾을 수 없습니다.");
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            user.password = hashedPassword;
+            await this.userService.save(user);
+            return { message: "비밀번호가 성공적으로 변경되었습니다." };
+        }
+        catch (err) {
+            throw new common_1.BadRequestException("토큰이 유효하지 않거나 만료되었습니다.");
+        }
+    }
+    async updatePasswordPage(token) {
+        try {
+            const jwtSecret = process.env.JWT_SECRET;
+            if (!jwtSecret) {
+                throw new Error("JWT_SECRET is not defined");
+            }
+            const payload = jwt.verify(token, jwtSecret);
+            const user = await this.userService.findByEmail(payload.email);
+            if (!user) {
+                throw new common_1.NotFoundException("유저를 찾을 수 없습니다.");
+            }
+            return {
+                message: "비밀번호를 변경할 수 있는 페이지입니다.",
+                userId: user.id,
+            };
+        }
+        catch (error) {
+            throw new common_1.BadRequestException("유효하지 않거나 만료된 토큰입니다.");
+        }
     }
 };
 exports.AuthController = AuthController;
@@ -367,10 +421,36 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "updatePassword", null);
+__decorate([
+    (0, common_1.Post)("forgot-password"),
+    __param(0, (0, common_1.Body)("email")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.Post)("reset-password"),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resetPassword", null);
+__decorate([
+    (0, common_1.Get)("update-password"),
+    (0, swagger_1.ApiOperation)({
+        summary: "비밀번호 변경 페이지",
+        description: "사용자가 비밀번호를 변경할 수 있도록 페이지를 표시합니다.",
+    }),
+    __param(0, (0, common_1.Query)("token")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "updatePasswordPage", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)("Auth"),
     (0, common_1.Controller)("auth"),
     __metadata("design:paramtypes", [auth_service_1.AuthService,
-        user_service_1.UserService])
+        user_service_1.UserService,
+        mail_service_1.MailService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

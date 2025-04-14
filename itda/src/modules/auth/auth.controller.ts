@@ -21,6 +21,8 @@ import { JwtAuthGuard } from "./jwtauth.guard";
 import { Response } from "express";
 import { UserService } from "../users/user.service";
 import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
+import { MailService } from "../mail/mail.service";
 
 // 🔐 Auth 관련 API 컨트롤러
 @ApiTags("Auth")
@@ -28,7 +30,8 @@ import * as bcrypt from "bcrypt";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly mailService: MailService
   ) {}
 
   // ✅ 로그인된 유저 정보 가져오기
@@ -333,4 +336,75 @@ export class AuthController {
   }
 
   // 비밀번호 메일 전송
+  @Post("forgot-password")
+  async forgotPassword(@Body("email") email: string) {
+    // 1. 유저 존재 확인
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException("존재하지 않는 이메일입니다.");
+    }
+
+    // 2. 토큰 생성 (10분 유효)
+    const token = jwt.sign({ email }, process.env.JWT_SECRET!, {
+      expiresIn: "1h",
+    });
+
+    // 3. 이메일 발송
+    await this.mailService.sendPasswordResetEmail(email, token);
+
+    return { message: "비밀번호 재설정 메일을 전송했습니다." };
+  }
+
+  // 비밀번호 재설정
+  @Post("reset-password")
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    const { token, newPassword } = body;
+
+    try {
+      if (!process.env.JWT_REFRESH_SECRET) {
+        throw new Error("JWT_REFRESH_SECRET is not defined");
+      }
+      const payload: any = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+      const user = await this.userService.findByEmail(payload.email);
+
+      if (!user) throw new NotFoundException("유저를 찾을 수 없습니다.");
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+
+      await this.userService.save(user);
+
+      return { message: "비밀번호가 성공적으로 변경되었습니다." };
+    } catch (err) {
+      throw new BadRequestException("토큰이 유효하지 않거나 만료되었습니다.");
+    }
+  }
+
+  @Get("update-password")
+  @ApiOperation({
+    summary: "비밀번호 변경 페이지",
+    description: "사용자가 비밀번호를 변경할 수 있도록 페이지를 표시합니다.",
+  })
+  async updatePasswordPage(@Query("token") token: string) {
+    try {
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not defined");
+      }
+
+      const payload: any = jwt.verify(token, jwtSecret); // JWT 토큰을 검증
+      const user = await this.userService.findByEmail(payload.email);
+
+      if (!user) {
+        throw new NotFoundException("유저를 찾을 수 없습니다.");
+      }
+
+      return {
+        message: "비밀번호를 변경할 수 있는 페이지입니다.",
+        userId: user.id,
+      };
+    } catch (error) {
+      throw new BadRequestException("유효하지 않거나 만료된 토큰입니다.");
+    }
+  }
 }

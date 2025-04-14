@@ -20,6 +20,7 @@ const naver_strategy_1 = require("./naver.strategy");
 const google_strategy_1 = require("./google.strategy");
 const passport_1 = require("@nestjs/passport");
 const user_module_1 = require("../users/user.module");
+const mail_module_1 = require("../mail/mail.module");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -33,6 +34,7 @@ exports.AuthModule = AuthModule = __decorate([
             }),
             passport_1.PassportModule.register({ defaultStrategy: "google" }),
             user_module_1.UserModule,
+            mail_module_1.MailModule,
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [

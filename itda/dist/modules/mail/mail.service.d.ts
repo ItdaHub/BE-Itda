@@ -1,4 +1,6 @@
+import { MailerService } from "@nestjs-modules/mailer";
 export declare class MailService {
-    private transporter;
-    sendMail(to: string, subject: string, html: string): Promise<import("nodemailer/lib/smtp-transport").SentMessageInfo>;
+    private readonly mailerService;
+    constructor(mailerService: MailerService);
+    sendPasswordResetEmail(email: string, token: string): Promise<void>;
 }

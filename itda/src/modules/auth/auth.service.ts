@@ -10,6 +10,7 @@ import {
   convertBirthYearToAgeGroup,
   convertNaverAgeToGroup,
 } from "./utils/agegroup.util";
+import { MailService } from "../mail/mail.service";
 
 // ✅ 타입 선언 추가
 type LoginResponse = {
@@ -21,7 +22,8 @@ type LoginResponse = {
 export class AuthService {
   constructor(
     private entityManager: EntityManager,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private mailService: MailService
   ) {}
 
   // ✅ 공통 토큰 생성 함수
@@ -295,4 +297,45 @@ export class AuthService {
   }
 
   // 비밀번호 재설정(메일)
+  async sendPasswordResetToken(email: string): Promise<void> {
+    const user = await this.entityManager.findOne(User, { where: { email } });
+    if (!user) throw new Error("해당 이메일을 사용하는 사용자가 없습니다.");
+
+    const token = this.jwtService.sign(
+      { email },
+      {
+        secret: process.env.JWT_SECRET,
+        expiresIn: "10m",
+      }
+    );
+
+    await this.mailService.sendPasswordResetEmail(email, token); // ✅ 위임
+
+    console.log("📨 비밀번호 재설정 메일 전송 완료");
+  }
+
+  //   async updatePasswordWithToken(token: string, newPassword: string) {
+  //     const reset = await this.resetPwTokenRepository.findOne({
+  //       where: { token },
+  //       relations: ["user"],
+  //     });
+
+  //     if (!reset) {
+  //       throw new BadRequestException("유효하지 않은 토큰입니다.");
+  //     }
+
+  //     const now = new Date();
+  //     if (reset.expiresAt < now) {
+  //       throw new BadRequestException("토큰이 만료되었습니다.");
+  //     }
+
+  //     const hashedPw = await bcrypt.hash(newPassword, 10);
+  //     reset.user.password = hashedPw;
+
+  //     await this.userRepository.save(reset.user);
+  //     await this.resetPwTokenRepository.delete({ id: reset.id }); // 사용 후 토큰 삭제
+
+  //     return { message: "비밀번호가 성공적으로 변경되었습니다." };
+  //   }
+  // }
 }

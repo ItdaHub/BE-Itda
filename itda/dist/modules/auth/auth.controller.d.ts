@@ -3,10 +3,12 @@ import { RegisterDto } from "./dto/register.dto";
 import { EmailCheckDto } from "./dto/emailchech.dto";
 import { Response } from "express";
 import { UserService } from "../users/user.service";
+import { MailService } from "../mail/mail.service";
 export declare class AuthController {
     private readonly authService;
     private readonly userService;
-    constructor(authService: AuthService, userService: UserService);
+    private readonly mailService;
+    constructor(authService: AuthService, userService: UserService, mailService: MailService);
     getProfile(req: any): Promise<{
         user: import("../users/user.entity").User | null;
     }>;
@@ -50,5 +52,18 @@ export declare class AuthController {
         password: string;
     }): Promise<{
         message: string;
+    }>;
+    forgotPassword(email: string): Promise<{
+        message: string;
+    }>;
+    resetPassword(body: {
+        token: string;
+        newPassword: string;
+    }): Promise<{
+        message: string;
+    }>;
+    updatePasswordPage(token: string): Promise<{
+        message: string;
+        userId: number;
     }>;
 }

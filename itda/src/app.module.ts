@@ -31,8 +31,11 @@ import { GenreModule } from "./modules/genre/genre.module";
 import { ChapterModule } from "./modules/chapter/chapter.module";
 import { CommentsModule } from "./modules/comments/comment.module";
 import { WritersModule } from "./modules/writers/writers.module";
-import { UserService } from "./modules/users/user.service";
-import { MailModule } from "./modules/mail/mail.module";
+import { MailerModule } from "@nestjs-modules/mailer";
+import { MailService } from "./modules/mail/mail.service";
+import * as path from "path";
+import * as handlebars from "handlebars";
+import * as fs from "fs";
 
 @Module({
   imports: [
@@ -64,7 +67,7 @@ import { MailModule } from "./modules/mail/mail.module";
         AdminNotification,
         Announcement,
       ],
-      synchronize: true, // 개발 환경에서 true (배포 시 false로 설정)
+      synchronize: true,
     }),
     UserModule,
     ReportModule,
@@ -78,9 +81,35 @@ import { MailModule } from "./modules/mail/mail.module";
     ChapterModule,
     CommentsModule,
     WritersModule,
-    MailModule,
+    MailerModule.forRoot({
+      transport: {
+        host: "smtp.gmail.com",
+        secure: true,
+        auth: {
+          user: process.env.NODEMAILER_EMAIL,
+          pass: process.env.NODEMAILER_PASSWORD_KEY,
+        },
+      },
+      defaults: {
+        from: '"ITDA" <no-reply@itda.com>',
+      },
+      template: {
+        dir: path.join(__dirname, "./modules/mail/templates"),
+        adapter: {
+          compile: async (filePath: string, context: Record<string, any>) => {
+            const template = handlebars.compile(
+              await fs.promises.readFile(filePath, "utf-8")
+            );
+            return template(context);
+          },
+        },
+        options: {
+          strict: true,
+        },
+      },
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, LikeService, UserService],
+  providers: [AppService, LikeService, MailService],
 })
 export class AppModule {}

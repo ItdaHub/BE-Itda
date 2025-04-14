@@ -11,6 +11,7 @@ import { NaverStrategy } from "./naver.strategy";
 import { GoogleStrategy } from "./google.strategy";
 import { PassportModule } from "@nestjs/passport";
 import { UserModule } from "../users/user.module";
+import { MailModule } from "../mail/mail.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserModule } from "../users/user.module";
     }),
     PassportModule.register({ defaultStrategy: "google" }),
     UserModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [

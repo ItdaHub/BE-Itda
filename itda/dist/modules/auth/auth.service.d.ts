@@ -2,6 +2,7 @@ import { EntityManager } from "typeorm";
 import { User } from "../users/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import { RegisterDto } from "./dto/register.dto";
+import { MailService } from "../mail/mail.service";
 type LoginResponse = {
     accessToken: string;
     user: Record<string, any>;
@@ -9,7 +10,8 @@ type LoginResponse = {
 export declare class AuthService {
     private entityManager;
     private jwtService;
-    constructor(entityManager: EntityManager, jwtService: JwtService);
+    private mailService;
+    constructor(entityManager: EntityManager, jwtService: JwtService, mailService: MailService);
     private createToken;
     formatResponse(partialUser: User): Promise<LoginResponse>;
     login(user: User): Promise<LoginResponse>;
@@ -37,5 +39,6 @@ export declare class AuthService {
     }>;
     checkEmail(email: string): Promise<boolean>;
     checkNickName(nickname: string): Promise<boolean>;
+    sendPasswordResetToken(email: string): Promise<void>;
 }
 export {};
