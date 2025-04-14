@@ -60,6 +60,13 @@ let UserService = class UserService {
     async findById(id) {
         return this.userRepository.findOne({ where: { id } });
     }
+    async removeByEmail(email) {
+        const user = await this.userRepository.findOne({ where: { email } });
+        if (!user) {
+            throw new common_1.NotFoundException("유저를 찾을 수 없습니다.");
+        }
+        await this.userRepository.remove(user);
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

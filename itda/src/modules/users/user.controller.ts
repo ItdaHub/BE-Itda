@@ -59,4 +59,11 @@ export class UserController {
   remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
     return this.userService.remove(id);
   }
+
+  @Delete("delete/email/:email")
+  @ApiOperation({ summary: "이메일 기반 유저 삭제" })
+  @ApiParam({ name: "email", description: "유저 이메일" })
+  async deleteByEmail(@Param("email") email: string): Promise<void> {
+    return this.userService.removeByEmail(email);
+  }
 }

@@ -79,7 +79,7 @@ exports.AppModule = AppModule = __decorate([
             }),
             user_module_1.UserModule,
             report_module_1.ReportModule,
-            payment_module_1.PaymentModule,
+            payment_module_1.PaymentsModule,
             novel_module_1.NovelModule,
             notification_module_1.NotificationModule,
             like_module_1.LikeModule,

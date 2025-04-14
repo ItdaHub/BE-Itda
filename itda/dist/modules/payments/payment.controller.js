@@ -12,69 +12,125 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PaymentController = void 0;
+exports.PaymentsController = void 0;
 const common_1 = require("@nestjs/common");
 const payment_service_1 = require("./payment.service");
+const payment_entity_1 = require("./payment.entity");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 const swagger_1 = require("@nestjs/swagger");
-let PaymentController = class PaymentController {
-    paymentService;
-    constructor(paymentService) {
-        this.paymentService = paymentService;
+let PaymentsController = class PaymentsController {
+    paymentsService;
+    constructor(paymentsService) {
+        this.paymentsService = paymentsService;
     }
-    preparePayment(paymentData, req) {
-        return this.paymentService.preparePayment(paymentData, req.user);
+    async createPayment(userId, amount, method) {
+        return this.paymentsService.createPayment(userId, amount, method);
     }
-    handleSuccess(data) {
-        return this.paymentService.handleSuccess(data);
+    async confirmTossPayment(body) {
+        const { paymentKey, orderId, amount } = body;
+        if (!paymentKey || !orderId || !amount) {
+            return { statusCode: 400, message: "필수 파라미터가 누락되었습니다." };
+        }
+        try {
+            const result = await this.paymentsService.confirmTossPayment({
+                paymentKey,
+                orderId,
+                amount,
+            });
+            if (result.status === payment_entity_1.PaymentStatus.COMPLETED) {
+                return { statusCode: 200, message: "결제 승인 처리 완료" };
+            }
+            else {
+                return { statusCode: 400, message: "결제 승인 실패" };
+            }
+        }
+        catch (error) {
+            console.error("결제 승인 처리 중 오류:", error);
+            return { statusCode: 500, message: "서버 오류 발생" };
+        }
     }
-    handleFail(data) {
-        return this.paymentService.handleFail(data);
+    async confirmPayment(paymentId, status) {
+        return this.paymentsService.confirmPayment(paymentId, status);
+    }
+    async getPaymentById(paymentId) {
+        return this.paymentsService.getPaymentById(paymentId);
+    }
+    async getPaymentsByUser(req) {
+        const userId = req.user.id;
+        return this.paymentsService.getPaymentsByUser(userId);
     }
 };
-exports.PaymentController = PaymentController;
+exports.PaymentsController = PaymentsController;
 __decorate([
+    (0, common_1.Post)("create"),
+    (0, swagger_1.ApiOperation)({
+        summary: "결제 요청",
+        description: "사용자가 결제를 요청합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "결제 요청 성공" }),
+    __param(0, (0, common_1.Body)("userId")),
+    __param(1, (0, common_1.Body)("amount")),
+    __param(2, (0, common_1.Body)("method")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "createPayment", null);
+__decorate([
+    (0, common_1.Post)("confirm"),
+    (0, swagger_1.ApiOperation)({
+        summary: "Toss 결제 승인 요청",
+        description: "Toss 결제 완료 후 paymentKey, orderId, amount로 결제 상태를 승인 처리합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "결제 승인 처리 완료" }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "confirmTossPayment", null);
+__decorate([
+    (0, common_1.Post)("confirm/:id"),
+    (0, swagger_1.ApiOperation)({
+        summary: "결제 승인 (수동)",
+        description: "결제 ID로 상태를 수동으로 승인 처리합니다.",
+    }),
+    (0, swagger_1.ApiParam)({ name: "id", type: Number, description: "결제 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "결제 승인 성공" }),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Body)("status")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "confirmPayment", null);
+__decorate([
+    (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({
+        summary: "결제 정보 조회",
+        description: "결제 ID로 결제 정보를 조회합니다.",
+    }),
+    (0, swagger_1.ApiParam)({ name: "id", type: Number, description: "결제 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "결제 정보 조회 성공" }),
+    __param(0, (0, common_1.Param)("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "getPaymentById", null);
+__decorate([
+    (0, common_1.Get)("my-payments"),
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
-    (0, common_1.Post)("prepare"),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({
-        summary: "결제 준비",
-        description: "결제를 위한 주문 정보를 생성합니다. JWT 인증이 필요합니다.",
+        summary: "내 결제 내역 조회",
+        description: "JWT 토큰을 기반으로 내가 한 결제 내역을 조회합니다.",
     }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: "결제 정보 준비 완료" }),
-    __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", void 0)
-], PaymentController.prototype, "preparePayment", null);
-__decorate([
-    (0, common_1.Post)("success"),
-    (0, swagger_1.ApiOperation)({
-        summary: "결제 성공 처리",
-        description: "Toss 결제 성공 시 호출되는 콜백 API입니다. 결제 상태를 '성공'으로 기록합니다.",
-    }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: "결제 성공 처리 완료" }),
-    __param(0, (0, common_1.Body)()),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "내 결제 내역 조회 성공" }),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], PaymentController.prototype, "handleSuccess", null);
-__decorate([
-    (0, common_1.Post)("fail"),
-    (0, swagger_1.ApiOperation)({
-        summary: "결제 실패 처리",
-        description: "Toss 결제 실패 시 호출되는 콜백 API입니다. 결제 상태를 '실패'로 기록합니다.",
-    }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: "결제 실패 처리 완료" }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], PaymentController.prototype, "handleFail", null);
-exports.PaymentController = PaymentController = __decorate([
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "getPaymentsByUser", null);
+exports.PaymentsController = PaymentsController = __decorate([
     (0, swagger_1.ApiTags)("Payments"),
     (0, common_1.Controller)("payments"),
-    __metadata("design:paramtypes", [payment_service_1.PaymentService])
-], PaymentController);
+    __metadata("design:paramtypes", [payment_service_1.PaymentsService])
+], PaymentsController);
 //# sourceMappingURL=payment.controller.js.map

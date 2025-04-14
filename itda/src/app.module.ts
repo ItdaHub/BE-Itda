@@ -3,7 +3,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { UserModule } from "./modules/users/user.module";
 import { ReportModule } from "./modules/reports/report.module";
-import { PaymentModule } from "./modules/payments/payment.module";
+import { PaymentsModule } from "./modules/payments/payment.module";
 import { NovelModule } from "./modules/novels/novel.module";
 import { NotificationModule } from "./modules/notifications/notification.module";
 import { LikeModule } from "./modules/likes/like.module";
@@ -67,7 +67,7 @@ import { UserService } from "./modules/users/user.service";
     }),
     UserModule,
     ReportModule,
-    PaymentModule,
+    PaymentsModule,
     NovelModule,
     NotificationModule,
     LikeModule,

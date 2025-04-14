@@ -36,6 +36,7 @@ export class ChapterService {
     slides: { index: number; text: string }[];
     authorNickname: string;
     writerId: number;
+    chapterNumber: number;
   }> {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
@@ -66,6 +67,7 @@ export class ChapterService {
       slides,
       authorNickname: chapter.author?.nickname || "알 수 없음",
       writerId: chapter.author?.id,
+      chapterNumber: chapter.chapter_number,
     };
   }
 

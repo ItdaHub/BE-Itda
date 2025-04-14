@@ -65,4 +65,13 @@ export class UserService {
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
   }
+
+  // user.service.ts
+  async removeByEmail(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException("유저를 찾을 수 없습니다.");
+    }
+    await this.userRepository.remove(user);
+  }
 }

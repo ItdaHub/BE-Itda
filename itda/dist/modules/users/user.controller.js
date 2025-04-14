@@ -37,6 +37,9 @@ let UserController = class UserController {
     remove(id) {
         return this.userService.remove(id);
     }
+    async deleteByEmail(email) {
+        return this.userService.removeByEmail(email);
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -84,6 +87,15 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Delete)("delete/email/:email"),
+    (0, swagger_1.ApiOperation)({ summary: "이메일 기반 유저 삭제" }),
+    (0, swagger_1.ApiParam)({ name: "email", description: "유저 이메일" }),
+    __param(0, (0, common_1.Param)("email")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "deleteByEmail", null);
 exports.UserController = UserController = __decorate([
     (0, swagger_1.ApiTags)("User (유저)"),
     (0, common_1.Controller)("users"),

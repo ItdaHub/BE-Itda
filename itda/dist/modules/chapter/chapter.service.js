@@ -63,6 +63,7 @@ let ChapterService = class ChapterService {
             slides,
             authorNickname: chapter.author?.nickname || "알 수 없음",
             writerId: chapter.author?.id,
+            chapterNumber: chapter.chapter_number,
         };
     }
     async createChapter(novelId, content, user) {
