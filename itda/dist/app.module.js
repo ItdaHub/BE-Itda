@@ -41,6 +41,7 @@ const chapter_module_1 = require("./modules/chapter/chapter.module");
 const comment_module_1 = require("./modules/comments/comment.module");
 const writers_module_1 = require("./modules/writers/writers.module");
 const user_service_1 = require("./modules/users/user.service");
+const mail_module_1 = require("./modules/mail/mail.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -89,6 +90,7 @@ exports.AppModule = AppModule = __decorate([
             chapter_module_1.ChapterModule,
             comment_module_1.CommentsModule,
             writers_module_1.WritersModule,
+            mail_module_1.MailModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, like_service_1.LikeService, user_service_1.UserService],

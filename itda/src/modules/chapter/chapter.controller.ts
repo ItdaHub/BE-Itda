@@ -63,8 +63,8 @@ export class ChapterController {
     return this.chapterService.createChapter(
       novelId,
       content,
-      chapterNumber,
-      user
+      user,
+      chapterNumber
     );
   }
 

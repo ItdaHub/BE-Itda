@@ -74,9 +74,10 @@ export class ChapterService {
   async createChapter(
     novelId: number,
     content: string,
-    user: any,
+    user: any, // user는 반드시 정의된 객체여야 함
     chapterNumber?: number // 이어쓰기 시, 해당 챕터 번호를 전달받음
   ): Promise<Chapter> {
+    // novelId로 소설 조회
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
       relations: ["chapters"],
@@ -84,6 +85,11 @@ export class ChapterService {
 
     if (!novel) {
       throw new NotFoundException(`Novel with ID ${novelId} not found`);
+    }
+
+    // user 객체의 id 확인
+    if (!user || !user.id) {
+      throw new Error("유저 정보가 잘못되었습니다.");
     }
 
     // 이미 이어쓴 기록이 있는지 확인
@@ -114,11 +120,12 @@ export class ChapterService {
 
     console.log(`새로운 챕터 번호: ${newChapterNumber}`); // 새로운 챕터 번호 출력
 
+    // 새 챕터 객체 생성
     const newChapter = this.chapterRepository.create({
       content,
       chapter_number: newChapterNumber, // 챕터 번호 설정
       novel,
-      author: user,
+      author: user, // user는 이미 검증됨
     });
 
     return await this.chapterRepository.save(newChapter);

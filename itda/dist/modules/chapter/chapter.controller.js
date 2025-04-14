@@ -32,7 +32,7 @@ let ChapterController = class ChapterController {
     async createChapter(novelId, createChapterDto, req) {
         const user = req.user;
         const { content, chapterNumber } = createChapterDto;
-        return this.chapterService.createChapter(novelId, content, chapterNumber, user);
+        return this.chapterService.createChapter(novelId, content, user, chapterNumber);
     }
     async hasUserParticipated(novelId, userId) {
         return {

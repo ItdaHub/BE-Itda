@@ -331,4 +331,6 @@ export class AuthController {
 
     return { message: "Password updated successfully" };
   }
+
+  // 비밀번호 메일 전송
 }

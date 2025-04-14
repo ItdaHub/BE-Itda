@@ -74,6 +74,9 @@ let ChapterService = class ChapterService {
         if (!novel) {
             throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
         }
+        if (!user || !user.id) {
+            throw new Error("유저 정보가 잘못되었습니다.");
+        }
         const alreadyWrote = await this.chapterRepository.findOne({
             where: {
                 novel: { id: novelId },

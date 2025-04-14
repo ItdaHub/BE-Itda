@@ -32,6 +32,7 @@ import { ChapterModule } from "./modules/chapter/chapter.module";
 import { CommentsModule } from "./modules/comments/comment.module";
 import { WritersModule } from "./modules/writers/writers.module";
 import { UserService } from "./modules/users/user.service";
+import { MailModule } from "./modules/mail/mail.module";
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { UserService } from "./modules/users/user.service";
     ChapterModule,
     CommentsModule,
     WritersModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService, LikeService, UserService],
