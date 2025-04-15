@@ -13,8 +13,9 @@ export declare enum PaymentMethod {
 export declare class Payment {
     id: number;
     user: User;
+    orderId: string;
     amount: number;
-    method: PaymentMethod;
+    method: string;
     status: PaymentStatus;
     created_at: Date;
 }

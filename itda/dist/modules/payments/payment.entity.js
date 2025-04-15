@@ -28,6 +28,7 @@ var PaymentMethod;
 let Payment = class Payment {
     id;
     user;
+    orderId;
     amount;
     method;
     status;
@@ -43,14 +44,15 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Payment.prototype, "user", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ nullable: true, unique: true }),
+    __metadata("design:type", String)
+], Payment.prototype, "orderId", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: "decimal", precision: 10, scale: 2 }),
     __metadata("design:type", Number)
 ], Payment.prototype, "amount", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: "enum",
-        enum: PaymentMethod,
-    }),
+    (0, typeorm_1.Column)({ type: "varchar", length: 30 }),
     __metadata("design:type", String)
 ], Payment.prototype, "method", void 0);
 __decorate([

@@ -28,14 +28,14 @@ export class Payment {
   @ManyToOne(() => User, (user) => user.payments, { onDelete: "CASCADE" })
   user: User;
 
+  @Column({ nullable: true, unique: true })
+  orderId: string;
+
   @Column({ type: "decimal", precision: 10, scale: 2 })
   amount: number;
 
-  @Column({
-    type: "enum",
-    enum: PaymentMethod,
-  })
-  method: PaymentMethod;
+  @Column({ type: "varchar", length: 30 })
+  method: string;
 
   @Column({
     type: "enum",

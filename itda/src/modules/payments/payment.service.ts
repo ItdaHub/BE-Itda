@@ -18,7 +18,8 @@ export class PaymentsService {
   async createPayment(
     userId: number,
     amount: number,
-    method: PaymentMethod
+    method: PaymentMethod,
+    orderId: string
   ): Promise<Payment> {
     const user = await this.userRepo.findOneByOrFail({ id: userId });
 
@@ -27,6 +28,7 @@ export class PaymentsService {
       amount,
       method,
       status: PaymentStatus.PENDING,
+      orderId,
     });
 
     return await this.paymentRepo.save(payment);
@@ -67,27 +69,36 @@ export class PaymentsService {
         }
       );
 
+      // 응답 데이터 로깅
+      console.log("Toss API 응답:", response.data);
+
       const tossPaymentData = response.data;
 
-      // 응답에서 필요한 데이터 추출 (필드 확인)
-      if (!tossPaymentData || tossPaymentData.status !== "Succeed") {
+      // 상태가 'DONE'인 경우, 결제 완료 처리
+      if (!tossPaymentData || tossPaymentData.status !== "DONE") {
         throw new HttpException(
           "Toss 결제 승인에 실패했습니다.",
           HttpStatus.BAD_REQUEST
         );
       }
 
-      // 결제 정보 저장
+      // 결제 정보 조회
       let payment = await this.paymentRepo.findOne({
-        where: { id: parseInt(orderId) }, // orderId와 payment.id를 정확히 매칭
+        where: { orderId }, // orderId를 사용하여 결제 정보 찾기
         relations: ["user"],
       });
 
+      // 결제 정보가 없으면 예외 처리
       if (!payment) {
         throw new HttpException(
-          "결제 정보가 존재하지 않습니다.",
+          `결제 정보가 존재하지 않습니다. orderId: ${orderId}`,
           HttpStatus.NOT_FOUND
         );
+      }
+
+      // 이미 결제 완료 상태일 경우 처리하지 않음
+      if (payment.status === PaymentStatus.COMPLETED) {
+        return payment;
       }
 
       // 결제 상태 업데이트
@@ -98,18 +109,35 @@ export class PaymentsService {
       return await this.paymentRepo.save(payment);
     } catch (error) {
       // Toss 결제 시스템에서 오류 처리
-      if (
-        error.response?.data?.code ===
-        "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING"
-      ) {
+      const errorCode = error.response?.data?.code;
+      console.error(
+        "Toss 결제 승인 오류:",
+        error.response?.data || error.message
+      );
+
+      // Toss 내부 처리 중 에러
+      if (errorCode === "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING") {
         throw new HttpException(
           "Toss 결제 시스템이 일시적으로 처리 중입니다. 잠시 후 다시 시도해주세요.",
           HttpStatus.INTERNAL_SERVER_ERROR
         );
       }
 
-      // 다른 오류들에 대한 처리
-      console.error("Toss 승인 오류:", error.response?.data || error.message);
+      // ✅ 이미 처리된 결제 (중복 승인 요청)
+      if (errorCode === "ALREADY_PROCESSED_PAYMENT") {
+        const existingPayment = await this.paymentRepo.findOne({
+          where: { orderId },
+          relations: ["user"],
+        });
+
+        if (existingPayment?.status === PaymentStatus.COMPLETED) {
+          return existingPayment;
+        }
+
+        throw new HttpException("이미 처리된 결제입니다.", HttpStatus.CONFLICT);
+      }
+
+      // ❌ 그 외 에러
       throw new HttpException(
         "결제 승인에 실패했습니다.",
         HttpStatus.BAD_REQUEST

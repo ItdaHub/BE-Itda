@@ -26,13 +26,14 @@ let PaymentsService = class PaymentsService {
         this.paymentRepo = paymentRepo;
         this.userRepo = userRepo;
     }
-    async createPayment(userId, amount, method) {
+    async createPayment(userId, amount, method, orderId) {
         const user = await this.userRepo.findOneByOrFail({ id: userId });
         const payment = this.paymentRepo.create({
             user,
             amount,
             method,
             status: payment_entity_1.PaymentStatus.PENDING,
+            orderId,
         });
         return await this.paymentRepo.save(payment);
     }
@@ -52,16 +53,20 @@ let PaymentsService = class PaymentsService {
                     "Content-Type": "application/json",
                 },
             });
+            console.log("Toss API 응답:", response.data);
             const tossPaymentData = response.data;
-            if (!tossPaymentData || tossPaymentData.status !== "Succeed") {
+            if (!tossPaymentData || tossPaymentData.status !== "DONE") {
                 throw new common_1.HttpException("Toss 결제 승인에 실패했습니다.", common_1.HttpStatus.BAD_REQUEST);
             }
             let payment = await this.paymentRepo.findOne({
-                where: { id: parseInt(orderId) },
+                where: { orderId },
                 relations: ["user"],
             });
             if (!payment) {
-                throw new common_1.HttpException("결제 정보가 존재하지 않습니다.", common_1.HttpStatus.NOT_FOUND);
+                throw new common_1.HttpException(`결제 정보가 존재하지 않습니다. orderId: ${orderId}`, common_1.HttpStatus.NOT_FOUND);
+            }
+            if (payment.status === payment_entity_1.PaymentStatus.COMPLETED) {
+                return payment;
             }
             payment.status = payment_entity_1.PaymentStatus.COMPLETED;
             payment.method = tossPaymentData.method;
@@ -69,11 +74,21 @@ let PaymentsService = class PaymentsService {
             return await this.paymentRepo.save(payment);
         }
         catch (error) {
-            if (error.response?.data?.code ===
-                "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING") {
+            const errorCode = error.response?.data?.code;
+            console.error("Toss 결제 승인 오류:", error.response?.data || error.message);
+            if (errorCode === "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING") {
                 throw new common_1.HttpException("Toss 결제 시스템이 일시적으로 처리 중입니다. 잠시 후 다시 시도해주세요.", common_1.HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            console.error("Toss 승인 오류:", error.response?.data || error.message);
+            if (errorCode === "ALREADY_PROCESSED_PAYMENT") {
+                const existingPayment = await this.paymentRepo.findOne({
+                    where: { orderId },
+                    relations: ["user"],
+                });
+                if (existingPayment?.status === payment_entity_1.PaymentStatus.COMPLETED) {
+                    return existingPayment;
+                }
+                throw new common_1.HttpException("이미 처리된 결제입니다.", common_1.HttpStatus.CONFLICT);
+            }
             throw new common_1.HttpException("결제 승인에 실패했습니다.", common_1.HttpStatus.BAD_REQUEST);
         }
     }

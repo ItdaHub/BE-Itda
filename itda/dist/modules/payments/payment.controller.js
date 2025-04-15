@@ -23,13 +23,21 @@ let PaymentsController = class PaymentsController {
     constructor(paymentsService) {
         this.paymentsService = paymentsService;
     }
-    async createPayment(userId, amount, method) {
-        return this.paymentsService.createPayment(userId, amount, method);
+    async createPayment(userId, amount, method, orderId) {
+        return this.paymentsService.createPayment(userId, amount, method, orderId);
     }
     async confirmTossPayment(body) {
         const { paymentKey, orderId, amount } = body;
-        if (!paymentKey || !orderId || !amount) {
-            return { statusCode: 400, message: "필수 파라미터가 누락되었습니다." };
+        console.log("📥 [결제 승인 요청 받음]", body);
+        if (typeof paymentKey !== "string" ||
+            typeof orderId !== "string" ||
+            typeof amount !== "number" ||
+            isNaN(amount) ||
+            amount <= 0) {
+            return {
+                statusCode: 400,
+                message: "필수 파라미터가 누락되었거나 잘못되었습니다.",
+            };
         }
         try {
             const result = await this.paymentsService.confirmTossPayment({
@@ -71,8 +79,9 @@ __decorate([
     __param(0, (0, common_1.Body)("userId")),
     __param(1, (0, common_1.Body)("amount")),
     __param(2, (0, common_1.Body)("method")),
+    __param(3, (0, common_1.Body)("orderId")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "createPayment", null);
 __decorate([

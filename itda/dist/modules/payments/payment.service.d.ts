@@ -5,7 +5,7 @@ export declare class PaymentsService {
     private readonly paymentRepo;
     private readonly userRepo;
     constructor(paymentRepo: Repository<Payment>, userRepo: Repository<User>);
-    createPayment(userId: number, amount: number, method: PaymentMethod): Promise<Payment>;
+    createPayment(userId: number, amount: number, method: PaymentMethod, orderId: string): Promise<Payment>;
     confirmTossPayment(data: {
         paymentKey: string;
         orderId: string;

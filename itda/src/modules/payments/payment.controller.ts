@@ -33,9 +33,10 @@ export class PaymentsController {
   async createPayment(
     @Body("userId") userId: number,
     @Body("amount") amount: number,
-    @Body("method") method: PaymentMethod
+    @Body("method") method: PaymentMethod,
+    @Body("orderId") orderId: string
   ) {
-    return this.paymentsService.createPayment(userId, amount, method);
+    return this.paymentsService.createPayment(userId, amount, method, orderId);
   }
 
   // ✅ Toss 리디렉션 정보로 결제 승인 처리
@@ -50,13 +51,20 @@ export class PaymentsController {
     @Body() body: { paymentKey: string; orderId: string; amount: number }
   ) {
     const { paymentKey, orderId, amount } = body;
-
-    if (!paymentKey || !orderId || !amount) {
-      return { statusCode: 400, message: "필수 파라미터가 누락되었습니다." };
+    console.log("📥 [결제 승인 요청 받음]", body);
+    if (
+      typeof paymentKey !== "string" ||
+      typeof orderId !== "string" ||
+      typeof amount !== "number" ||
+      isNaN(amount) ||
+      amount <= 0
+    ) {
+      return {
+        statusCode: 400,
+        message: "필수 파라미터가 누락되었거나 잘못되었습니다.",
+      };
     }
 
-    // 여기서 Toss API로 결제 승인을 처리하는 로직을 추가합니다.
-    // 예시로 Toss API를 호출하는 로직을 넣습니다.
     try {
       // Toss API 호출 (예시)
       const result = await this.paymentsService.confirmTossPayment({
