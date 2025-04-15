@@ -6,22 +6,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PaymentsModule = void 0;
+exports.PointModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const payment_service_1 = require("./payment.service");
-const payment_controller_1 = require("./payment.controller");
-const payment_entity_1 = require("./payment.entity");
-const user_entity_1 = require("../users/user.entity");
-const point_module_1 = require("../points/point.module");
-let PaymentsModule = class PaymentsModule {
+const point_entity_1 = require("./point.entity");
+const point_service_1 = require("../points/point.service");
+const point_controller_1 = require("./point.controller");
+let PointModule = class PointModule {
 };
-exports.PaymentsModule = PaymentsModule;
-exports.PaymentsModule = PaymentsModule = __decorate([
+exports.PointModule = PointModule;
+exports.PointModule = PointModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([payment_entity_1.Payment, user_entity_1.User]), point_module_1.PointModule],
-        providers: [payment_service_1.PaymentsService],
-        controllers: [payment_controller_1.PaymentsController],
+        imports: [typeorm_1.TypeOrmModule.forFeature([point_entity_1.Point])],
+        providers: [point_service_1.PointService],
+        controllers: [point_controller_1.PointController],
     })
-], PaymentsModule);
-//# sourceMappingURL=payment.module.js.map
+], PointModule);
+//# sourceMappingURL=point.module.js.map

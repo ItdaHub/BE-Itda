@@ -7,7 +7,7 @@ import { Like } from "../likes/like.entity";
 import { Report } from "../reports/report.entity";
 import { Notification } from "../notifications/notification.entity";
 import { Vote } from "../interactions/vote.entity";
-import { Point } from "../payments/point.entity";
+import { Point } from "../points/point.entity";
 export declare enum LoginType {
     LOCAL = "local",
     KAKAO = "kakao",

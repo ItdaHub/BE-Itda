@@ -21,7 +21,7 @@ const like_entity_1 = require("../likes/like.entity");
 const report_entity_1 = require("../reports/report.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
 const vote_entity_1 = require("../interactions/vote.entity");
-const point_entity_1 = require("../payments/point.entity");
+const point_entity_1 = require("../points/point.entity");
 var LoginType;
 (function (LoginType) {
     LoginType["LOCAL"] = "local";

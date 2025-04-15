@@ -18,13 +18,17 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const payment_entity_1 = require("./payment.entity");
 const user_entity_1 = require("../users/user.entity");
+const point_service_1 = require("../points/point.service");
+const point_entity_1 = require("../points/point.entity");
 const axios_1 = require("axios");
 let PaymentsService = class PaymentsService {
     paymentRepo;
     userRepo;
-    constructor(paymentRepo, userRepo) {
+    pointService;
+    constructor(paymentRepo, userRepo, pointService) {
         this.paymentRepo = paymentRepo;
         this.userRepo = userRepo;
+        this.pointService = pointService;
     }
     async createPayment(userId, amount, method, orderId) {
         const user = await this.userRepo.findOneByOrFail({ id: userId });
@@ -43,11 +47,7 @@ let PaymentsService = class PaymentsService {
             throw new common_1.HttpException("결제 정보가 올바르지 않습니다.", common_1.HttpStatus.BAD_REQUEST);
         }
         try {
-            const response = await axios_1.default.post(`https://api.tosspayments.com/v1/payments/confirm`, {
-                paymentKey,
-                orderId,
-                amount,
-            }, {
+            const response = await axios_1.default.post(`https://api.tosspayments.com/v1/payments/confirm`, { paymentKey, orderId, amount }, {
                 headers: {
                     Authorization: `Basic ${Buffer.from(`${process.env.TOSS_SECRET_KEY}:`).toString("base64")}`,
                     "Content-Type": "application/json",
@@ -71,7 +71,9 @@ let PaymentsService = class PaymentsService {
             payment.status = payment_entity_1.PaymentStatus.COMPLETED;
             payment.method = tossPaymentData.method;
             payment.amount = tossPaymentData.totalAmount;
-            return await this.paymentRepo.save(payment);
+            const savedPayment = await this.paymentRepo.save(payment);
+            await this.pointService.addPoint(savedPayment.user, savedPayment.amount, point_entity_1.PointType.EARN);
+            return savedPayment;
         }
         catch (error) {
             const errorCode = error.response?.data?.code;
@@ -128,6 +130,7 @@ exports.PaymentsService = PaymentsService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(payment_entity_1.Payment)),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        point_service_1.PointService])
 ], PaymentsService);
 //# sourceMappingURL=payment.service.js.map

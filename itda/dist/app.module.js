@@ -32,7 +32,7 @@ const like_entity_1 = require("./modules/likes/like.entity");
 const ai_image_entity_1 = require("./modules/novels/ai_image.entity");
 const vote_entity_1 = require("./modules/interactions/vote.entity");
 const payment_entity_1 = require("./modules/payments/payment.entity");
-const point_entity_1 = require("./modules/payments/point.entity");
+const point_entity_1 = require("./modules/points/point.entity");
 const admin_notification_entity_1 = require("./modules/notifications/admin_notification.entity");
 const announcement_entity_1 = require("./modules/notifications/announcement.entity");
 const ai_module_1 = require("./modules/ai/ai.module");
@@ -42,6 +42,7 @@ const comment_module_1 = require("./modules/comments/comment.module");
 const writers_module_1 = require("./modules/writers/writers.module");
 const mailer_1 = require("@nestjs-modules/mailer");
 const mail_service_1 = require("./modules/mail/mail.service");
+const point_module_1 = require("./modules/points/point.module");
 const path = require("path");
 const handlebars = require("handlebars");
 const fs = require("fs");
@@ -93,6 +94,7 @@ exports.AppModule = AppModule = __decorate([
             chapter_module_1.ChapterModule,
             comment_module_1.CommentsModule,
             writers_module_1.WritersModule,
+            point_module_1.PointModule,
             mailer_1.MailerModule.forRoot({
                 transport: {
                     host: "smtp.gmail.com",

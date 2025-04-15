@@ -1,10 +1,12 @@
 import { Repository } from "typeorm";
 import { Payment, PaymentStatus, PaymentMethod } from "./payment.entity";
 import { User } from "../users/user.entity";
+import { PointService } from "../points/point.service";
 export declare class PaymentsService {
     private readonly paymentRepo;
     private readonly userRepo;
-    constructor(paymentRepo: Repository<Payment>, userRepo: Repository<User>);
+    private readonly pointService;
+    constructor(paymentRepo: Repository<Payment>, userRepo: Repository<User>, pointService: PointService);
     createPayment(userId: number, amount: number, method: PaymentMethod, orderId: string): Promise<Payment>;
     confirmTossPayment(data: {
         paymentKey: string;

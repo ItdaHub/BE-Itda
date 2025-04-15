@@ -7,6 +7,11 @@ import {
 } from "typeorm";
 import { User } from "../users/user.entity";
 
+export enum PointType {
+  EARN = "earn",
+  SPEND = "spend",
+}
+
 @Entity("points")
 export class Point {
   @PrimaryGeneratedColumn()
@@ -18,8 +23,8 @@ export class Point {
   @Column({ type: "int" })
   amount: number;
 
-  @Column({ type: "enum", enum: ["earn", "spend"] })
-  type: string;
+  @Column({ type: "enum", enum: PointType })
+  type: PointType;
 
   @CreateDateColumn()
   created_at: Date;
