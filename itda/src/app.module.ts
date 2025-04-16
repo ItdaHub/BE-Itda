@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { ServeStaticModule } from "@nestjs/serve-static"; // ServeStaticModule 임포트
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { UserModule } from "./modules/users/user.module";
@@ -37,6 +38,7 @@ import { PointModule } from "./modules/points/point.module";
 import * as path from "path";
 import * as handlebars from "handlebars";
 import * as fs from "fs";
+import { join } from "path";
 
 @Module({
   imports: [
@@ -69,6 +71,10 @@ import * as fs from "fs";
         Announcement,
       ],
       synchronize: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "uploads"), // 'uploads' 디렉토리 경로 설정
+      serveRoot: "/uploads/", // URL 경로 설정
     }),
     UserModule,
     ReportModule,
