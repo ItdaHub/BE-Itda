@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PointController = void 0;
 const common_1 = require("@nestjs/common");
 const point_service_1 = require("./point.service");
+const point_entity_1 = require("./point.entity");
 let PointController = class PointController {
     pointService;
     constructor(pointService) {
@@ -23,6 +24,12 @@ let PointController = class PointController {
     async getUserPoints(userId) {
         const total = await this.pointService.getUserTotalPoints(userId);
         return { total };
+    }
+    async getChargeHistory(userId) {
+        return this.pointService.getUserHistory(userId, point_entity_1.PointType.EARN);
+    }
+    async getUseHistory(userId) {
+        return this.pointService.getUserHistory(userId, point_entity_1.PointType.SPEND);
     }
 };
 exports.PointController = PointController;
@@ -33,6 +40,20 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], PointController.prototype, "getUserPoints", null);
+__decorate([
+    (0, common_1.Get)("charge/:userId"),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PointController.prototype, "getChargeHistory", null);
+__decorate([
+    (0, common_1.Get)("use/:userId"),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PointController.prototype, "getUseHistory", null);
 exports.PointController = PointController = __decorate([
     (0, common_1.Controller)("popcorn"),
     __metadata("design:paramtypes", [point_service_1.PointService])

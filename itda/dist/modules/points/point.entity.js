@@ -23,6 +23,7 @@ let Point = class Point {
     amount;
     type;
     created_at;
+    description;
 };
 exports.Point = Point;
 __decorate([
@@ -45,6 +46,10 @@ __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Point.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Point.prototype, "description", void 0);
 exports.Point = Point = __decorate([
     (0, typeorm_1.Entity)("points")
 ], Point);

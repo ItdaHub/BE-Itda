@@ -28,4 +28,7 @@ export class Point {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ type: "varchar", length: 255, nullable: true })
+  description?: string;
 }

@@ -9,4 +9,5 @@ export declare class Point {
     amount: number;
     type: PointType;
     created_at: Date;
+    description?: string;
 }

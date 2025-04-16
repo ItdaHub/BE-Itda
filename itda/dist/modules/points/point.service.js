@@ -32,13 +32,36 @@ let PointService = class PointService {
         console.log("SUM 쿼리 결과:", result);
         return Number(result.total) || 0;
     }
-    async addPoint(user, amount, type) {
+    async addPoint(user, amount, type, description) {
         const point = this.pointRepository.create({
             user,
             amount,
             type,
+            description,
         });
         return await this.pointRepository.save(point);
+    }
+    async getUserHistory(userId, type) {
+        const result = await this.pointRepository.find({
+            where: {
+                user: { id: userId },
+                type,
+            },
+            order: {
+                created_at: "DESC",
+            },
+            select: {
+                amount: true,
+                created_at: true,
+                description: true,
+            },
+        });
+        return result.map((entry) => ({
+            title: entry.description ||
+                (type === point_entity_1.PointType.EARN ? "팝콘 충전" : "팝콘 사용"),
+            amount: entry.amount,
+            date: entry.created_at.toISOString().slice(0, 19).replace("T", " "),
+        }));
     }
 };
 exports.PointService = PointService;

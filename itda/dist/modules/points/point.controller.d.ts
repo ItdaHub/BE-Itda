@@ -5,4 +5,14 @@ export declare class PointController {
     getUserPoints(userId: number): Promise<{
         total: number;
     }>;
+    getChargeHistory(userId: number): Promise<{
+        title?: string;
+        amount: number;
+        date: string;
+    }[]>;
+    getUseHistory(userId: number): Promise<{
+        title?: string;
+        amount: number;
+        date: string;
+    }[]>;
 }
