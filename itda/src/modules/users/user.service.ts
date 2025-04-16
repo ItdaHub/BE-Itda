@@ -33,11 +33,9 @@ export class UserService {
 
   // 유저 업데이트
   async update(id: number, user: Partial<User>): Promise<User> {
-    const existingUser = await this.findOne(id);
     await this.userRepository.update(id, user);
-    return existingUser;
+    return this.findOne(id);
   }
-
   // 유저 삭제
   async remove(id: number): Promise<void> {
     const existingUser = await this.findOne(id);

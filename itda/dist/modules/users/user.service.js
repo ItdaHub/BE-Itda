@@ -38,9 +38,8 @@ let UserService = class UserService {
         return this.userRepository.save(user);
     }
     async update(id, user) {
-        const existingUser = await this.findOne(id);
         await this.userRepository.update(id, user);
-        return existingUser;
+        return this.findOne(id);
     }
     async remove(id) {
         const existingUser = await this.findOne(id);
