@@ -8,6 +8,6 @@ import { PointController } from "./point.controller";
   imports: [TypeOrmModule.forFeature([Point])],
   providers: [PointService],
   controllers: [PointController],
-  exports: [PointService],
+  exports: [PointService, TypeOrmModule.forFeature([Point])], // PointRepository 제거
 })
 export class PointModule {}

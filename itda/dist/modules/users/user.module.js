@@ -14,6 +14,7 @@ const user_controller_1 = require("./user.controller");
 const user_entity_1 = require("./user.entity");
 const platform_express_1 = require("@nestjs/platform-express");
 const config_1 = require("@nestjs/config");
+const point_module_1 = require("../points/point.module");
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -29,6 +30,7 @@ exports.UserModule = UserModule = __decorate([
                 inject: [],
             }),
             config_1.ConfigModule,
+            point_module_1.PointModule,
         ],
         providers: [user_service_1.UserService],
         controllers: [user_controller_1.UserController],

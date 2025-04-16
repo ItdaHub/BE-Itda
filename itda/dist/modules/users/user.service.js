@@ -17,10 +17,13 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
+const point_entity_1 = require("../points/point.entity");
 let UserService = class UserService {
     userRepository;
-    constructor(userRepository) {
+    pointRepository;
+    constructor(userRepository, pointRepository) {
         this.userRepository = userRepository;
+        this.pointRepository = pointRepository;
     }
     async findAll() {
         return this.userRepository.find();
@@ -38,12 +41,24 @@ let UserService = class UserService {
         return this.userRepository.save(user);
     }
     async update(id, user) {
-        await this.userRepository.update(id, user);
+        const { password, nickname, phone, profile_img } = user;
+        const updateData = {};
+        if (password)
+            updateData.password = password;
+        if (nickname)
+            updateData.nickname = nickname;
+        if (phone)
+            updateData.phone = phone;
+        if (profile_img)
+            updateData.profile_img = profile_img;
+        await this.userRepository.update(id, updateData);
         return this.findOne(id);
     }
-    async remove(id) {
-        const existingUser = await this.findOne(id);
-        await this.userRepository.delete(id);
+    async remove(userId, requestUser) {
+        if (userId !== requestUser.id) {
+            throw new common_1.ForbiddenException("본인 계정만 탈퇴할 수 있습니다.");
+        }
+        await this.deleteUserAndRelatedData(userId);
     }
     async findByPhone(phone) {
         return await this.userRepository.findOne({
@@ -71,11 +86,29 @@ let UserService = class UserService {
         user.profile_img = filename;
         await this.userRepository.save(user);
     }
+    async removeMultiple(ids) {
+        await this.userRepository.delete(ids);
+    }
+    async deleteUsersByAdmin(userIds) {
+        for (const userId of userIds) {
+            await this.deleteUserAndRelatedData(userId);
+        }
+    }
+    async deleteUserAndRelatedData(userId) {
+        const where = { user: { id: userId } };
+        await this.pointRepository.delete(where);
+        const deleteResult = await this.userRepository.delete(userId);
+        if (deleteResult.affected === 0) {
+            throw new common_1.NotFoundException(`User with ID ${userId} not found`);
+        }
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(point_entity_1.Point)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

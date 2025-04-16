@@ -5,12 +5,12 @@ import { UserController } from "./user.controller";
 import { User } from "./user.entity";
 import { MulterModule } from "@nestjs/platform-express";
 import { ConfigModule } from "@nestjs/config";
+import { PointModule } from "../points/point.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     MulterModule.registerAsync({
-      // MulterModule 동적 등록
       imports: [ConfigModule],
       useFactory: async () => ({
         dest: "./uploads/profiles",
@@ -18,6 +18,7 @@ import { ConfigModule } from "@nestjs/config";
       inject: [],
     }),
     ConfigModule,
+    PointModule, // ✅ PointModule 추가
   ],
   providers: [UserService],
   controllers: [UserController],

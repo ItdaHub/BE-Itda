@@ -63,14 +63,6 @@ export class UserController {
     return this.userService.update(id, user);
   }
 
-  // 📌 유저 삭제
-  @Delete(":id")
-  @ApiOperation({ summary: "유저 삭제" })
-  @ApiParam({ name: "id", description: "유저 ID" })
-  remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    return this.userService.remove(id);
-  }
-
   @Delete("delete/email/:email")
   @ApiOperation({ summary: "이메일 기반 유저 삭제" })
   @ApiParam({ name: "email", description: "유저 이메일" })
@@ -123,5 +115,37 @@ export class UserController {
       message: "프로필 이미지가 성공적으로 업데이트되었습니다.",
       filename: file.filename,
     };
+  }
+
+  // ✅ 본인 회원 탈퇴 (회원 삭제)
+  @Delete("me")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "내 계정 삭제 (회원 탈퇴)" })
+  async deleteMyAccount(@Request() req): Promise<void> {
+    const userId = req.user.id;
+    const requestUser = req.user as User; // 요청 객체에서 현재 사용자 정보 추출
+    await this.userService.remove(userId, requestUser); // 두 번째 인자로 requestUser 전달
+  }
+
+  // 📌 관리자에 의한 여러 유저 완전 삭제
+  @Delete("admin/delete")
+  @ApiOperation({ summary: "관리자가 여러 유저를 완전 삭제" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        userIds: {
+          type: "array",
+          items: { type: "number" },
+          example: [1, 2, 3],
+        },
+      },
+    },
+  })
+  async deleteUsersByAdmin(
+    @Body("userIds") userIds: number[]
+  ): Promise<{ message: string }> {
+    await this.userService.deleteUsersByAdmin(userIds);
+    return { message: "선택한 유저들이 완전히 삭제되었습니다." };
   }
 }

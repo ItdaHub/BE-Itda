@@ -38,9 +38,6 @@ let UserController = class UserController {
     update(id, user) {
         return this.userService.update(id, user);
     }
-    remove(id) {
-        return this.userService.remove(id);
-    }
     async deleteByEmail(email) {
         return this.userService.removeByEmail(email);
     }
@@ -59,6 +56,15 @@ let UserController = class UserController {
             message: "프로필 이미지가 성공적으로 업데이트되었습니다.",
             filename: file.filename,
         };
+    }
+    async deleteMyAccount(req) {
+        const userId = req.user.id;
+        const requestUser = req.user;
+        await this.userService.remove(userId, requestUser);
+    }
+    async deleteUsersByAdmin(userIds) {
+        await this.userService.deleteUsersByAdmin(userIds);
+        return { message: "선택한 유저들이 완전히 삭제되었습니다." };
     }
 };
 exports.UserController = UserController;
@@ -98,15 +104,6 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(":id"),
-    (0, swagger_1.ApiOperation)({ summary: "유저 삭제" }),
-    (0, swagger_1.ApiParam)({ name: "id", description: "유저 ID" }),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "remove", null);
 __decorate([
     (0, common_1.Delete)("delete/email/:email"),
     (0, swagger_1.ApiOperation)({ summary: "이메일 기반 유저 삭제" }),
@@ -151,6 +148,35 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "uploadProfileImage", null);
+__decorate([
+    (0, common_1.Delete)("me"),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
+    (0, swagger_1.ApiOperation)({ summary: "내 계정 삭제 (회원 탈퇴)" }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "deleteMyAccount", null);
+__decorate([
+    (0, common_1.Delete)("admin/delete"),
+    (0, swagger_1.ApiOperation)({ summary: "관리자가 여러 유저를 완전 삭제" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                userIds: {
+                    type: "array",
+                    items: { type: "number" },
+                    example: [1, 2, 3],
+                },
+            },
+        },
+    }),
+    __param(0, (0, common_1.Body)("userIds")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Array]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "deleteUsersByAdmin", null);
 exports.UserController = UserController = __decorate([
     (0, swagger_1.ApiTags)("User (유저)"),
     (0, common_1.Controller)("users"),

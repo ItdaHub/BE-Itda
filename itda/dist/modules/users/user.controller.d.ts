@@ -7,7 +7,6 @@ export declare class UserController {
     findOne(id: number): Promise<User>;
     create(user: User): Promise<User>;
     update(id: number, user: Partial<User>): Promise<User>;
-    remove(id: number): Promise<void>;
     deleteByEmail(email: string): Promise<void>;
     updateNickname(req: any, nickname: string): Promise<{
         message: string;
@@ -19,5 +18,9 @@ export declare class UserController {
     } | {
         message: string;
         filename: string;
+    }>;
+    deleteMyAccount(req: any): Promise<void>;
+    deleteUsersByAdmin(userIds: number[]): Promise<{
+        message: string;
     }>;
 }

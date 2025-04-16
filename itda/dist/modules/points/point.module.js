@@ -20,7 +20,7 @@ exports.PointModule = PointModule = __decorate([
         imports: [typeorm_1.TypeOrmModule.forFeature([point_entity_1.Point])],
         providers: [point_service_1.PointService],
         controllers: [point_controller_1.PointController],
-        exports: [point_service_1.PointService],
+        exports: [point_service_1.PointService, typeorm_1.TypeOrmModule.forFeature([point_entity_1.Point])],
     })
 ], PointModule);
 //# sourceMappingURL=point.module.js.map
