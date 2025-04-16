@@ -1,16 +1,14 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsString, MinLength } from "class-validator";
 
 export class ResetPasswordDto {
-  @IsEmail()
-  email: string;
-
-  @IsNotEmpty()
   @IsString()
-  @MinLength(4)
+  token: string; // token만 받아오기
+
+  @IsString()
+  @MinLength(6)
   password: string;
 
-  @IsNotEmpty()
   @IsString()
-  @MinLength(4)
+  @MinLength(6)
   confirmPassword: string;
 }

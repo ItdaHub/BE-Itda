@@ -11,6 +11,7 @@ import {
   convertNaverAgeToGroup,
 } from "./utils/agegroup.util";
 import { MailService } from "../mail/mail.service";
+import { BadRequestException } from "@nestjs/common";
 
 // ✅ 타입 선언 추가
 type LoginResponse = {
@@ -314,28 +315,37 @@ export class AuthService {
     console.log("📨 비밀번호 재설정 메일 전송 완료");
   }
 
-  //   async updatePasswordWithToken(token: string, newPassword: string) {
-  //     const reset = await this.resetPwTokenRepository.findOne({
-  //       where: { token },
-  //       relations: ["user"],
-  //     });
+  // 비밀번호 재설정 처리
+  async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<{ message: string }> {
+    try {
+      // 1. 토큰 디코딩 및 검증
+      const payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
 
-  //     if (!reset) {
-  //       throw new BadRequestException("유효하지 않은 토큰입니다.");
-  //     }
+      const email = payload.email;
+      if (!email) {
+        throw new BadRequestException("유효하지 않은 토큰입니다.");
+      }
 
-  //     const now = new Date();
-  //     if (reset.expiresAt < now) {
-  //       throw new BadRequestException("토큰이 만료되었습니다.");
-  //     }
+      // 2. 사용자 조회 (email로 사용자 확인)
+      const user = await this.entityManager.findOne(User, { where: { email } });
+      if (!user) {
+        throw new BadRequestException("해당 사용자를 찾을 수 없습니다.");
+      }
 
-  //     const hashedPw = await bcrypt.hash(newPassword, 10);
-  //     reset.user.password = hashedPw;
+      // 3. 새 비밀번호 해싱 후 저장
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      await this.entityManager.save(user);
 
-  //     await this.userRepository.save(reset.user);
-  //     await this.resetPwTokenRepository.delete({ id: reset.id }); // 사용 후 토큰 삭제
-
-  //     return { message: "비밀번호가 성공적으로 변경되었습니다." };
-  //   }
-  // }
+      return { message: "비밀번호가 성공적으로 변경되었습니다." };
+    } catch (error) {
+      console.error("❌ 비밀번호 재설정 실패:", error);
+      throw new BadRequestException("토큰이 유효하지 않거나 만료되었습니다.");
+    }
+  }
 }

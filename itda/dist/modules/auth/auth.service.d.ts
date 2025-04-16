@@ -40,5 +40,8 @@ export declare class AuthService {
     checkEmail(email: string): Promise<boolean>;
     checkNickName(nickname: string): Promise<boolean>;
     sendPasswordResetToken(email: string): Promise<void>;
+    resetPassword(token: string, newPassword: string): Promise<{
+        message: string;
+    }>;
 }
 export {};

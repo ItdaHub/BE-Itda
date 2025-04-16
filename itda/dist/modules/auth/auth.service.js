@@ -19,6 +19,7 @@ const user_entity_2 = require("../users/user.entity");
 const class_transformer_1 = require("class-transformer");
 const agegroup_util_1 = require("./utils/agegroup.util");
 const mail_service_1 = require("../mail/mail.service");
+const common_2 = require("@nestjs/common");
 let AuthService = class AuthService {
     entityManager;
     jwtService;
@@ -219,6 +220,29 @@ let AuthService = class AuthService {
         });
         await this.mailService.sendPasswordResetEmail(email, token);
         console.log("📨 비밀번호 재설정 메일 전송 완료");
+    }
+    async resetPassword(token, newPassword) {
+        try {
+            const payload = this.jwtService.verify(token, {
+                secret: process.env.JWT_SECRET,
+            });
+            const email = payload.email;
+            if (!email) {
+                throw new common_2.BadRequestException("유효하지 않은 토큰입니다.");
+            }
+            const user = await this.entityManager.findOne(user_entity_1.User, { where: { email } });
+            if (!user) {
+                throw new common_2.BadRequestException("해당 사용자를 찾을 수 없습니다.");
+            }
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            user.password = hashedPassword;
+            await this.entityManager.save(user);
+            return { message: "비밀번호가 성공적으로 변경되었습니다." };
+        }
+        catch (error) {
+            console.error("❌ 비밀번호 재설정 실패:", error);
+            throw new common_2.BadRequestException("토큰이 유효하지 않거나 만료되었습니다.");
+        }
     }
 };
 exports.AuthService = AuthService;

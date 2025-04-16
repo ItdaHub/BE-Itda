@@ -77,15 +77,15 @@ export class ChapterService {
       authorNickname: chapter.author?.nickname || "알 수 없음",
       writerId: chapter.author?.id,
       chapterNumber: chapter.chapter_number,
-      isLastChapter, // 👈 프론트로 넘겨줌
+      isLastChapter,
     };
   }
 
   async createChapter(
     novelId: number,
     content: string,
-    user: any, // user는 반드시 정의된 객체여야 함
-    chapterNumber?: number // 이어쓰기 시, 해당 챕터 번호를 전달받음
+    user: any,
+    chapterNumber?: number
   ): Promise<Chapter> {
     // novelId로 소설 조회
     const novel = await this.novelRepository.findOne({
@@ -124,18 +124,18 @@ export class ChapterService {
       const chapterCount = await this.chapterRepository.count({
         where: { novel: { id: novelId } },
       });
-      console.log(`현재 소설의 총 챕터 수: ${chapterCount}`); // 현재 챕터 수 출력
+      console.log(`현재 소설의 총 챕터 수: ${chapterCount}`);
       newChapterNumber = chapterCount + 1;
     }
 
-    console.log(`새로운 챕터 번호: ${newChapterNumber}`); // 새로운 챕터 번호 출력
+    console.log(`새로운 챕터 번호: ${newChapterNumber}`);
 
     // 새 챕터 객체 생성
     const newChapter = this.chapterRepository.create({
       content,
-      chapter_number: newChapterNumber, // 챕터 번호 설정
+      chapter_number: newChapterNumber,
       novel,
-      author: user, // user는 이미 검증됨
+      author: user,
     });
 
     return await this.chapterRepository.save(newChapter);
