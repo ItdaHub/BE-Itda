@@ -9,4 +9,15 @@ export declare class UserController {
     update(id: number, user: Partial<User>): Promise<User>;
     remove(id: number): Promise<void>;
     deleteByEmail(email: string): Promise<void>;
+    updateNickname(req: any, nickname: string): Promise<{
+        message: string;
+        nickname: string;
+    }>;
+    uploadProfileImage(req: any, file: Express.Multer.File): Promise<{
+        message: string;
+        filename?: undefined;
+    } | {
+        message: string;
+        filename: string;
+    }>;
 }

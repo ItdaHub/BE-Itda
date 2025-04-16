@@ -17,6 +17,10 @@ const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const user_entity_1 = require("./user.entity");
 const swagger_1 = require("@nestjs/swagger");
+const jwtauth_guard_1 = require("../auth/jwtauth.guard");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+const path_1 = require("path");
 let UserController = class UserController {
     userService;
     constructor(userService) {
@@ -39,6 +43,22 @@ let UserController = class UserController {
     }
     async deleteByEmail(email) {
         return this.userService.removeByEmail(email);
+    }
+    async updateNickname(req, nickname) {
+        const userId = req.user.id;
+        await this.userService.update(userId, { nickname });
+        return { message: "닉네임이 성공적으로 변경되었습니다.", nickname };
+    }
+    async uploadProfileImage(req, file) {
+        const userId = req.user.id;
+        if (!file) {
+            return { message: "프로필 이미지를 선택해주세요." };
+        }
+        await this.userService.updateProfileImage(userId, file.filename);
+        return {
+            message: "프로필 이미지가 성공적으로 업데이트되었습니다.",
+            filename: file.filename,
+        };
     }
 };
 exports.UserController = UserController;
@@ -96,9 +116,45 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "deleteByEmail", null);
+__decorate([
+    (0, common_1.Put)("me/nickname"),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: "내 닉네임 변경" }),
+    (0, swagger_1.ApiBody)({
+        schema: { type: "object", properties: { nickname: { type: "string" } } },
+    }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)("nickname")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateNickname", null);
+__decorate([
+    (0, common_1.Put)("me/profile-image"),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: "내 프로필 이미지 업데이트" }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("profileImage", {
+        storage: (0, multer_1.diskStorage)({
+            destination: "./uploads/profiles",
+            filename: (req, file, callback) => {
+                const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+                const ext = (0, path_1.extname)(file.originalname);
+                const filename = `profile-${uniqueSuffix}${ext}`;
+                callback(null, filename);
+            },
+        }),
+        limits: { fileSize: 1024 * 1024 * 5 },
+    })),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "uploadProfileImage", null);
 exports.UserController = UserController = __decorate([
     (0, swagger_1.ApiTags)("User (유저)"),
     (0, common_1.Controller)("users"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);
 //# sourceMappingURL=user.controller.js.map

@@ -15,6 +15,7 @@ export declare class AuthService {
     private createToken;
     formatResponse(partialUser: User): Promise<LoginResponse>;
     login(user: User): Promise<LoginResponse>;
+    validateAdmin(email: string, password: string): Promise<User>;
     validateKakaoUser({ email, nickname, birthYear, }: {
         email: string;
         nickname: string;

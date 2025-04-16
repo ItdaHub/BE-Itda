@@ -10,6 +10,7 @@ import {
   BadRequestException,
   Query,
   NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
@@ -23,6 +24,7 @@ import { UserService } from "../users/user.service";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { MailService } from "../mail/mail.service";
+import { UserType } from "../users/user.entity";
 
 // 🔐 Auth 관련 API 컨트롤러
 @ApiTags("Auth")
@@ -406,5 +408,31 @@ export class AuthController {
     } catch (error) {
       throw new BadRequestException("유효하지 않거나 만료된 토큰입니다.");
     }
+  }
+
+  // ✅ 관리자 로그인
+  @UseGuards(LocalAuthGuard)
+  @Post("admin/login")
+  @ApiOperation({
+    summary: "관리자 로그인",
+    description: "관리자 이메일과 비밀번호를 통한 로그인 처리",
+  })
+  @ApiResponse({ status: 200, description: "로그인 성공" })
+  @ApiResponse({ status: 401, description: "인증 실패" })
+  async adminLogin(@Request() req, @Res() res: Response) {
+    const { accessToken, user } = await this.authService.login(req.user);
+
+    if (user.user_type !== "admin") {
+      throw new UnauthorizedException("관리자 권한이 없습니다.");
+    }
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ user });
   }
 }

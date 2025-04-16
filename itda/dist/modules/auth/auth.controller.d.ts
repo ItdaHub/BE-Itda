@@ -66,4 +66,5 @@ export declare class AuthController {
         message: string;
         userId: number;
     }>;
+    adminLogin(req: any, res: Response): Promise<void>;
 }

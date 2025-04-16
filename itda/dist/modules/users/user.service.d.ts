@@ -13,4 +13,5 @@ export declare class UserService {
     save(user: User): Promise<User>;
     findById(id: number): Promise<User | null>;
     removeByEmail(email: string): Promise<void>;
+    updateProfileImage(userId: number, filename: string): Promise<void>;
 }

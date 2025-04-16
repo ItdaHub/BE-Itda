@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { EntityManager } from "typeorm";
-import { User } from "../users/user.entity";
+import { User, UserType } from "../users/user.entity"; // UserType 추가
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { LoginType, UserStatus } from "../users/user.entity";
@@ -68,9 +68,45 @@ export class AuthService {
     };
   }
 
-  // ✅ 로그인 (타입 지정)
+  // ✅ 로그인 (일반 사용자 및 관리자 공통 로직)
   async login(user: User): Promise<LoginResponse> {
     return this.formatResponse(user);
+  }
+
+  // ✅ 관리자 로그인 검증
+  async validateAdmin(email: string, password: string): Promise<User> {
+    const admin = await this.entityManager.findOne(User, {
+      where: { email },
+      select: ["id", "email", "password", "user_type", "nickname", "status"],
+    });
+
+    console.log("✅ 가져온 user:", admin);
+
+    if (!admin) {
+      console.log("❌ 관리자 이메일 없음:", email);
+      throw new UnauthorizedException("존재하지 않는 관리자 이메일입니다.");
+    }
+
+    // user_type 확인
+    if (admin.user_type !== UserType.ADMIN) {
+      console.log("❌ 관리자 권한 없음:", email, admin.user_type);
+      throw new UnauthorizedException("관리자 권한이 없는 계정입니다.");
+    }
+
+    if (!admin.password || admin.password.trim() === "") {
+      console.log("❌ 소셜 로그인 관리자:", email);
+      throw new UnauthorizedException(
+        "소셜 로그인 관리자는 비밀번호를 사용할 수 없습니다."
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, admin.password); // 👈 여기를 admin.password로 수정
+    if (!isPasswordValid) {
+      console.log("❌ 관리자 비밀번호 틀림:", email);
+      throw new UnauthorizedException("관리자 비밀번호가 틀렸습니다.");
+    }
+
+    return admin;
   }
 
   // ✅ 카카오 로그인
@@ -210,7 +246,15 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.entityManager.findOne(User, {
       where: { email },
-      select: ["id", "email", "password", "type", "nickname", "status"],
+      select: [
+        "id",
+        "email",
+        "password",
+        "type",
+        "nickname",
+        "status",
+        "user_type",
+      ],
     });
     console.log("✅ 가져온 user:", user);
 
@@ -310,7 +354,7 @@ export class AuthService {
       }
     );
 
-    await this.mailService.sendPasswordResetEmail(email, token); // ✅ 위임
+    await this.mailService.sendPasswordResetEmail(email, token);
 
     console.log("📨 비밀번호 재설정 메일 전송 완료");
   }

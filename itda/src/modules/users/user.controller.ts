@@ -7,13 +7,24 @@ import {
   Put,
   Delete,
   ParseIntPipe,
+  UseGuards,
+  Request,
+  UseInterceptors,
+  UploadedFile,
+  HttpCode,
+  HttpStatus,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User } from "./user.entity";
 import { ApiTags, ApiOperation, ApiParam, ApiBody } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/jwtauth.guard";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { extname } from "path";
 
 @ApiTags("User (유저)")
 @Controller("users")
+@UseGuards(JwtAuthGuard) // ✅ 인증된 사용자만 접근 가능하도록 가드 적용 (선택 사항)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -65,5 +76,52 @@ export class UserController {
   @ApiParam({ name: "email", description: "유저 이메일" })
   async deleteByEmail(@Param("email") email: string): Promise<void> {
     return this.userService.removeByEmail(email);
+  }
+
+  // ✅ 닉네임 변경
+  @Put("me/nickname")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "내 닉네임 변경" })
+  @ApiBody({
+    schema: { type: "object", properties: { nickname: { type: "string" } } },
+  })
+  async updateNickname(@Request() req, @Body("nickname") nickname: string) {
+    const userId = req.user.id;
+    await this.userService.update(userId, { nickname });
+    return { message: "닉네임이 성공적으로 변경되었습니다.", nickname };
+  }
+
+  // ✅ 프로필 이미지 업로드 및 업데이트
+  @Put("me/profile-image")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "내 프로필 이미지 업데이트" })
+  @UseInterceptors(
+    FileInterceptor("profileImage", {
+      storage: diskStorage({
+        destination: "./uploads/profiles",
+        filename: (req, file, callback) => {
+          const uniqueSuffix =
+            Date.now() + "-" + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          const filename = `profile-${uniqueSuffix}${ext}`;
+          callback(null, filename);
+        },
+      }),
+      limits: { fileSize: 1024 * 1024 * 5 }, // 5MB 제한
+    })
+  )
+  async uploadProfileImage(
+    @Request() req,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    const userId = req.user.id;
+    if (!file) {
+      return { message: "프로필 이미지를 선택해주세요." };
+    }
+    await this.userService.updateProfileImage(userId, file.filename);
+    return {
+      message: "프로필 이미지가 성공적으로 업데이트되었습니다.",
+      filename: file.filename,
+    };
   }
 }

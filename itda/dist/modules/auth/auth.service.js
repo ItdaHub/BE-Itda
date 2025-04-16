@@ -66,6 +66,31 @@ let AuthService = class AuthService {
     async login(user) {
         return this.formatResponse(user);
     }
+    async validateAdmin(email, password) {
+        const admin = await this.entityManager.findOne(user_entity_1.User, {
+            where: { email },
+            select: ["id", "email", "password", "user_type", "nickname", "status"],
+        });
+        console.log("✅ 가져온 user:", admin);
+        if (!admin) {
+            console.log("❌ 관리자 이메일 없음:", email);
+            throw new common_1.UnauthorizedException("존재하지 않는 관리자 이메일입니다.");
+        }
+        if (admin.user_type !== user_entity_1.UserType.ADMIN) {
+            console.log("❌ 관리자 권한 없음:", email, admin.user_type);
+            throw new common_1.UnauthorizedException("관리자 권한이 없는 계정입니다.");
+        }
+        if (!admin.password || admin.password.trim() === "") {
+            console.log("❌ 소셜 로그인 관리자:", email);
+            throw new common_1.UnauthorizedException("소셜 로그인 관리자는 비밀번호를 사용할 수 없습니다.");
+        }
+        const isPasswordValid = await bcrypt.compare(password, admin.password);
+        if (!isPasswordValid) {
+            console.log("❌ 관리자 비밀번호 틀림:", email);
+            throw new common_1.UnauthorizedException("관리자 비밀번호가 틀렸습니다.");
+        }
+        return admin;
+    }
     async validateKakaoUser({ email, nickname, birthYear, }) {
         if (!email)
             throw new Error("이메일이 없습니다.");
@@ -148,7 +173,15 @@ let AuthService = class AuthService {
     async validateUser(email, password) {
         const user = await this.entityManager.findOne(user_entity_1.User, {
             where: { email },
-            select: ["id", "email", "password", "type", "nickname", "status"],
+            select: [
+                "id",
+                "email",
+                "password",
+                "type",
+                "nickname",
+                "status",
+                "user_type",
+            ],
         });
         console.log("✅ 가져온 user:", user);
         if (!user) {

@@ -219,6 +219,19 @@ let AuthController = class AuthController {
             throw new common_1.BadRequestException("유효하지 않거나 만료된 토큰입니다.");
         }
     }
+    async adminLogin(req, res) {
+        const { accessToken, user } = await this.authService.login(req.user);
+        if (user.user_type !== "admin") {
+            throw new common_1.UnauthorizedException("관리자 권한이 없습니다.");
+        }
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        res.json({ user });
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -446,6 +459,21 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "updatePasswordPage", null);
+__decorate([
+    (0, common_1.UseGuards)(localauth_guard_1.LocalAuthGuard),
+    (0, common_1.Post)("admin/login"),
+    (0, swagger_1.ApiOperation)({
+        summary: "관리자 로그인",
+        description: "관리자 이메일과 비밀번호를 통한 로그인 처리",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "로그인 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: "인증 실패" }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "adminLogin", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)("Auth"),
     (0, common_1.Controller)("auth"),

@@ -67,6 +67,11 @@ let UserService = class UserService {
         }
         await this.userRepository.remove(user);
     }
+    async updateProfileImage(userId, filename) {
+        const user = await this.findOne(userId);
+        user.profile_img = filename;
+        await this.userRepository.save(user);
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

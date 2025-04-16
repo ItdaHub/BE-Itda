@@ -61,7 +61,7 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  // ✅ 이메일, 닉네임 변경
+  // ✅ ID로 유저 정보 조회 (이메일, 닉네임 변경 시 활용)
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
   }
@@ -72,5 +72,12 @@ export class UserService {
       throw new NotFoundException("유저를 찾을 수 없습니다.");
     }
     await this.userRepository.remove(user);
+  }
+
+  // ✅ 프로필 이미지 변경
+  async updateProfileImage(userId: number, filename: string): Promise<void> {
+    const user = await this.findOne(userId);
+    user.profile_img = filename;
+    await this.userRepository.save(user);
   }
 }
