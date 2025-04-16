@@ -66,7 +66,6 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  // user.service.ts
   async removeByEmail(email: string): Promise<void> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {

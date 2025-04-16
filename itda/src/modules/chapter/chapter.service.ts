@@ -37,6 +37,7 @@ export class ChapterService {
     authorNickname: string;
     writerId: number;
     chapterNumber: number;
+    isLastChapter: boolean; // 👈 이거 추가
   }> {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
@@ -55,6 +56,14 @@ export class ChapterService {
       throw new NotFoundException(`Chapter with ID ${chapterId} not found`);
     }
 
+    // ✅ 소설 전체 챕터 수 가져오기
+    const totalChapters = await this.chapterRepository.count({
+      where: { novel: { id: novelId } },
+    });
+
+    // ✅ 현재 챕터가 마지막인지 판단
+    const isLastChapter = chapter.chapter_number === totalChapters;
+
     const slides = chapter.content
       .split(/\n{2,}/)
       .map((text, index) => ({
@@ -68,6 +77,7 @@ export class ChapterService {
       authorNickname: chapter.author?.nickname || "알 수 없음",
       writerId: chapter.author?.id,
       chapterNumber: chapter.chapter_number,
+      isLastChapter, // 👈 프론트로 넘겨줌
     };
   }
 

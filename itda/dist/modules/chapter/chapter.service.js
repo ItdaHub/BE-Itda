@@ -52,6 +52,10 @@ let ChapterService = class ChapterService {
         if (!chapter) {
             throw new common_1.NotFoundException(`Chapter with ID ${chapterId} not found`);
         }
+        const totalChapters = await this.chapterRepository.count({
+            where: { novel: { id: novelId } },
+        });
+        const isLastChapter = chapter.chapter_number === totalChapters;
         const slides = chapter.content
             .split(/\n{2,}/)
             .map((text, index) => ({
@@ -64,6 +68,7 @@ let ChapterService = class ChapterService {
             authorNickname: chapter.author?.nickname || "알 수 없음",
             writerId: chapter.author?.id,
             chapterNumber: chapter.chapter_number,
+            isLastChapter,
         };
     }
     async createChapter(novelId, content, user, chapterNumber) {
