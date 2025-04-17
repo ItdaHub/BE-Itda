@@ -15,7 +15,6 @@ export declare class NovelService {
     private readonly userRepo;
     private readonly chapterRepo;
     private readonly participantRepo;
-    private readonly logger;
     constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>);
     getAllNovels(): Promise<Novel[]>;
     getNovelById(id: number): Promise<any>;
@@ -37,6 +36,5 @@ export declare class NovelService {
     searchNovelsByTitle(query: string): Promise<Novel[]>;
     getRankedNovels(): Promise<Novel[]>;
     getRankedNovelsByAge(ageGroup: number): Promise<Novel[]>;
-    getCategories(): Promise<Genre[]>;
 }
 export {};
