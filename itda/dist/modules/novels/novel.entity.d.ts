@@ -6,14 +6,29 @@ import { AIGeneratedImage } from "./ai_image.entity";
 import { Like } from "../likes/like.entity";
 import { Comment } from "../comments/comment.entity";
 import { Notification } from "../notifications/notification.entity";
+export declare enum MaxParticipants {
+    FIVE = 5,
+    SEVEN = 7,
+    NINE = 9
+}
+export declare enum NovelStatus {
+    ONGOING = "ongoing",
+    COMPLETED = "completed",
+    SUBMITTED = "submitted"
+}
+export declare enum NovelType {
+    NEW = "new",
+    RELAY = "relay"
+}
 export declare class Novel {
     id: number;
     title: string;
     creator: User;
-    max_participants: 5 | 7 | 9;
-    status: "ongoing" | "completed" | "submitted";
+    author: User;
+    max_participants: MaxParticipants;
+    status: NovelStatus;
     cover_image: string;
-    type: "new" | "relay";
+    type: NovelType;
     created_at: Date;
     genre: Genre;
     participants: Participant[];
@@ -23,7 +38,6 @@ export declare class Novel {
     likeCount: number;
     comments: Comment[];
     notifications: Notification[];
-    author: User;
     age_group: number;
     viewCount: number;
 }

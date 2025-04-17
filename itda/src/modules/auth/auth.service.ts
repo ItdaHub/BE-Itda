@@ -43,8 +43,8 @@ export class AuthService {
       where: { id: partialUser.id },
       relations: [
         "payments",
-        "novels",
-        "participants",
+        "createdNovels",
+        "authoredNovels",
         "chapters",
         "comments",
         "likes",

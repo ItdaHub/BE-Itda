@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Novel = void 0;
+exports.Novel = exports.NovelType = exports.NovelStatus = exports.MaxParticipants = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../users/user.entity");
 const genre_entity_1 = require("../genre/genre.entity");
@@ -19,10 +19,28 @@ const ai_image_entity_1 = require("./ai_image.entity");
 const like_entity_1 = require("../likes/like.entity");
 const comment_entity_1 = require("../comments/comment.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
+var MaxParticipants;
+(function (MaxParticipants) {
+    MaxParticipants[MaxParticipants["FIVE"] = 5] = "FIVE";
+    MaxParticipants[MaxParticipants["SEVEN"] = 7] = "SEVEN";
+    MaxParticipants[MaxParticipants["NINE"] = 9] = "NINE";
+})(MaxParticipants || (exports.MaxParticipants = MaxParticipants = {}));
+var NovelStatus;
+(function (NovelStatus) {
+    NovelStatus["ONGOING"] = "ongoing";
+    NovelStatus["COMPLETED"] = "completed";
+    NovelStatus["SUBMITTED"] = "submitted";
+})(NovelStatus || (exports.NovelStatus = NovelStatus = {}));
+var NovelType;
+(function (NovelType) {
+    NovelType["NEW"] = "new";
+    NovelType["RELAY"] = "relay";
+})(NovelType || (exports.NovelType = NovelType = {}));
 let Novel = class Novel {
     id;
     title;
     creator;
+    author;
     max_participants;
     status;
     cover_image;
@@ -36,7 +54,6 @@ let Novel = class Novel {
     likeCount;
     comments;
     notifications;
-    author;
     age_group;
     viewCount;
 };
@@ -50,18 +67,28 @@ __decorate([
     __metadata("design:type", String)
 ], Novel.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.novels, { onDelete: "CASCADE" }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.createdNovels, {
+        onDelete: "SET NULL",
+        nullable: true,
+    }),
     __metadata("design:type", user_entity_1.User)
 ], Novel.prototype, "creator", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: [5, 7, 9] }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.authoredNovels, {
+        onDelete: "SET NULL",
+        nullable: true,
+    }),
+    __metadata("design:type", user_entity_1.User)
+], Novel.prototype, "author", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "enum", enum: MaxParticipants }),
     __metadata("design:type", Number)
 ], Novel.prototype, "max_participants", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: "enum",
-        enum: ["ongoing", "completed", "submitted"],
-        default: "ongoing",
+        enum: NovelStatus,
+        default: NovelStatus.ONGOING,
     }),
     __metadata("design:type", String)
 ], Novel.prototype, "status", void 0);
@@ -70,7 +97,7 @@ __decorate([
     __metadata("design:type", String)
 ], Novel.prototype, "cover_image", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: ["new", "relay"], nullable: true }),
+    (0, typeorm_1.Column)({ type: "enum", enum: NovelType, nullable: true }),
     __metadata("design:type", String)
 ], Novel.prototype, "type", void 0);
 __decorate([
@@ -78,7 +105,10 @@ __decorate([
     __metadata("design:type", Date)
 ], Novel.prototype, "created_at", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => genre_entity_1.Genre, (genre) => genre.novels, { onDelete: "SET NULL" }),
+    (0, typeorm_1.ManyToOne)(() => genre_entity_1.Genre, (genre) => genre.novels, {
+        onDelete: "SET NULL",
+        nullable: true,
+    }),
     __metadata("design:type", genre_entity_1.Genre)
 ], Novel.prototype, "genre", void 0);
 __decorate([
@@ -109,10 +139,6 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.novel),
     __metadata("design:type", Array)
 ], Novel.prototype, "notifications", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.novels),
-    __metadata("design:type", user_entity_1.User)
-], Novel.prototype, "author", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "int", nullable: true }),
     __metadata("design:type", Number)

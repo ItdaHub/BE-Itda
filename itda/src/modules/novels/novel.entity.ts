@@ -15,6 +15,23 @@ import { Like } from "../likes/like.entity";
 import { Comment } from "../comments/comment.entity";
 import { Notification } from "../notifications/notification.entity";
 
+export enum MaxParticipants {
+  FIVE = 5,
+  SEVEN = 7,
+  NINE = 9,
+}
+
+export enum NovelStatus {
+  ONGOING = "ongoing",
+  COMPLETED = "completed",
+  SUBMITTED = "submitted",
+}
+
+export enum NovelType {
+  NEW = "new",
+  RELAY = "relay",
+}
+
 @Entity("novels")
 export class Novel {
   @PrimaryGeneratedColumn()
@@ -23,29 +40,43 @@ export class Novel {
   @Column({ length: 255 })
   title: string;
 
-  @ManyToOne(() => User, (user) => user.novels, { onDelete: "CASCADE" })
+  // ✅ 처음 소설 만든 사람 (방장 개념)
+  @ManyToOne(() => User, (user) => user.createdNovels, {
+    onDelete: "SET NULL",
+    nullable: true,
+  })
   creator: User;
 
-  @Column({ type: "enum", enum: [5, 7, 9] })
-  max_participants: 5 | 7 | 9;
+  // ✅ 이 챕터를 실제로 작성한 사람 (참여자 중 한 명)
+  @ManyToOne(() => User, (user) => user.authoredNovels, {
+    onDelete: "SET NULL",
+    nullable: true,
+  })
+  author: User;
+
+  @Column({ type: "enum", enum: MaxParticipants })
+  max_participants: MaxParticipants;
 
   @Column({
     type: "enum",
-    enum: ["ongoing", "completed", "submitted"],
-    default: "ongoing",
+    enum: NovelStatus,
+    default: NovelStatus.ONGOING,
   })
-  status: "ongoing" | "completed" | "submitted";
+  status: NovelStatus;
 
   @Column({ length: 255, nullable: true })
   cover_image: string;
 
-  @Column({ type: "enum", enum: ["new", "relay"], nullable: true })
-  type: "new" | "relay";
+  @Column({ type: "enum", enum: NovelType, nullable: true })
+  type: NovelType;
 
   @CreateDateColumn()
   created_at: Date;
 
-  @ManyToOne(() => Genre, (genre) => genre.novels, { onDelete: "SET NULL" })
+  @ManyToOne(() => Genre, (genre) => genre.novels, {
+    onDelete: "SET NULL",
+    nullable: true,
+  })
   genre: Genre;
 
   @OneToMany(() => Participant, (participant) => participant.novel)
@@ -68,9 +99,6 @@ export class Novel {
 
   @OneToMany(() => Notification, (notification) => notification.novel)
   notifications: Notification[];
-
-  @ManyToOne(() => User, (user) => user.novels)
-  author: User;
 
   @Column({ type: "int", nullable: true })
   age_group: number;

@@ -20,7 +20,7 @@ export class Participant {
   @JoinColumn({ name: "novel_id" })
   novel: Novel;
 
-  @ManyToOne(() => User, (user) => user.participants, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, (user) => user.participations, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
 

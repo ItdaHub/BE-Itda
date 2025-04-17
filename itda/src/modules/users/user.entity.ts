@@ -49,6 +49,7 @@ export class User {
   id: number;
 
   @Column()
+  @IsEmail()
   email: string;
 
   @Column({ select: false, nullable: true })
@@ -70,6 +71,8 @@ export class User {
   type: LoginType;
 
   @Column({ nullable: true })
+  @IsOptional()
+  @IsString()
   name?: string;
 
   @Column({ unique: true })
@@ -86,17 +89,22 @@ export class User {
   @Column({ type: "enum", enum: UserType, default: UserType.USER })
   user_type: UserType;
 
-  @Column({ type: "enum", enum: UserStatus })
+  @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
+
+  // 📚 관계 설정
 
   @OneToMany(() => Payment, (payment) => payment.user)
   payments: Payment[];
 
   @OneToMany(() => Novel, (novel) => novel.creator)
-  novels: Novel[];
+  createdNovels: Novel[];
+
+  @OneToMany(() => Novel, (novel) => novel.author)
+  authoredNovels: Novel[];
 
   @OneToMany(() => Participant, (participant) => participant.user)
-  participants: Participant[];
+  participations: Participant[];
 
   @OneToMany(() => Chapter, (chapter) => chapter.author)
   chapters: Chapter[];

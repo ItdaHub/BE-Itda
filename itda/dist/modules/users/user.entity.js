@@ -60,8 +60,9 @@ let User = class User {
     user_type;
     status;
     payments;
-    novels;
-    participants;
+    createdNovels;
+    authoredNovels;
+    participations;
     chapters;
     comments;
     likes;
@@ -77,6 +78,7 @@ __decorate([
 ], User.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
@@ -103,6 +105,8 @@ __decorate([
 ], User.prototype, "type", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], User.prototype, "name", void 0);
 __decorate([
@@ -124,7 +128,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "user_type", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: UserStatus }),
+    (0, typeorm_1.Column)({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE }),
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
 __decorate([
@@ -134,11 +138,15 @@ __decorate([
 __decorate([
     (0, typeorm_1.OneToMany)(() => novel_entity_1.Novel, (novel) => novel.creator),
     __metadata("design:type", Array)
-], User.prototype, "novels", void 0);
+], User.prototype, "createdNovels", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => novel_entity_1.Novel, (novel) => novel.author),
+    __metadata("design:type", Array)
+], User.prototype, "authoredNovels", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => participant_entity_1.Participant, (participant) => participant.user),
     __metadata("design:type", Array)
-], User.prototype, "participants", void 0);
+], User.prototype, "participations", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => chapter_entity_1.Chapter, (chapter) => chapter.author),
     __metadata("design:type", Array)

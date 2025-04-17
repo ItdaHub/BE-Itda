@@ -42,8 +42,9 @@ export declare class User {
     user_type: UserType;
     status: UserStatus;
     payments: Payment[];
-    novels: Novel[];
-    participants: Participant[];
+    createdNovels: Novel[];
+    authoredNovels: Novel[];
+    participations: Participant[];
     chapters: Chapter[];
     comments: Comment[];
     likes: Like[];

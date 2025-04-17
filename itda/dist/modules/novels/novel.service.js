@@ -22,6 +22,7 @@ const genre_entity_1 = require("../genre/genre.entity");
 const user_entity_1 = require("../users/user.entity");
 const chapter_entity_1 = require("../chapter/chapter.entity");
 const participant_entity_1 = require("./participant.entity");
+const novel_entity_2 = require("./novel.entity");
 let NovelService = class NovelService {
     novelRepo;
     genreRepo;
@@ -64,7 +65,7 @@ let NovelService = class NovelService {
             creator: user,
             genre,
             max_participants: peopleNum,
-            status: "ongoing",
+            status: novel_entity_2.NovelStatus.ONGOING,
             type,
         });
         await this.novelRepo.save(novel);
@@ -132,7 +133,7 @@ let NovelService = class NovelService {
                 newParticipantCount,
                 maxParticipants: novel.max_participants,
             });
-            novel.status = "completed";
+            novel.status = novel_entity_2.NovelStatus.COMPLETED;
             console.log("소설 상태를 completed로 변경:", novel.status);
             await this.novelRepo.save(novel);
             console.log("상태 변경이 완료되었습니다.");
@@ -231,6 +232,7 @@ let NovelService = class NovelService {
         const isLiked = userId
             ? novel.likes.some((like) => like.user.id === userId)
             : false;
+        const sortedChapters = [...novel.chapters].sort((a, b) => a.chapter_number - b.chapter_number);
         return {
             id: novel.id,
             title: novel.title,
@@ -254,7 +256,7 @@ let NovelService = class NovelService {
                 chapterNumber: chapter.chapter_number,
                 authorId: chapter.author?.id,
             })),
-            status: novel.status,
+            nextChapterNumber: sortedChapters.length + 1,
         };
     }
     async findMyNovels(userId) {
@@ -304,7 +306,7 @@ let NovelService = class NovelService {
         if (novel.status === "completed") {
             throw new common_1.BadRequestException("이미 완료된 소설입니다.");
         }
-        novel.status = "submitted";
+        novel.status = novel_entity_2.NovelStatus.SUBMITTED;
         return await this.novelRepo.save(novel);
     }
 };

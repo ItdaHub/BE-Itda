@@ -13,6 +13,7 @@ import { Genre } from "../genre/genre.entity";
 import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
+import { NovelStatus } from "./novel.entity";
 
 type CreateNovelInput = CreateNovelDto & { userId: number };
 
@@ -61,9 +62,10 @@ export class NovelService {
       creator: user,
       genre,
       max_participants: peopleNum as 5 | 7 | 9,
-      status: "ongoing",
+      status: NovelStatus.ONGOING,
       type,
-    });
+    } as Partial<Novel>);
+
     await this.novelRepo.save(novel);
 
     const chapter = this.chapterRepo.create({
@@ -113,7 +115,6 @@ export class NovelService {
       throw new BadRequestException("연속으로 작성할 수 없습니다.");
     }
 
-    // 참여자 수를 초과할 경우 예외 처리
     const participantCount = await this.participantRepo.count({
       where: { novel: { id: novelId } },
     });
@@ -130,7 +131,6 @@ export class NovelService {
     });
     await this.participantRepo.save(participant);
 
-    // 새로운 챕터 번호를 구하기 (첫 번째 챕터면 1, 아니면 기존 챕터 중 가장 큰 번호 + 1)
     const chapterNumber =
       existingChapters.length > 0 ? existingChapters.length + 1 : 1;
 
@@ -154,10 +154,9 @@ export class NovelService {
         newParticipantCount,
         maxParticipants: novel.max_participants,
       });
-      novel.status = "completed";
+      novel.status = NovelStatus.COMPLETED;
       console.log("소설 상태를 completed로 변경:", novel.status);
 
-      // 상태 업데이트 후 저장
       await this.novelRepo.save(novel);
       console.log("상태 변경이 완료되었습니다.");
     }
@@ -174,7 +173,7 @@ export class NovelService {
     const chapters = await this.chapterRepo.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
-      relations: ["author"], // 작성자도 같이 가져오기
+      relations: ["author"],
     });
 
     return chapters.map((chapter) => ({
@@ -269,6 +268,10 @@ export class NovelService {
       ? novel.likes.some((like) => like.user.id === userId)
       : false;
 
+    const sortedChapters = [...novel.chapters].sort(
+      (a, b) => a.chapter_number - b.chapter_number
+    );
+
     return {
       id: novel.id,
       title: novel.title,
@@ -292,7 +295,7 @@ export class NovelService {
           chapterNumber: chapter.chapter_number,
           authorId: chapter.author?.id,
         })),
-      status: novel.status,
+      nextChapterNumber: sortedChapters.length + 1, // 👉 추가된 부분
     };
   }
 
@@ -347,12 +350,12 @@ export class NovelService {
       throw new NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
     }
 
-    // 이미 완료된 소설은 출품 요청할 수 없도록 방지 (선택 사항)
+    // 이미 완료된 소설은 출품 요청할 수 없도록 방지
     if (novel.status === "completed") {
       throw new BadRequestException("이미 완료된 소설입니다.");
     }
 
-    novel.status = "submitted";
+    novel.status = NovelStatus.SUBMITTED;
     return await this.novelRepo.save(novel);
   }
 }

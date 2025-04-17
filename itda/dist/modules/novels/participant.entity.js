@@ -33,7 +33,7 @@ __decorate([
     __metadata("design:type", novel_entity_1.Novel)
 ], Participant.prototype, "novel", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.participants, { onDelete: "CASCADE" }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.participations, { onDelete: "CASCADE" }),
     (0, typeorm_1.JoinColumn)({ name: "user_id" }),
     __metadata("design:type", user_entity_1.User)
 ], Participant.prototype, "user", void 0);
