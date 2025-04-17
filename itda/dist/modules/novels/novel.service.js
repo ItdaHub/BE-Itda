@@ -124,7 +124,15 @@ let NovelService = class NovelService {
             content,
             chapter_number: existingChapters.length + 1,
         });
-        return this.chapterRepo.save(chapter);
+        const savedChapter = await this.chapterRepo.save(chapter);
+        const newParticipantCount = await this.participantRepo.count({
+            where: { novel: { id: novelId } },
+        });
+        if (newParticipantCount === novel.max_participants) {
+            novel.status = "completed";
+            await this.novelRepo.save(novel);
+        }
+        return savedChapter;
     }
     async getChapters(novelId) {
         return this.chapterRepo.find({
@@ -218,6 +226,7 @@ let NovelService = class NovelService {
             image: novel.cover_image,
             type: novel.type,
             createdAt: novel.created_at.toISOString(),
+            peopleNum: novel.max_participants,
             chapters: novel.chapters
                 .sort((a, b) => a.chapter_number - b.chapter_number)
                 .map((chapter) => ({

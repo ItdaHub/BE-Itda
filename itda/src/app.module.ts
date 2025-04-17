@@ -22,7 +22,6 @@ import { Chapter } from "./modules/chapter/chapter.entity";
 import { Comment } from "./modules/comments/comment.entity";
 import { Like } from "./modules/likes/like.entity";
 import { AIGeneratedImage } from "./modules/novels/ai_image.entity";
-import { Vote } from "./modules/interactions/vote.entity";
 import { Payment } from "./modules/payments/payment.entity";
 import { Point } from "./modules/points/point.entity";
 import { AdminNotification } from "./modules/notifications/admin_notification.entity";
@@ -64,7 +63,6 @@ import { join } from "path";
         Comment,
         Like,
         AIGeneratedImage,
-        Vote,
         Payment,
         Point,
         AdminNotification,

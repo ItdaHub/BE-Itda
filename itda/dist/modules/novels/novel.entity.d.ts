@@ -4,7 +4,6 @@ import { Participant } from "./participant.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { AIGeneratedImage } from "./ai_image.entity";
 import { Like } from "../likes/like.entity";
-import { Vote } from "../interactions/vote.entity";
 import { Comment } from "../comments/comment.entity";
 import { Notification } from "../notifications/notification.entity";
 export declare class Novel {
@@ -22,7 +21,6 @@ export declare class Novel {
     aiGeneratedImages: AIGeneratedImage[];
     likes: Like[];
     likeCount: number;
-    votes: Vote[];
     comments: Comment[];
     notifications: Notification[];
     author: User;

@@ -15,7 +15,6 @@ import { Comment } from "../comments/comment.entity";
 import { Like } from "../likes/like.entity";
 import { Report } from "../reports/report.entity";
 import { Notification } from "../notifications/notification.entity";
-import { Vote } from "../interactions/vote.entity";
 import { Point } from "../points/point.entity";
 
 export enum LoginType {
@@ -113,9 +112,6 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
-
-  @OneToMany(() => Vote, (vote) => vote.user)
-  votes: Vote[];
 
   @OneToMany(() => Point, (point) => point.user)
   points: Point[];

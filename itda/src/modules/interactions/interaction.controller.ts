@@ -8,24 +8,6 @@ import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 export class InteractionsController {
   constructor(private readonly interactionsService: InteractionsService) {}
 
-  // ✅ 찬반 투표 생성
-  @Post("vote")
-  @ApiOperation({
-    summary: "소설 찬반 투표",
-    description: "소설에 대해 '찬성' 또는 '반대' 투표를 생성합니다.",
-  })
-  @ApiResponse({ status: 201, description: "투표 생성 성공" })
-  createVote(
-    @Body()
-    createVoteDto: {
-      novelId: number;
-      userId: number;
-      result: "agree" | "disagree";
-    }
-  ) {
-    return this.interactionsService.createVote(createVoteDto);
-  }
-
   // ✅ 댓글 생성
   @Post("comment")
   @ApiOperation({

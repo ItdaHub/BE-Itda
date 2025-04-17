@@ -14,7 +14,7 @@ export declare class CommentsService {
     createComment({ userId, content, novelId, chapterId, parentId, }: {
         userId: number;
         content: string;
-        novelId: number;
+        novelId?: number;
         chapterId?: number;
         parentId?: number;
     }): Promise<Comment>;

@@ -1,21 +1,14 @@
 import { Repository } from "typeorm";
-import { Vote } from "./vote.entity";
 import { Comment } from "../comments/comment.entity";
 import { Novel } from "../novels/novel.entity";
 import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 export declare class InteractionsService {
-    private voteRepository;
     private commentRepository;
     private novelRepository;
     private userRepository;
     private chapterRepository;
-    constructor(voteRepository: Repository<Vote>, commentRepository: Repository<Comment>, novelRepository: Repository<Novel>, userRepository: Repository<User>, chapterRepository: Repository<Chapter>);
-    createVote({ novelId, userId, result, }: {
-        novelId: number;
-        userId: number;
-        result: "agree" | "disagree";
-    }): Promise<Vote>;
+    constructor(commentRepository: Repository<Comment>, novelRepository: Repository<Novel>, userRepository: Repository<User>, chapterRepository: Repository<Chapter>);
     createComment({ novelId, chapterId, userId, content, parentCommentId, }: {
         novelId: number;
         chapterId?: number;

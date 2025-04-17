@@ -137,7 +137,19 @@ export class NovelService {
       chapter_number: existingChapters.length + 1,
     });
 
-    return this.chapterRepo.save(chapter);
+    const savedChapter = await this.chapterRepo.save(chapter);
+
+    // ✅ 여기가 핵심: 마지막 참여자일 경우 소설 상태를 'submitted'으로 변경
+    const newParticipantCount = await this.participantRepo.count({
+      where: { novel: { id: novelId } },
+    });
+
+    if (newParticipantCount === novel.max_participants) {
+      novel.status = "completed"; // 'completed'로 관리자가 구분하도록
+      await this.novelRepo.save(novel);
+    }
+
+    return savedChapter;
   }
 
   async getChapters(novelId: number): Promise<Chapter[]> {
@@ -199,7 +211,7 @@ export class NovelService {
       id: novel.id,
       title: novel.title,
       genre: novel.genre?.name ?? null,
-      imageUrl: novel.cover_image, // 프론트와 맞춤
+      imageUrl: novel.cover_image,
       likes: novel.likeCount ?? novel.likes?.length ?? 0,
       views: novel.viewCount ?? 0,
       created_at: novel.created_at,
@@ -243,7 +255,7 @@ export class NovelService {
       image: novel.cover_image,
       type: novel.type,
       createdAt: novel.created_at.toISOString(),
-
+      peopleNum: novel.max_participants,
       // ✅ 여기에 회차 정보 추가
       chapters: novel.chapters
         .sort((a, b) => a.chapter_number - b.chapter_number)

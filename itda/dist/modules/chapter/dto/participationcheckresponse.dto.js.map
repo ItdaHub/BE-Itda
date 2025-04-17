@@ -1,0 +1,1 @@
+{"version":3,"file":"participationcheckresponse.dto.js","sourceRoot":"","sources":["../../../../src/modules/chapter/dto/participationcheckresponse.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,6CAA8C;AAE9C,MAAa,6BAA6B;IAKxC,eAAe,CAAU;CAC1B;AAND,sEAMC;AADC;IAJC,IAAA,qBAAW,EAAC;QACX,OAAO,EAAE,IAAI;QACb,WAAW,EAAE,2BAA2B;KACzC,CAAC;;sEACuB"}

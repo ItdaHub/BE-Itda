@@ -16,7 +16,11 @@ import {
   ApiResponse,
   ApiParam,
   ApiBearerAuth,
+  ApiBody,
 } from "@nestjs/swagger";
+import { CreateCommentDto } from "./dto/createcomment.dto";
+import { DeleteCommentsDto } from "./dto/deletecomments.dto";
+import { ReportCommentDto } from "./dto/reportcomment.dto";
 
 @ApiTags("Comments")
 @Controller("comments")
@@ -30,15 +34,14 @@ export class CommentsController {
     description: "소설/챕터에 댓글 또는 대댓글을 작성합니다.",
   })
   @ApiResponse({ status: 201, description: "댓글 작성 성공" })
-  async create(@Body() body: any) {
-    const { userId, content, novelId, chapterId, parentId } = body;
-    return this.commentsService.createComment({
-      userId,
-      content,
-      novelId,
-      chapterId,
-      parentId,
-    });
+  @ApiBody({ type: CreateCommentDto })
+  async create(@Body() createCommentDto: CreateCommentDto) {
+    // 논리적으로 novelId 또는 chapterId가 없는 경우를 처리
+    if (!createCommentDto.novelId && !createCommentDto.chapterId) {
+      throw new Error("소설 ID 또는 챕터 ID는 하나는 필요합니다.");
+    }
+
+    return this.commentsService.createComment(createCommentDto);
   }
 
   // ✅ 소설 댓글 조회
@@ -73,13 +76,15 @@ export class CommentsController {
     return this.commentsService.getComments(undefined, chapterId, loginUserId);
   }
 
-  // ✅ 댓글 여러개  삭제
+  // ✅ 댓글 여러개 삭제
   @Delete("/bulk-delete")
   @ApiOperation({
     summary: "댓글 여러 개 삭제",
     description: "여러 댓글 ID를 통해 해당 댓글들을 삭제합니다.",
   })
-  async deleteComments(@Body() dto: { ids: number[] }) {
+  @ApiResponse({ status: 200, description: "댓글 여러 개 삭제 성공" })
+  @ApiBody({ type: DeleteCommentsDto })
+  async deleteComments(@Body() dto: DeleteCommentsDto) {
     return this.commentsService.deleteComments(dto.ids);
   }
 
@@ -103,12 +108,16 @@ export class CommentsController {
   })
   @ApiParam({ name: "id", type: Number, description: "댓글 ID" })
   @ApiResponse({ status: 201, description: "댓글 신고 접수 완료" })
+  @ApiBody({ type: ReportCommentDto })
   async reportComment(
     @Param("id") commentId: number,
-    @Body("userId") userId: number,
-    @Body("reason") reason: string
+    @Body() dto: ReportCommentDto
   ) {
-    return this.commentsService.reportComment(commentId, userId, reason);
+    return this.commentsService.reportComment(
+      commentId,
+      dto.userId,
+      dto.reason
+    );
   }
 
   // ✅ 내가 작성한 댓글 조회

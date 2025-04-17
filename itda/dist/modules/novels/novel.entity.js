@@ -17,7 +17,6 @@ const participant_entity_1 = require("./participant.entity");
 const chapter_entity_1 = require("../chapter/chapter.entity");
 const ai_image_entity_1 = require("./ai_image.entity");
 const like_entity_1 = require("../likes/like.entity");
-const vote_entity_1 = require("../interactions/vote.entity");
 const comment_entity_1 = require("../comments/comment.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
 let Novel = class Novel {
@@ -35,7 +34,6 @@ let Novel = class Novel {
     aiGeneratedImages;
     likes;
     likeCount;
-    votes;
     comments;
     notifications;
     author;
@@ -99,10 +97,6 @@ __decorate([
     (0, typeorm_1.Column)({ default: 0 }),
     __metadata("design:type", Number)
 ], Novel.prototype, "likeCount", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => vote_entity_1.Vote, (vote) => vote.novel),
-    __metadata("design:type", Array)
-], Novel.prototype, "votes", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => comment_entity_1.Comment, (comment) => comment.novel),
     __metadata("design:type", Array)

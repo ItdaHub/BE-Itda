@@ -16,33 +16,20 @@ exports.InteractionsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const vote_entity_1 = require("./vote.entity");
 const comment_entity_1 = require("../comments/comment.entity");
 const novel_entity_1 = require("../novels/novel.entity");
 const user_entity_1 = require("../users/user.entity");
 const chapter_entity_1 = require("../chapter/chapter.entity");
 let InteractionsService = class InteractionsService {
-    voteRepository;
     commentRepository;
     novelRepository;
     userRepository;
     chapterRepository;
-    constructor(voteRepository, commentRepository, novelRepository, userRepository, chapterRepository) {
-        this.voteRepository = voteRepository;
+    constructor(commentRepository, novelRepository, userRepository, chapterRepository) {
         this.commentRepository = commentRepository;
         this.novelRepository = novelRepository;
         this.userRepository = userRepository;
         this.chapterRepository = chapterRepository;
-    }
-    async createVote({ novelId, userId, result, }) {
-        const novel = await this.novelRepository.findOne({
-            where: { id: novelId },
-        });
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-        if (!novel || !user)
-            throw new Error("Novel or User not found");
-        const vote = this.voteRepository.create({ novel, user, result });
-        return this.voteRepository.save(vote);
     }
     async createComment({ novelId, chapterId, userId, content, parentCommentId, }) {
         const novel = await this.novelRepository.findOne({
@@ -79,13 +66,11 @@ let InteractionsService = class InteractionsService {
 exports.InteractionsService = InteractionsService;
 exports.InteractionsService = InteractionsService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(vote_entity_1.Vote)),
-    __param(1, (0, typeorm_1.InjectRepository)(comment_entity_1.Comment)),
-    __param(2, (0, typeorm_1.InjectRepository)(novel_entity_1.Novel)),
-    __param(3, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __param(4, (0, typeorm_1.InjectRepository)(chapter_entity_1.Chapter)),
+    __param(0, (0, typeorm_1.InjectRepository)(comment_entity_1.Comment)),
+    __param(1, (0, typeorm_1.InjectRepository)(novel_entity_1.Novel)),
+    __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(3, (0, typeorm_1.InjectRepository)(chapter_entity_1.Chapter)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])

@@ -12,7 +12,6 @@ import { Participant } from "./participant.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { AIGeneratedImage } from "./ai_image.entity";
 import { Like } from "../likes/like.entity";
-import { Vote } from "../interactions/vote.entity";
 import { Comment } from "../comments/comment.entity";
 import { Notification } from "../notifications/notification.entity";
 
@@ -59,9 +58,6 @@ export class Novel {
 
   @Column({ default: 0 })
   likeCount: number;
-
-  @OneToMany(() => Vote, (vote) => vote.novel)
-  votes: Vote[];
 
   @OneToMany(() => Comment, (comment) => comment.novel)
   comments: Comment[];

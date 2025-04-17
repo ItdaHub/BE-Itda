@@ -1,8 +1,11 @@
 import { CommentsService } from "./comment.service";
+import { CreateCommentDto } from "./dto/createcomment.dto";
+import { DeleteCommentsDto } from "./dto/deletecomments.dto";
+import { ReportCommentDto } from "./dto/reportcomment.dto";
 export declare class CommentsController {
     private readonly commentsService;
     constructor(commentsService: CommentsService);
-    create(body: any): Promise<import("./comment.entity").Comment>;
+    create(createCommentDto: CreateCommentDto): Promise<import("./comment.entity").Comment>;
     getNovelComments(req: any, novelId: number): Promise<{
         id: number;
         writer: string;
@@ -23,13 +26,11 @@ export declare class CommentsController {
         isliked: boolean;
         parentId: number | null;
     }[]>;
-    deleteComments(dto: {
-        ids: number[];
-    }): Promise<void>;
+    deleteComments(dto: DeleteCommentsDto): Promise<void>;
     deleteComment(id: number): Promise<{
         message: string;
     }>;
-    reportComment(commentId: number, userId: number, reason: string): Promise<{
+    reportComment(commentId: number, dto: ReportCommentDto): Promise<{
         message: string;
     }>;
     getMyComments(req: any): Promise<import("./comment.entity").Comment[]>;

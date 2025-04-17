@@ -20,7 +20,6 @@ const comment_entity_1 = require("../comments/comment.entity");
 const like_entity_1 = require("../likes/like.entity");
 const report_entity_1 = require("../reports/report.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
-const vote_entity_1 = require("../interactions/vote.entity");
 const point_entity_1 = require("../points/point.entity");
 var LoginType;
 (function (LoginType) {
@@ -68,7 +67,6 @@ let User = class User {
     likes;
     reports;
     notifications;
-    votes;
     points;
     age_group;
 };
@@ -161,10 +159,6 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.user),
     __metadata("design:type", Array)
 ], User.prototype, "notifications", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => vote_entity_1.Vote, (vote) => vote.user),
-    __metadata("design:type", Array)
-], User.prototype, "votes", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => point_entity_1.Point, (point) => point.user),
     __metadata("design:type", Array)

@@ -21,9 +21,6 @@ let InteractionsController = class InteractionsController {
     constructor(interactionsService) {
         this.interactionsService = interactionsService;
     }
-    createVote(createVoteDto) {
-        return this.interactionsService.createVote(createVoteDto);
-    }
     createComment(createCommentDto) {
         return this.interactionsService.createComment(createCommentDto);
     }
@@ -35,18 +32,6 @@ let InteractionsController = class InteractionsController {
     }
 };
 exports.InteractionsController = InteractionsController;
-__decorate([
-    (0, common_1.Post)("vote"),
-    (0, swagger_1.ApiOperation)({
-        summary: "소설 찬반 투표",
-        description: "소설에 대해 '찬성' 또는 '반대' 투표를 생성합니다.",
-    }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: "투표 생성 성공" }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], InteractionsController.prototype, "createVote", null);
 __decorate([
     (0, common_1.Post)("comment"),
     (0, swagger_1.ApiOperation)({

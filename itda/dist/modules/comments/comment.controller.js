@@ -17,20 +17,19 @@ const common_1 = require("@nestjs/common");
 const comment_service_1 = require("./comment.service");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 const swagger_1 = require("@nestjs/swagger");
+const createcomment_dto_1 = require("./dto/createcomment.dto");
+const deletecomments_dto_1 = require("./dto/deletecomments.dto");
+const reportcomment_dto_1 = require("./dto/reportcomment.dto");
 let CommentsController = class CommentsController {
     commentsService;
     constructor(commentsService) {
         this.commentsService = commentsService;
     }
-    async create(body) {
-        const { userId, content, novelId, chapterId, parentId } = body;
-        return this.commentsService.createComment({
-            userId,
-            content,
-            novelId,
-            chapterId,
-            parentId,
-        });
+    async create(createCommentDto) {
+        if (!createCommentDto.novelId && !createCommentDto.chapterId) {
+            throw new Error("소설 ID 또는 챕터 ID는 하나는 필요합니다.");
+        }
+        return this.commentsService.createComment(createCommentDto);
     }
     async getNovelComments(req, novelId) {
         const loginUserId = req.user?.id;
@@ -46,8 +45,8 @@ let CommentsController = class CommentsController {
     async deleteComment(id) {
         return this.commentsService.deleteComment(id);
     }
-    async reportComment(commentId, userId, reason) {
-        return this.commentsService.reportComment(commentId, userId, reason);
+    async reportComment(commentId, dto) {
+        return this.commentsService.reportComment(commentId, dto.userId, dto.reason);
     }
     async getMyComments(req) {
         const userId = req.user.id;
@@ -62,9 +61,10 @@ __decorate([
         description: "소설/챕터에 댓글 또는 대댓글을 작성합니다.",
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: "댓글 작성 성공" }),
+    (0, swagger_1.ApiBody)({ type: createcomment_dto_1.CreateCommentDto }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [createcomment_dto_1.CreateCommentDto]),
     __metadata("design:returntype", Promise)
 ], CommentsController.prototype, "create", null);
 __decorate([
@@ -105,9 +105,11 @@ __decorate([
         summary: "댓글 여러 개 삭제",
         description: "여러 댓글 ID를 통해 해당 댓글들을 삭제합니다.",
     }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "댓글 여러 개 삭제 성공" }),
+    (0, swagger_1.ApiBody)({ type: deletecomments_dto_1.DeleteCommentsDto }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [deletecomments_dto_1.DeleteCommentsDto]),
     __metadata("design:returntype", Promise)
 ], CommentsController.prototype, "deleteComments", null);
 __decorate([
@@ -131,11 +133,11 @@ __decorate([
     }),
     (0, swagger_1.ApiParam)({ name: "id", type: Number, description: "댓글 ID" }),
     (0, swagger_1.ApiResponse)({ status: 201, description: "댓글 신고 접수 완료" }),
+    (0, swagger_1.ApiBody)({ type: reportcomment_dto_1.ReportCommentDto }),
     __param(0, (0, common_1.Param)("id")),
-    __param(1, (0, common_1.Body)("userId")),
-    __param(2, (0, common_1.Body)("reason")),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:paramtypes", [Number, reportcomment_dto_1.ReportCommentDto]),
     __metadata("design:returntype", Promise)
 ], CommentsController.prototype, "reportComment", null);
 __decorate([

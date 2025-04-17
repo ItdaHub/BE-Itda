@@ -31,12 +31,19 @@ export class CommentsService {
   }: {
     userId: number;
     content: string;
-    novelId: number;
+    novelId?: number;
     chapterId?: number;
     parentId?: number;
   }) {
     const user = await this.userRepo.findOneByOrFail({ id: userId });
-    const novel = await this.novelRepo.findOneByOrFail({ id: novelId });
+
+    if (!novelId && !chapterId) {
+      throw new Error("소설 ID 또는 챕터 ID는 필수입니다.");
+    }
+
+    const novel = novelId
+      ? await this.novelRepo.findOneByOrFail({ id: novelId })
+      : null;
     const chapter = chapterId
       ? await this.chapterRepo.findOneBy({ id: chapterId })
       : null;
