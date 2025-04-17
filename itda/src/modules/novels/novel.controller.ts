@@ -110,7 +110,11 @@ export class NovelController {
     @Req() req
   ) {
     const userId = req.user.id;
-    console.log("addChapter 호출됨", dto);
+    console.log("addChapter 호출됨");
+    console.log("소설 ID:", novelId);
+    console.log("받은 데이터:", dto);
+    console.log("요청한 사용자 ID:", userId);
+
     return this.novelService.addChapter(parseInt(novelId, 10), {
       ...dto,
       userId,

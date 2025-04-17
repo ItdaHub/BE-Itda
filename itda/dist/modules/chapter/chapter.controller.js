@@ -35,6 +35,10 @@ let ChapterController = class ChapterController {
     async createChapter(novelId, createChapterDto, req) {
         const user = req.user;
         const { content, chapterNumber } = createChapterDto;
+        console.log("createChapter 호출됨");
+        console.log("소설 ID:", novelId);
+        console.log("받은 데이터:", createChapterDto);
+        console.log("요청한 사용자:", user);
         return this.chapterService.createChapter(novelId, content, user, chapterNumber);
     }
     async hasUserParticipated(novelId, userId) {

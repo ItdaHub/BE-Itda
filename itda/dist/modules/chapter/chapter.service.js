@@ -18,6 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const chapter_entity_1 = require("./chapter.entity");
 const novel_entity_1 = require("../novels/novel.entity");
+const novel_entity_2 = require("../novels/novel.entity");
 let ChapterService = class ChapterService {
     chapterRepository;
     novelRepository;
@@ -117,7 +118,17 @@ let ChapterService = class ChapterService {
             novel,
             author: user,
         });
-        return await this.chapterRepository.save(newChapter);
+        await this.chapterRepository.save(newChapter);
+        const totalChapters = await this.chapterRepository.count({
+            where: { novel: { id: novelId } },
+        });
+        if (totalChapters === novel.max_participants &&
+            novel.status !== novel_entity_2.NovelStatus.COMPLETED) {
+            novel.status = novel_entity_2.NovelStatus.COMPLETED;
+            await this.novelRepository.save(novel);
+            console.log(`소설 ID ${novel.id} 상태를 COMPLETED로 변경`);
+        }
+        return newChapter;
     }
     async hasUserParticipatedInNovel(novelId, userId) {
         const alreadyParticipated = await this.chapterRepository.findOne({

@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Chapter } from "./chapter.entity";
 import { Novel } from "../novels/novel.entity";
+import { NovelStatus } from "../novels/novel.entity";
 
 @Injectable()
 export class ChapterService {
@@ -156,7 +157,24 @@ export class ChapterService {
       author: user,
     });
 
-    return await this.chapterRepository.save(newChapter);
+    // 챕터 저장
+    await this.chapterRepository.save(newChapter);
+
+    // ✅ 소설 완료 여부 체크 및 상태 변경
+    const totalChapters = await this.chapterRepository.count({
+      where: { novel: { id: novelId } },
+    });
+
+    if (
+      totalChapters === novel.max_participants &&
+      novel.status !== NovelStatus.COMPLETED
+    ) {
+      novel.status = NovelStatus.COMPLETED;
+      await this.novelRepository.save(novel);
+      console.log(`소설 ID ${novel.id} 상태를 COMPLETED로 변경`);
+    }
+
+    return newChapter;
   }
 
   async hasUserParticipatedInNovel(

@@ -154,10 +154,18 @@ export class NovelService {
         newParticipantCount,
         maxParticipants: novel.max_participants,
       });
+
+      // 상태 변경 전 확인 로그
+      console.log(`상태 변경 전 소설 상태: ${novel.status}`);
+
       novel.status = NovelStatus.COMPLETED;
+
+      // 상태 변경 후 확인 로그
       console.log("소설 상태를 completed로 변경:", novel.status);
 
       await this.novelRepo.save(novel);
+
+      // 상태 변경 완료 로그
       console.log("상태 변경이 완료되었습니다.");
     }
 
@@ -345,17 +353,22 @@ export class NovelService {
   }
 
   async submitNovelForCompletion(novelId: number): Promise<Novel> {
+    console.log("출품 요청된 소설 ID:", novelId);
+
     const novel = await this.novelRepo.findOneBy({ id: novelId });
+    console.log("조회된 소설:", novel);
+
     if (!novel) {
       throw new NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
     }
 
-    // 이미 완료된 소설은 출품 요청할 수 없도록 방지
     if (novel.status === "completed") {
+      console.log("이미 완료된 소설입니다.");
       throw new BadRequestException("이미 완료된 소설입니다.");
     }
 
     novel.status = NovelStatus.SUBMITTED;
+    console.log("소설 상태를 SUBMITTED로 변경");
     return await this.novelRepo.save(novel);
   }
 }
