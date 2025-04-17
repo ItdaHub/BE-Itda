@@ -37,7 +37,8 @@ let UserService = class UserService {
         }
         return user;
     }
-    async create(user) {
+    async create(userDto) {
+        const user = this.userRepository.create(userDto);
         return this.userRepository.save(user);
     }
     async update(id, user) {

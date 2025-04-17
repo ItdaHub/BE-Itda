@@ -8,7 +8,6 @@ import {
   Req,
 } from "@nestjs/common";
 import { PaymentsService } from "./payment.service";
-import { PaymentMethod, PaymentStatus } from "./payment.entity";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import {
   ApiTags,
@@ -17,6 +16,10 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from "@nestjs/swagger";
+import { CreatePaymentDto } from "./dto/createpayment.dto";
+import { ConfirmTossPaymentDto } from "./dto/confrimtosspayment.dto";
+import { ManualConfirmPaymentDto } from "./dto/manualconfrimpayment.dto";
+import { PaymentStatus } from "./payment.entity";
 
 @ApiTags("Payments")
 @Controller("payments")
@@ -30,13 +33,13 @@ export class PaymentsController {
     description: "사용자가 결제를 요청합니다.",
   })
   @ApiResponse({ status: 201, description: "결제 요청 성공" })
-  async createPayment(
-    @Body("userId") userId: number,
-    @Body("amount") amount: number,
-    @Body("method") method: PaymentMethod,
-    @Body("orderId") orderId: string
-  ) {
-    return this.paymentsService.createPayment(userId, amount, method, orderId);
+  async createPayment(@Body() dto: CreatePaymentDto) {
+    return this.paymentsService.createPayment(
+      dto.userId,
+      dto.amount,
+      dto.method,
+      dto.orderId
+    );
   }
 
   // ✅ Toss 리디렉션 정보로 결제 승인 처리
@@ -47,26 +50,10 @@ export class PaymentsController {
       "Toss 결제 완료 후 paymentKey, orderId, amount로 결제 상태를 승인 처리합니다.",
   })
   @ApiResponse({ status: 200, description: "결제 승인 처리 완료" })
-  async confirmTossPayment(
-    @Body() body: { paymentKey: string; orderId: string; amount: number }
-  ) {
-    const { paymentKey, orderId, amount } = body;
-    console.log("📥 [결제 승인 요청 받음]", body);
-    if (
-      typeof paymentKey !== "string" ||
-      typeof orderId !== "string" ||
-      typeof amount !== "number" ||
-      isNaN(amount) ||
-      amount <= 0
-    ) {
-      return {
-        statusCode: 400,
-        message: "필수 파라미터가 누락되었거나 잘못되었습니다.",
-      };
-    }
-
+  async confirmTossPayment(@Body() dto: ConfirmTossPaymentDto) {
+    const { paymentKey, orderId, amount } = dto;
+    console.log("\uD83D\uDCE5 [결제 승인 요청 받음]", dto);
     try {
-      // Toss API 호출 (예시)
       const result = await this.paymentsService.confirmTossPayment({
         paymentKey,
         orderId,
@@ -94,9 +81,9 @@ export class PaymentsController {
   @ApiResponse({ status: 200, description: "결제 승인 성공" })
   async confirmPayment(
     @Param("id") paymentId: number,
-    @Body("status") status: PaymentStatus
+    @Body() dto: ManualConfirmPaymentDto
   ) {
-    return this.paymentsService.confirmPayment(paymentId, status);
+    return this.paymentsService.confirmPayment(paymentId, dto.status);
   }
 
   // 결제 ID로 단일 결제 내역 조회

@@ -15,30 +15,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentsController = void 0;
 const common_1 = require("@nestjs/common");
 const payment_service_1 = require("./payment.service");
-const payment_entity_1 = require("./payment.entity");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 const swagger_1 = require("@nestjs/swagger");
+const createpayment_dto_1 = require("./dto/createpayment.dto");
+const confrimtosspayment_dto_1 = require("./dto/confrimtosspayment.dto");
+const manualconfrimpayment_dto_1 = require("./dto/manualconfrimpayment.dto");
+const payment_entity_1 = require("./payment.entity");
 let PaymentsController = class PaymentsController {
     paymentsService;
     constructor(paymentsService) {
         this.paymentsService = paymentsService;
     }
-    async createPayment(userId, amount, method, orderId) {
-        return this.paymentsService.createPayment(userId, amount, method, orderId);
+    async createPayment(dto) {
+        return this.paymentsService.createPayment(dto.userId, dto.amount, dto.method, dto.orderId);
     }
-    async confirmTossPayment(body) {
-        const { paymentKey, orderId, amount } = body;
-        console.log("📥 [결제 승인 요청 받음]", body);
-        if (typeof paymentKey !== "string" ||
-            typeof orderId !== "string" ||
-            typeof amount !== "number" ||
-            isNaN(amount) ||
-            amount <= 0) {
-            return {
-                statusCode: 400,
-                message: "필수 파라미터가 누락되었거나 잘못되었습니다.",
-            };
-        }
+    async confirmTossPayment(dto) {
+        const { paymentKey, orderId, amount } = dto;
+        console.log("\uD83D\uDCE5 [결제 승인 요청 받음]", dto);
         try {
             const result = await this.paymentsService.confirmTossPayment({
                 paymentKey,
@@ -57,8 +50,8 @@ let PaymentsController = class PaymentsController {
             return { statusCode: 500, message: "서버 오류 발생" };
         }
     }
-    async confirmPayment(paymentId, status) {
-        return this.paymentsService.confirmPayment(paymentId, status);
+    async confirmPayment(paymentId, dto) {
+        return this.paymentsService.confirmPayment(paymentId, dto.status);
     }
     async getPaymentById(paymentId) {
         return this.paymentsService.getPaymentById(paymentId);
@@ -76,12 +69,9 @@ __decorate([
         description: "사용자가 결제를 요청합니다.",
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: "결제 요청 성공" }),
-    __param(0, (0, common_1.Body)("userId")),
-    __param(1, (0, common_1.Body)("amount")),
-    __param(2, (0, common_1.Body)("method")),
-    __param(3, (0, common_1.Body)("orderId")),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String]),
+    __metadata("design:paramtypes", [createpayment_dto_1.CreatePaymentDto]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "createPayment", null);
 __decorate([
@@ -93,7 +83,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: "결제 승인 처리 완료" }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [confrimtosspayment_dto_1.ConfirmTossPaymentDto]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "confirmTossPayment", null);
 __decorate([
@@ -105,9 +95,9 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: "id", type: Number, description: "결제 ID" }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "결제 승인 성공" }),
     __param(0, (0, common_1.Param)("id")),
-    __param(1, (0, common_1.Body)("status")),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:paramtypes", [Number, manualconfrimpayment_dto_1.ManualConfirmPaymentDto]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "confirmPayment", null);
 __decorate([

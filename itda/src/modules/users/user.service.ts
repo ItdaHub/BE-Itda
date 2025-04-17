@@ -8,6 +8,7 @@ import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { Point } from "../points/point.entity";
 import { FindOptionsWhere } from "typeorm";
+import { CreateUserDto } from "./dto/ceateuser.dto";
 
 @Injectable()
 export class UserService {
@@ -35,7 +36,8 @@ export class UserService {
   }
 
   // 유저 생성
-  async create(user: User): Promise<User> {
+  async create(userDto: CreateUserDto): Promise<User> {
+    const user = this.userRepository.create(userDto);
     return this.userRepository.save(user);
   }
 

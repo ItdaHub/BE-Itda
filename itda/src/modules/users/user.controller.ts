@@ -21,6 +21,8 @@ import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname } from "path";
+import { CreateUserDto } from "./dto/ceateuser.dto";
+import { UpdateUserDto } from "./dto/updateuser.dto";
 
 @ApiTags("User (유저)")
 @Controller("users")
@@ -46,8 +48,8 @@ export class UserController {
   // 📌 유저 생성
   @Post()
   @ApiOperation({ summary: "유저 생성" })
-  @ApiBody({ type: User }) // 실제 요청 Body에 들어갈 타입
-  create(@Body() user: User): Promise<User> {
+  @ApiBody({ type: CreateUserDto })
+  create(@Body() user: CreateUserDto): Promise<User> {
     return this.userService.create(user);
   }
 
@@ -55,14 +57,13 @@ export class UserController {
   @Put(":id")
   @ApiOperation({ summary: "유저 정보 수정" })
   @ApiParam({ name: "id", description: "유저 ID" })
-  @ApiBody({ type: User }) // 업데이트할 필드 정보
+  @ApiBody({ type: UpdateUserDto })
   update(
     @Param("id", ParseIntPipe) id: number,
-    @Body() user: Partial<User>
+    @Body() user: UpdateUserDto
   ): Promise<User> {
     return this.userService.update(id, user);
   }
-
   @Delete("delete/email/:email")
   @ApiOperation({ summary: "이메일 기반 유저 삭제" })
   @ApiParam({ name: "email", description: "유저 이메일" })

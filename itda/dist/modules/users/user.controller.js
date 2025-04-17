@@ -15,12 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
-const user_entity_1 = require("./user.entity");
 const swagger_1 = require("@nestjs/swagger");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
 const path_1 = require("path");
+const ceateuser_dto_1 = require("./dto/ceateuser.dto");
+const updateuser_dto_1 = require("./dto/updateuser.dto");
 let UserController = class UserController {
     userService;
     constructor(userService) {
@@ -87,21 +88,21 @@ __decorate([
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: "유저 생성" }),
-    (0, swagger_1.ApiBody)({ type: user_entity_1.User }),
+    (0, swagger_1.ApiBody)({ type: ceateuser_dto_1.CreateUserDto }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [user_entity_1.User]),
+    __metadata("design:paramtypes", [ceateuser_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "create", null);
 __decorate([
     (0, common_1.Put)(":id"),
     (0, swagger_1.ApiOperation)({ summary: "유저 정보 수정" }),
     (0, swagger_1.ApiParam)({ name: "id", description: "유저 ID" }),
-    (0, swagger_1.ApiBody)({ type: user_entity_1.User }),
+    (0, swagger_1.ApiBody)({ type: updateuser_dto_1.UpdateUserDto }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, updateuser_dto_1.UpdateUserDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
 __decorate([

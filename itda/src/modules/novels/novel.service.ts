@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger, // Logger 추가
 } from "@nestjs/common";
 import { Like } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -18,6 +19,8 @@ type CreateNovelInput = CreateNovelDto & { userId: number };
 
 @Injectable()
 export class NovelService {
+  private readonly logger = new Logger(NovelService.name); // Logger 인스턴스 생성
+
   constructor(
     @InjectRepository(Novel) private readonly novelRepo: Repository<Novel>,
     @InjectRepository(Genre) private readonly genreRepo: Repository<Genre>,
@@ -139,13 +142,12 @@ export class NovelService {
 
     const savedChapter = await this.chapterRepo.save(chapter);
 
-    // ✅ 여기가 핵심: 마지막 참여자일 경우 소설 상태를 'submitted'으로 변경
     const newParticipantCount = await this.participantRepo.count({
       where: { novel: { id: novelId } },
     });
 
     if (newParticipantCount === novel.max_participants) {
-      novel.status = "completed"; // 'completed'로 관리자가 구분하도록
+      novel.status = "completed";
       await this.novelRepo.save(novel);
     }
 
@@ -311,5 +313,17 @@ export class NovelService {
       }))
       .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
       .slice(0, 10);
+  }
+
+  async getCategories(): Promise<Genre[]> {
+    this.logger.log("getCategories 호출됨"); // 로그 추가
+    try {
+      const genres = await this.genreRepo.find();
+      this.logger.log(`불러온 장르 데이터: ${JSON.stringify(genres)}`); // 로그 추가
+      return genres;
+    } catch (error) {
+      this.logger.error("카테고리(장르) 조회 실패", error.stack); // 에러 로그 추가
+      throw error;
+    }
   }
 }

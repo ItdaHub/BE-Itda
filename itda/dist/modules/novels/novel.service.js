@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var NovelService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NovelService = void 0;
 const common_1 = require("@nestjs/common");
@@ -22,12 +23,13 @@ const genre_entity_1 = require("../genre/genre.entity");
 const user_entity_1 = require("../users/user.entity");
 const chapter_entity_1 = require("../chapter/chapter.entity");
 const participant_entity_1 = require("./participant.entity");
-let NovelService = class NovelService {
+let NovelService = NovelService_1 = class NovelService {
     novelRepo;
     genreRepo;
     userRepo;
     chapterRepo;
     participantRepo;
+    logger = new common_1.Logger(NovelService_1.name);
     constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo) {
         this.novelRepo = novelRepo;
         this.genreRepo = genreRepo;
@@ -276,9 +278,21 @@ let NovelService = class NovelService {
             .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
             .slice(0, 10);
     }
+    async getCategories() {
+        this.logger.log("getCategories 호출됨");
+        try {
+            const genres = await this.genreRepo.find();
+            this.logger.log(`불러온 장르 데이터: ${JSON.stringify(genres)}`);
+            return genres;
+        }
+        catch (error) {
+            this.logger.error("카테고리(장르) 조회 실패", error.stack);
+            throw error;
+        }
+    }
 };
 exports.NovelService = NovelService;
-exports.NovelService = NovelService = __decorate([
+exports.NovelService = NovelService = NovelService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_2.InjectRepository)(novel_entity_1.Novel)),
     __param(1, (0, typeorm_2.InjectRepository)(genre_entity_1.Genre)),

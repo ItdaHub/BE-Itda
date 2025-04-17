@@ -1,13 +1,14 @@
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { Point } from "../points/point.entity";
+import { CreateUserDto } from "./dto/ceateuser.dto";
 export declare class UserService {
     private userRepository;
     private pointRepository;
     constructor(userRepository: Repository<User>, pointRepository: Repository<Point>);
     findAll(): Promise<User[]>;
     findOne(id: number): Promise<User>;
-    create(user: User): Promise<User>;
+    create(userDto: CreateUserDto): Promise<User>;
     update(id: number, user: Partial<User>): Promise<User>;
     remove(userId: number, requestUser: User): Promise<void>;
     findByPhone(phone: string): Promise<User | null>;

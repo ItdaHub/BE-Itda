@@ -14,7 +14,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  password?: string | null; // ✅ null 허용
+  password?: string;
 
   @IsEnum(LoginType)
   type: LoginType;
