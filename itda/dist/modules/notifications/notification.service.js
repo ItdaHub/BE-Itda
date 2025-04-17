@@ -31,22 +31,19 @@ let NotificationService = class NotificationService {
         this.novelRepository = novelRepository;
         this.reportRepository = reportRepository;
     }
-    async createNotification(userId, type, novelId, reportId, content) {
+    async createNotification(userId, novelId, reportId, content) {
         const user = await this.userRepository.findOne({ where: { id: userId } });
         if (!user) {
             throw new Error("User not found");
         }
-        let novel = null;
-        let report = null;
-        if (type === notification_entity_1.NotificationType.VOTE && novelId) {
-            novel = await this.novelRepository.findOne({ where: { id: novelId } });
-        }
-        else if (type === notification_entity_1.NotificationType.REPORT && reportId) {
-            report = await this.reportRepository.findOne({ where: { id: reportId } });
-        }
+        const novel = novelId
+            ? await this.novelRepository.findOne({ where: { id: novelId } })
+            : null;
+        const report = reportId
+            ? await this.reportRepository.findOne({ where: { id: reportId } })
+            : null;
         const notification = this.notificationRepository.create({
             user,
-            type,
             novel,
             report,
             content,

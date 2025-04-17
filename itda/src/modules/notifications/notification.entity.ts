@@ -9,11 +9,6 @@ import { User } from "../users/user.entity";
 import { Novel } from "../novels/novel.entity";
 import { Report } from "../reports/report.entity";
 
-export enum NotificationType {
-  VOTE = "vote",
-  REPORT = "report",
-}
-
 @Entity("notifications")
 export class Notification {
   @PrimaryGeneratedColumn()
@@ -21,9 +16,6 @@ export class Notification {
 
   @ManyToOne(() => User, (user) => user.notifications, { onDelete: "CASCADE" })
   user: User;
-
-  @Column({ type: "enum", enum: NotificationType })
-  type: NotificationType;
 
   @ManyToOne(() => Novel, (novel) => novel.notifications, {
     nullable: true,

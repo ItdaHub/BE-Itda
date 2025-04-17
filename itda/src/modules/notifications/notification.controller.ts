@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, Patch } from "@nestjs/common";
 import { NotificationService } from "./notification.service";
-import { Notification, NotificationType } from "./notification.entity";
+import { Notification } from "./notification.entity";
 
 @Controller("notifications")
 export class NotificationController {
@@ -10,14 +10,12 @@ export class NotificationController {
   @Post()
   async createNotification(
     @Body("userId") userId: number,
-    @Body("type") type: "vote" | "report",
     @Body("novelId") novelId: number | null,
     @Body("reportId") reportId: number | null,
     @Body("content") content: string
   ): Promise<Notification> {
     return this.notificationService.createNotification(
       userId,
-      type as NotificationType, // 🔥 enum 타입으로 변환
       novelId,
       reportId,
       content

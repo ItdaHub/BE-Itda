@@ -49,7 +49,6 @@ let AuthService = class AuthService {
                 "likes",
                 "reports",
                 "notifications",
-                "votes",
                 "points",
             ],
         });

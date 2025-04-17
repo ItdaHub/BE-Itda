@@ -50,7 +50,6 @@ export class AuthService {
         "likes",
         "reports",
         "notifications",
-        "votes",
         "points",
       ],
     });

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Notification, NotificationType } from "./notification.entity";
+import { Notification } from "./notification.entity";
 import { User } from "../users/user.entity";
 import { Novel } from "../novels/novel.entity";
 import { Report } from "../reports/report.entity";
@@ -22,7 +22,6 @@ export class NotificationService {
   // 알림 생성
   async createNotification(
     userId: number,
-    type: NotificationType,
     novelId: number | null,
     reportId: number | null,
     content: string
@@ -32,18 +31,16 @@ export class NotificationService {
       throw new Error("User not found");
     }
 
-    let novel: Novel | null = null;
-    let report: Report | null = null;
+    const novel = novelId
+      ? await this.novelRepository.findOne({ where: { id: novelId } })
+      : null;
 
-    if (type === NotificationType.VOTE && novelId) {
-      novel = await this.novelRepository.findOne({ where: { id: novelId } });
-    } else if (type === NotificationType.REPORT && reportId) {
-      report = await this.reportRepository.findOne({ where: { id: reportId } });
-    }
+    const report = reportId
+      ? await this.reportRepository.findOne({ where: { id: reportId } })
+      : null;
 
     const notification = this.notificationRepository.create({
       user,
-      type, // enum 타입 사용
       novel,
       report,
       content,

@@ -9,37 +9,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateCommentDto = void 0;
+exports.ConfirmTossPaymentDto = void 0;
 const class_validator_1 = require("class-validator");
-class CreateCommentDto {
-    userId;
-    novelId;
-    chapterId;
-    parentId;
-    content;
+class ConfirmTossPaymentDto {
+    paymentKey;
+    orderId;
+    amount;
 }
-exports.CreateCommentDto = CreateCommentDto;
-__decorate([
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], CreateCommentDto.prototype, "userId", void 0);
-__decorate([
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], CreateCommentDto.prototype, "novelId", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], CreateCommentDto.prototype, "chapterId", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], CreateCommentDto.prototype, "parentId", void 0);
+exports.ConfirmTossPaymentDto = ConfirmTossPaymentDto;
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCommentDto.prototype, "content", void 0);
-//# sourceMappingURL=comment.dto.js.map
+], ConfirmTossPaymentDto.prototype, "paymentKey", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ConfirmTossPaymentDto.prototype, "orderId", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], ConfirmTossPaymentDto.prototype, "amount", void 0);
+//# sourceMappingURL=confrimtosspayment.dto.js.map

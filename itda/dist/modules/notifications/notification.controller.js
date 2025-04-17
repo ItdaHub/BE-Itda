@@ -20,8 +20,8 @@ let NotificationController = class NotificationController {
     constructor(notificationService) {
         this.notificationService = notificationService;
     }
-    async createNotification(userId, type, novelId, reportId, content) {
-        return this.notificationService.createNotification(userId, type, novelId, reportId, content);
+    async createNotification(userId, novelId, reportId, content) {
+        return this.notificationService.createNotification(userId, novelId, reportId, content);
     }
     async getNotificationsByUser(userId) {
         return this.notificationService.getNotificationsByUser(userId);
@@ -34,12 +34,11 @@ exports.NotificationController = NotificationController;
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)("userId")),
-    __param(1, (0, common_1.Body)("type")),
-    __param(2, (0, common_1.Body)("novelId")),
-    __param(3, (0, common_1.Body)("reportId")),
-    __param(4, (0, common_1.Body)("content")),
+    __param(1, (0, common_1.Body)("novelId")),
+    __param(2, (0, common_1.Body)("reportId")),
+    __param(3, (0, common_1.Body)("content")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, Object, Object, String]),
+    __metadata("design:paramtypes", [Number, Object, Object, String]),
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "createNotification", null);
 __decorate([
