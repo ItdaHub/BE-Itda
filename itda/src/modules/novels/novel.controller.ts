@@ -60,11 +60,8 @@ export class NovelController {
   @ApiOperation({ summary: "통합 또는 연령대별 소설 랭킹" })
   @ApiQuery({ name: "age", required: false, description: "연령대 (예: 20)" })
   async getRanking(@Query("age") age?: string) {
-    console.log("👉 받은 쿼리 age:", age);
-
     if (age !== undefined) {
       const parsedAge = parseInt(age, 10);
-      console.log("👉 파싱된 age:", parsedAge);
 
       if (isNaN(parsedAge)) {
         throw new BadRequestException("잘못된 연령대입니다.");
@@ -113,6 +110,7 @@ export class NovelController {
     @Req() req
   ) {
     const userId = req.user.id;
+    console.log("addChapter 호출됨", dto);
     return this.novelService.addChapter(parseInt(novelId, 10), {
       ...dto,
       userId,

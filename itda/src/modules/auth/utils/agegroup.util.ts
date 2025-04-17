@@ -13,8 +13,6 @@ export function convertBirthYearToAgeGroup(birthYear: string): number | null {
 }
 
 export function convertNaverAgeToGroup(age: string): number | null {
-  console.log("🟡 네이버로부터 받은 age:", age);
-
   if (!age) return null;
 
   const parsed = age.split("-")[0];

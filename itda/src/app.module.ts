@@ -38,6 +38,7 @@ import * as path from "path";
 import * as handlebars from "handlebars";
 import * as fs from "fs";
 import { join } from "path";
+import { AdminModule } from "./modules/admin/admin.modules";
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { join } from "path";
     CommentsModule,
     WritersModule,
     PointModule,
+    AdminModule,
     MailerModule.forRoot({
       transport: {
         host: "smtp.gmail.com",

@@ -47,6 +47,7 @@ const path = require("path");
 const handlebars = require("handlebars");
 const fs = require("fs");
 const path_1 = require("path");
+const admin_modules_1 = require("./modules/admin/admin.modules");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -99,6 +100,7 @@ exports.AppModule = AppModule = __decorate([
             comment_module_1.CommentsModule,
             writers_module_1.WritersModule,
             point_module_1.PointModule,
+            admin_modules_1.AdminModule,
             mailer_1.MailerModule.forRoot({
                 transport: {
                     host: "smtp.gmail.com",

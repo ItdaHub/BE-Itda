@@ -19,7 +19,6 @@ function convertBirthYearToAgeGroup(birthYear) {
     return null;
 }
 function convertNaverAgeToGroup(age) {
-    console.log("🟡 네이버로부터 받은 age:", age);
     if (!age)
         return null;
     const parsed = age.split("-")[0];

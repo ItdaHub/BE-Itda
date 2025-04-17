@@ -58,7 +58,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Novel.prototype, "max_participants", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: ["ongoing", "completed"] }),
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: ["ongoing", "completed", "submitted"],
+        default: "ongoing",
+    }),
     __metadata("design:type", String)
 ], Novel.prototype, "status", void 0);
 __decorate([

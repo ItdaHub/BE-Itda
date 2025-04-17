@@ -84,12 +84,10 @@ export class NovelService {
     return novel;
   }
 
-  async addChapter(novelId: number, dto: AddChapterDto): Promise<Chapter> {
+  async addChapter(novelId: number, dto: AddChapterDto): Promise<any> {
     const { userId, content } = dto;
 
-    const novel = await this.novelRepo.findOne({
-      where: { id: novelId },
-    });
+    const novel = await this.novelRepo.findOne({ where: { id: novelId } });
     if (!novel) throw new NotFoundException("해당 소설이 존재하지 않습니다.");
 
     const user = await this.userRepo.findOneBy({ id: userId });
@@ -115,6 +113,7 @@ export class NovelService {
       throw new BadRequestException("연속으로 작성할 수 없습니다.");
     }
 
+    // 참여자 수를 초과할 경우 예외 처리
     const participantCount = await this.participantRepo.count({
       where: { novel: { id: novelId } },
     });
@@ -123,6 +122,7 @@ export class NovelService {
       throw new BadRequestException("참여자 수를 초과했습니다.");
     }
 
+    // 참가자 추가
     const participant = this.participantRepo.create({
       novel,
       user,
@@ -130,32 +130,61 @@ export class NovelService {
     });
     await this.participantRepo.save(participant);
 
+    // 새로운 챕터 번호를 구하기 (첫 번째 챕터면 1, 아니면 기존 챕터 중 가장 큰 번호 + 1)
+    const chapterNumber =
+      existingChapters.length > 0 ? existingChapters.length + 1 : 1;
+
+    // 새로운 챕터 추가
     const chapter = this.chapterRepo.create({
       novel,
       author: user,
       content,
-      chapter_number: existingChapters.length + 1,
+      chapter_number: chapterNumber,
     });
-
     const savedChapter = await this.chapterRepo.save(chapter);
 
+    // 새로운 참가자 수를 확인
     const newParticipantCount = await this.participantRepo.count({
       where: { novel: { id: novelId } },
     });
 
-    if (newParticipantCount === novel.max_participants) {
+    // 참여자 수가 max_participants와 같으면 소설 상태를 completed로 변경
+    if (newParticipantCount >= novel.max_participants) {
+      console.log("참여자 수가 max_participants와 같거나 큽니다.", {
+        newParticipantCount,
+        maxParticipants: novel.max_participants,
+      });
       novel.status = "completed";
+      console.log("소설 상태를 completed로 변경:", novel.status);
+
+      // 상태 업데이트 후 저장
       await this.novelRepo.save(novel);
+      console.log("상태 변경이 완료되었습니다.");
     }
 
-    return savedChapter;
+    return {
+      chapter: savedChapter,
+      peopleNum: novel.max_participants,
+      currentPeople: newParticipantCount,
+      status: novel.status,
+    };
   }
 
-  async getChapters(novelId: number): Promise<Chapter[]> {
-    return this.chapterRepo.find({
+  async getChapters(novelId: number): Promise<any[]> {
+    const chapters = await this.chapterRepo.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
+      relations: ["author"], // 작성자도 같이 가져오기
     });
+
+    return chapters.map((chapter) => ({
+      id: chapter.id,
+      chapterNumber: chapter.chapter_number,
+      content: chapter.content,
+      createdAt: chapter.created_at,
+      authorId: chapter.author?.id,
+      authorNickname: chapter.author?.nickname ?? null,
+    }));
   }
 
   async getParticipants(novelId: number): Promise<Participant[]> {
@@ -255,7 +284,6 @@ export class NovelService {
       type: novel.type,
       createdAt: novel.created_at.toISOString(),
       peopleNum: novel.max_participants,
-      // ✅ 여기에 회차 정보 추가
       chapters: novel.chapters
         .sort((a, b) => a.chapter_number - b.chapter_number)
         .map((chapter) => ({
@@ -311,5 +339,20 @@ export class NovelService {
       }))
       .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
       .slice(0, 10);
+  }
+
+  async submitNovelForCompletion(novelId: number): Promise<Novel> {
+    const novel = await this.novelRepo.findOneBy({ id: novelId });
+    if (!novel) {
+      throw new NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
+    }
+
+    // 이미 완료된 소설은 출품 요청할 수 없도록 방지 (선택 사항)
+    if (novel.status === "completed") {
+      throw new BadRequestException("이미 완료된 소설입니다.");
+    }
+
+    novel.status = "submitted";
+    return await this.novelRepo.save(novel);
   }
 }

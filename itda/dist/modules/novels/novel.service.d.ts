@@ -19,8 +19,8 @@ export declare class NovelService {
     getAllNovels(): Promise<Novel[]>;
     getNovelById(id: number): Promise<any>;
     create(dto: CreateNovelInput): Promise<Novel>;
-    addChapter(novelId: number, dto: AddChapterDto): Promise<Chapter>;
-    getChapters(novelId: number): Promise<Chapter[]>;
+    addChapter(novelId: number, dto: AddChapterDto): Promise<any>;
+    getChapters(novelId: number): Promise<any[]>;
     getParticipants(novelId: number): Promise<Participant[]>;
     getFilteredNovels(type?: string, genre?: string | number, age?: number): Promise<{
         id: number;
@@ -36,5 +36,6 @@ export declare class NovelService {
     searchNovelsByTitle(query: string): Promise<Novel[]>;
     getRankedNovels(): Promise<Novel[]>;
     getRankedNovelsByAge(ageGroup: number): Promise<Novel[]>;
+    submitNovelForCompletion(novelId: number): Promise<Novel>;
 }
 export {};

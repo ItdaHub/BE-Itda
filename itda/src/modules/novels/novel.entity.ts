@@ -29,8 +29,12 @@ export class Novel {
   @Column({ type: "enum", enum: [5, 7, 9] })
   max_participants: 5 | 7 | 9;
 
-  @Column({ type: "enum", enum: ["ongoing", "completed"] })
-  status: "ongoing" | "completed";
+  @Column({
+    type: "enum",
+    enum: ["ongoing", "completed", "submitted"],
+    default: "ongoing",
+  })
+  status: "ongoing" | "completed" | "submitted";
 
   @Column({ length: 255, nullable: true })
   cover_image: string;

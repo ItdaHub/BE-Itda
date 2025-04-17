@@ -32,11 +32,19 @@ let ChapterService = class ChapterService {
         if (!novel) {
             throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
         }
-        return await this.chapterRepository.find({
+        const chapters = await this.chapterRepository.find({
             where: { novel: { id: novelId } },
             order: { chapter_number: "ASC" },
-            relations: ["comments"],
+            relations: ["comments", "author"],
         });
+        return chapters.map((chapter) => ({
+            id: chapter.id,
+            chapter_number: chapter.chapter_number,
+            content: chapter.content,
+            created_at: chapter.created_at,
+            nickname: chapter.author?.nickname || "알 수 없음",
+            comments: chapter.comments,
+        }));
     }
     async getChapterContent(novelId, chapterId) {
         const novel = await this.novelRepository.findOne({

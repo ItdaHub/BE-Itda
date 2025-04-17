@@ -14,7 +14,16 @@ export class ChapterService {
     private readonly novelRepository: Repository<Novel>
   ) {}
 
-  async getChaptersByNovel(novelId: number): Promise<Chapter[]> {
+  async getChaptersByNovel(novelId: number): Promise<
+    {
+      id: number;
+      chapter_number: number;
+      content: string;
+      created_at: Date;
+      nickname: string;
+      comments: any[];
+    }[]
+  > {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
     });
@@ -22,11 +31,20 @@ export class ChapterService {
       throw new NotFoundException(`Novel with ID ${novelId} not found`);
     }
 
-    return await this.chapterRepository.find({
+    const chapters = await this.chapterRepository.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
-      relations: ["comments"],
+      relations: ["comments", "author"], // 👈 author join 추가
     });
+
+    return chapters.map((chapter) => ({
+      id: chapter.id,
+      chapter_number: chapter.chapter_number,
+      content: chapter.content,
+      created_at: chapter.created_at,
+      nickname: chapter.author?.nickname || "알 수 없음", // 👈 닉네임 포함
+      comments: chapter.comments,
+    }));
   }
 
   async getChapterContent(

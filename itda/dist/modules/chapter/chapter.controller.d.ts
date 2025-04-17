@@ -3,7 +3,14 @@ import { CreateChapterDto } from "./dto/createchapter.dto";
 export declare class ChapterController {
     private readonly chapterService;
     constructor(chapterService: ChapterService);
-    getChaptersByNovel(novelId: number): Promise<import("./chapter.entity").Chapter[]>;
+    getChaptersByNovel(novelId: number): Promise<{
+        id: number;
+        chapter_number: number;
+        content: string;
+        created_at: Date;
+        nickname: string;
+        comments: any[];
+    }[]>;
     getChapterContent(novelId: number, chapterId: number): Promise<{
         slides: {
             index: number;

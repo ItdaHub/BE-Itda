@@ -38,10 +38,8 @@ let NovelController = class NovelController {
         return this.novelService.searchNovelsByTitle(query);
     }
     async getRanking(age) {
-        console.log("👉 받은 쿼리 age:", age);
         if (age !== undefined) {
             const parsedAge = parseInt(age, 10);
-            console.log("👉 파싱된 age:", parsedAge);
             if (isNaN(parsedAge)) {
                 throw new common_1.BadRequestException("잘못된 연령대입니다.");
             }
@@ -62,6 +60,7 @@ let NovelController = class NovelController {
     }
     async addChapter(novelId, dto, req) {
         const userId = req.user.id;
+        console.log("addChapter 호출됨", dto);
         return this.novelService.addChapter(parseInt(novelId, 10), {
             ...dto,
             userId,
