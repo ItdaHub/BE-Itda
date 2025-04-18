@@ -41,17 +41,30 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  // // 유저 업데이트
+  // async update(id: number, user: Partial<User>): Promise<User> {
+  //   const { password, nickname, phone, profile_img } = user;
+
+  //   const updateData: Partial<User> = {};
+  //   if (password) updateData.password = password;
+  //   if (nickname) updateData.nickname = nickname;
+  //   if (phone) updateData.phone = phone;
+  //   if (profile_img) updateData.profile_img = profile_img;
+
+  //   await this.userRepository.update(id, updateData);
+  //   return this.findOne(id);
+  // }
   // 유저 업데이트
-  async update(id: number, user: Partial<User>): Promise<User> {
-    const { password, nickname, phone, profile_img } = user;
+  async update(id: number, userData: Partial<User>): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
 
-    const updateData: Partial<User> = {};
-    if (password) updateData.password = password;
-    if (nickname) updateData.nickname = nickname;
-    if (phone) updateData.phone = phone;
-    if (profile_img) updateData.profile_img = profile_img;
+    // userData에 있는 모든 필드를 user 엔티티에 병합합니다.
+    Object.assign(user, userData);
 
-    await this.userRepository.update(id, updateData);
+    await this.userRepository.save(user);
     return this.findOne(id);
   }
 

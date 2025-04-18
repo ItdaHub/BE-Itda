@@ -41,18 +41,13 @@ let UserService = class UserService {
         const user = this.userRepository.create(userDto);
         return this.userRepository.save(user);
     }
-    async update(id, user) {
-        const { password, nickname, phone, profile_img } = user;
-        const updateData = {};
-        if (password)
-            updateData.password = password;
-        if (nickname)
-            updateData.nickname = nickname;
-        if (phone)
-            updateData.phone = phone;
-        if (profile_img)
-            updateData.profile_img = profile_img;
-        await this.userRepository.update(id, updateData);
+    async update(id, userData) {
+        const user = await this.userRepository.findOneBy({ id });
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
+        Object.assign(user, userData);
+        await this.userRepository.save(user);
         return this.findOne(id);
     }
     async remove(userId, requestUser) {

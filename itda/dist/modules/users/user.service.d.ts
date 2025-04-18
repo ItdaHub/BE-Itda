@@ -9,7 +9,7 @@ export declare class UserService {
     findAll(): Promise<User[]>;
     findOne(id: number): Promise<User>;
     create(userDto: CreateUserDto): Promise<User>;
-    update(id: number, user: Partial<User>): Promise<User>;
+    update(id: number, userData: Partial<User>): Promise<User>;
     remove(userId: number, requestUser: User): Promise<void>;
     findByPhone(phone: string): Promise<User | null>;
     findByEmail(email: string): Promise<User | null>;

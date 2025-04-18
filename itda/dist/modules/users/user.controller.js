@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var UserController_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
@@ -22,8 +23,9 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const ceateuser_dto_1 = require("./dto/ceateuser.dto");
 const updateuser_dto_1 = require("./dto/updateuser.dto");
-let UserController = class UserController {
+let UserController = UserController_1 = class UserController {
     userService;
+    logger = new common_1.Logger(UserController_1.name);
     constructor(userService) {
         this.userService = userService;
     }
@@ -37,6 +39,8 @@ let UserController = class UserController {
         return this.userService.create(user);
     }
     update(id, user) {
+        this.logger.log(`[PUT /users/${id}] 요청 받음`);
+        this.logger.log(`[PUT /users/${id}] ID: ${id}, 데이터: ${JSON.stringify(user)}`);
         return this.userService.update(id, user);
     }
     async deleteByEmail(email) {
@@ -196,7 +200,7 @@ __decorate([
     __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "deleteUsersByAdmin", null);
-exports.UserController = UserController = __decorate([
+exports.UserController = UserController = UserController_1 = __decorate([
     (0, swagger_1.ApiTags)("User (유저)"),
     (0, common_1.Controller)("users"),
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),

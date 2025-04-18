@@ -13,6 +13,7 @@ import {
   UploadedFile,
   HttpCode,
   HttpStatus,
+  Logger, // ✅ Logger 임포트
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User } from "./user.entity";
@@ -28,6 +29,7 @@ import { UpdateUserDto } from "./dto/updateuser.dto";
 @Controller("users")
 @UseGuards(JwtAuthGuard) // ✅ 인증된 사용자만 접근 가능하도록 가드 적용 (선택 사항)
 export class UserController {
+  private readonly logger = new Logger(UserController.name); // ✅ Logger 인스턴스 생성
   constructor(private readonly userService: UserService) {}
 
   // 📌 유저 전체 목록 조회
@@ -62,6 +64,10 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @Body() user: UpdateUserDto
   ): Promise<User> {
+    this.logger.log(`[PUT /users/${id}] 요청 받음`); // ✅ 요청 시작 로그
+    this.logger.log(
+      `[PUT /users/${id}] ID: ${id}, 데이터: ${JSON.stringify(user)}`
+    ); // ✅ 받은 ID와 데이터 로그
     return this.userService.update(id, user);
   }
   @Delete("delete/email/:email")
