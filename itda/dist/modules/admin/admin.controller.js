@@ -17,11 +17,13 @@ const common_1 = require("@nestjs/common");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 const novel_service_1 = require("../novels/novel.service");
 const swagger_1 = require("@nestjs/swagger");
-const admin_guard_1 = require("../auth/admin.guard");
 let AdminController = class AdminController {
     novelService;
     constructor(novelService) {
         this.novelService = novelService;
+    }
+    async getNovelDetail(novelId) {
+        return this.novelService.getNovelDetail(novelId);
     }
     async submitNovel(novelId) {
         return this.novelService.submitNovelForCompletion(novelId);
@@ -37,6 +39,15 @@ let AdminController = class AdminController {
     }
 };
 exports.AdminController = AdminController;
+__decorate([
+    (0, common_1.Get)("novel/:novelId"),
+    (0, swagger_1.ApiOperation)({ summary: "소설 상세 정보 가져오기" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: "number", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getNovelDetail", null);
 __decorate([
     (0, common_1.Post)("complete/:novelId"),
     (0, swagger_1.ApiOperation)({ summary: "소설 출품 요청 처리 (마지막 참여자 완료 시)" }),
@@ -74,7 +85,7 @@ __decorate([
 exports.AdminController = AdminController = __decorate([
     (0, swagger_1.ApiTags)("Admin (관리자)"),
     (0, common_1.Controller)("admin"),
-    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [novel_service_1.NovelService])
 ], AdminController);

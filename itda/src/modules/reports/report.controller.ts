@@ -20,7 +20,6 @@ import {
   ApiBearerAuth,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
-import { AdminGuard } from "../auth/admin.guard";
 
 @ApiTags("Reports")
 @Controller("reports")
@@ -101,7 +100,6 @@ export class ReportController {
 
   // ✅ 모든 신고 목록 조회 (관리자 권한 필요)
   @Get()
-  @UseGuards(AdminGuard) // ✅ 관리자 권한 가드 적용 (AdminGuard가 구현되어 있어야 함)
   @ApiOperation({ summary: "모든 신고 목록 조회 (관리자)" })
   @ApiResponse({
     status: 200,

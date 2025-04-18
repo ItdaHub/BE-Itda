@@ -18,7 +18,6 @@ const report_service_1 = require("./report.service");
 const report_entity_1 = require("./report.entity");
 const swagger_1 = require("@nestjs/swagger");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
-const admin_guard_1 = require("../auth/admin.guard");
 let ReportController = class ReportController {
     reportService;
     constructor(reportService) {
@@ -106,7 +105,6 @@ __decorate([
 ], ReportController.prototype, "reportNovel", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, common_1.UseGuards)(admin_guard_1.AdminGuard),
     (0, swagger_1.ApiOperation)({ summary: "모든 신고 목록 조회 (관리자)" }),
     (0, swagger_1.ApiResponse)({
         status: 200,

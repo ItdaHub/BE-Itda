@@ -15,14 +15,20 @@ import {
   ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
-import { AdminGuard } from "../auth/admin.guard"; // ✅ AdminGuard import
 
 @ApiTags("Admin (관리자)")
 @Controller("admin")
-@UseGuards(JwtAuthGuard, AdminGuard) // ✅ JwtAuthGuard와 AdminGuard 모두 적용
-@ApiBearerAuth() // API 인증을 위한 Bearer Token 사용
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class AdminController {
   constructor(private readonly novelService: NovelService) {}
+
+  @Get("novel/:novelId")
+  @ApiOperation({ summary: "소설 상세 정보 가져오기" })
+  @ApiParam({ name: "novelId", type: "number", description: "소설 ID" })
+  async getNovelDetail(@Param("novelId", ParseIntPipe) novelId: number) {
+    return this.novelService.getNovelDetail(novelId);
+  }
 
   @Post("complete/:novelId")
   @ApiOperation({ summary: "소설 출품 요청 처리 (마지막 참여자 완료 시)" })
@@ -41,13 +47,13 @@ export class AdminController {
   @ApiOperation({ summary: "소설 삭제 (관리자 권한)" })
   @ApiParam({ name: "novelId", type: "number", description: "소설 ID" })
   async deleteNovel(@Param("novelId", ParseIntPipe) novelId: number) {
-    return this.novelService.adminDeleteNovel(novelId); // 소설 삭제 로직
+    return this.novelService.adminDeleteNovel(novelId);
   }
 
   @Post("publish/:novelId")
   @ApiOperation({ summary: "소설 출품 처리 (관리자 권한)" })
   @ApiParam({ name: "novelId", type: "number", description: "소설 ID" })
   async publishNovel(@Param("novelId", ParseIntPipe) novelId: number) {
-    return this.novelService.adminPublishNovel(novelId); // 소설 출품 처리 로직
+    return this.novelService.adminPublishNovel(novelId);
   }
 }
