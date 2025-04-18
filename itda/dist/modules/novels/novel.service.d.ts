@@ -49,5 +49,12 @@ export declare class NovelService {
     }[]>;
     adminDeleteNovel(novelId: number): Promise<Novel>;
     adminPublishNovel(novelId: number): Promise<Novel>;
+    getWaitingNovelsForSubmission(): Promise<{
+        id: number;
+        title: string;
+        writer: string;
+        date: string;
+        status: NovelStatus;
+    }[]>;
 }
 export {};

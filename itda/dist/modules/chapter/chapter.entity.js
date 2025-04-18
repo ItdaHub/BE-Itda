@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const novel_entity_1 = require("../novels/novel.entity");
 const user_entity_1 = require("../users/user.entity");
 const comment_entity_1 = require("../comments/comment.entity");
+const report_entity_1 = require("../reports/report.entity");
 let Chapter = class Chapter {
     id;
     novel;
@@ -22,6 +23,7 @@ let Chapter = class Chapter {
     chapter_number;
     created_at;
     comments;
+    reports;
 };
 exports.Chapter = Chapter;
 __decorate([
@@ -52,6 +54,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => comment_entity_1.Comment, (comment) => comment.chapter),
     __metadata("design:type", Array)
 ], Chapter.prototype, "comments", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => report_entity_1.Report, (report) => report.chapter),
+    __metadata("design:type", Array)
+], Chapter.prototype, "reports", void 0);
 exports.Chapter = Chapter = __decorate([
     (0, typeorm_1.Entity)("chapters")
 ], Chapter);

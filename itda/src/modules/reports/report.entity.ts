@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 import { User } from "../users/user.entity";
 import { Notification } from "../notifications/notification.entity";
+import { Chapter } from "../chapter/chapter.entity";
 
 export enum TargetType {
   CHAPTER = "chapter",
@@ -30,6 +31,12 @@ export class Report {
 
   @Column("text")
   reason: string;
+
+  // Report Entity
+  @ManyToOne(() => Chapter, (chapter) => chapter.reports, {
+    onDelete: "CASCADE",
+  })
+  chapter: Chapter;
 
   @CreateDateColumn()
   created_at: Date;

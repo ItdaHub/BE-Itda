@@ -30,17 +30,28 @@ export class AdminController {
     return this.novelService.getNovelDetail(novelId);
   }
 
-  @Post("complete/:novelId")
-  @ApiOperation({ summary: "소설 출품 요청 처리 (마지막 참여자 완료 시)" })
-  @ApiParam({ name: "novelId", type: "number", description: "소설 ID" })
-  async submitNovel(@Param("novelId", ParseIntPipe) novelId: number) {
-    return this.novelService.submitNovelForCompletion(novelId);
-  }
-
   @Get("complete")
   @ApiOperation({ summary: "출품 대기 중이거나 출품된 소설 목록" })
   async getCompletedNovels() {
     return this.novelService.getCompletedNovels();
+  }
+
+  // 완료 처리 (작성자/참여자가 끝냈을 때)
+  @Post("complete/:novelId")
+  async submitNovel(@Param("novelId", ParseIntPipe) novelId: number) {
+    return this.novelService.submitNovelForCompletion(novelId); // status = COMPLETED
+  }
+
+  // 출품 처리 (관리자가 출품 버튼 누를 때)
+  @Post("publish/:novelId")
+  async publishNovel(@Param("novelId", ParseIntPipe) novelId: number) {
+    return this.novelService.adminPublishNovel(novelId); // status = SUBMITTED
+  }
+
+  // 출품 대기 중 소설 리스트 (관리자용 목록)
+  @Get("waiting-novels")
+  async getWaitingNovels() {
+    return this.novelService.getWaitingNovelsForSubmission(); // status = COMPLETED 리스트
   }
 
   @Delete("delete/:novelId")
@@ -48,12 +59,5 @@ export class AdminController {
   @ApiParam({ name: "novelId", type: "number", description: "소설 ID" })
   async deleteNovel(@Param("novelId", ParseIntPipe) novelId: number) {
     return this.novelService.adminDeleteNovel(novelId);
-  }
-
-  @Post("publish/:novelId")
-  @ApiOperation({ summary: "소설 출품 처리 (관리자 권한)" })
-  @ApiParam({ name: "novelId", type: "number", description: "소설 ID" })
-  async publishNovel(@Param("novelId", ParseIntPipe) novelId: number) {
-    return this.novelService.adminPublishNovel(novelId);
   }
 }

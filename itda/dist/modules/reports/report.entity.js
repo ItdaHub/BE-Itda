@@ -13,6 +13,7 @@ exports.Report = exports.TargetType = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../users/user.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
+const chapter_entity_1 = require("../chapter/chapter.entity");
 var TargetType;
 (function (TargetType) {
     TargetType["CHAPTER"] = "chapter";
@@ -24,6 +25,7 @@ let Report = class Report {
     target_type;
     target_id;
     reason;
+    chapter;
     created_at;
     notifications;
 };
@@ -48,6 +50,12 @@ __decorate([
     (0, typeorm_1.Column)("text"),
     __metadata("design:type", String)
 ], Report.prototype, "reason", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => chapter_entity_1.Chapter, (chapter) => chapter.reports, {
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", chapter_entity_1.Chapter)
+], Report.prototype, "chapter", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

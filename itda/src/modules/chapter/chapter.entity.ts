@@ -9,6 +9,7 @@ import {
 import { Novel } from "../novels/novel.entity";
 import { User } from "../users/user.entity";
 import { Comment } from "../comments/comment.entity";
+import { Report } from "../reports/report.entity";
 
 @Entity("chapters")
 export class Chapter {
@@ -32,4 +33,7 @@ export class Chapter {
 
   @OneToMany(() => Comment, (comment) => comment.chapter)
   comments: Comment[];
+
+  @OneToMany(() => Report, (report) => report.chapter)
+  reports: Report[];
 }

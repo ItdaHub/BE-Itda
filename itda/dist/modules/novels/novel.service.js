@@ -234,6 +234,8 @@ let NovelService = class NovelService {
                 "participants",
                 "participants.user",
                 "chapters",
+                "chapters.author",
+                "chapters.reports",
             ],
         });
         if (!novel)
@@ -267,6 +269,8 @@ let NovelService = class NovelService {
                 content: chapter.content,
                 chapterNumber: chapter.chapter_number,
                 authorId: chapter.author?.id,
+                authorNickname: chapter.author?.nickname ?? null,
+                reportCount: chapter.reports?.length ?? 0,
             })),
             nextChapterNumber: sortedChapters.length + 1,
         };
@@ -351,6 +355,20 @@ let NovelService = class NovelService {
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
         novel.isPublished = true;
         return this.novelRepo.save(novel);
+    }
+    async getWaitingNovelsForSubmission() {
+        const novels = await this.novelRepo.find({
+            where: { status: novel_entity_2.NovelStatus.COMPLETED },
+            relations: ["creator"],
+            order: { created_at: "DESC" },
+        });
+        return novels.map((novel) => ({
+            id: novel.id,
+            title: novel.title,
+            writer: novel.creator?.name || "알 수 없음",
+            date: novel.created_at.toISOString().split("T")[0],
+            status: novel.status,
+        }));
     }
 };
 exports.NovelService = NovelService;

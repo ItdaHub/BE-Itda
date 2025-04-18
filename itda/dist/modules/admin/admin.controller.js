@@ -25,17 +25,20 @@ let AdminController = class AdminController {
     async getNovelDetail(novelId) {
         return this.novelService.getNovelDetail(novelId);
     }
-    async submitNovel(novelId) {
-        return this.novelService.submitNovelForCompletion(novelId);
-    }
     async getCompletedNovels() {
         return this.novelService.getCompletedNovels();
     }
-    async deleteNovel(novelId) {
-        return this.novelService.adminDeleteNovel(novelId);
+    async submitNovel(novelId) {
+        return this.novelService.submitNovelForCompletion(novelId);
     }
     async publishNovel(novelId) {
         return this.novelService.adminPublishNovel(novelId);
+    }
+    async getWaitingNovels() {
+        return this.novelService.getWaitingNovelsForSubmission();
+    }
+    async deleteNovel(novelId) {
+        return this.novelService.adminDeleteNovel(novelId);
     }
 };
 exports.AdminController = AdminController;
@@ -49,21 +52,32 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getNovelDetail", null);
 __decorate([
-    (0, common_1.Post)("complete/:novelId"),
-    (0, swagger_1.ApiOperation)({ summary: "소설 출품 요청 처리 (마지막 참여자 완료 시)" }),
-    (0, swagger_1.ApiParam)({ name: "novelId", type: "number", description: "소설 ID" }),
-    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], AdminController.prototype, "submitNovel", null);
-__decorate([
     (0, common_1.Get)("complete"),
     (0, swagger_1.ApiOperation)({ summary: "출품 대기 중이거나 출품된 소설 목록" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getCompletedNovels", null);
+__decorate([
+    (0, common_1.Post)("complete/:novelId"),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "submitNovel", null);
+__decorate([
+    (0, common_1.Post)("publish/:novelId"),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "publishNovel", null);
+__decorate([
+    (0, common_1.Get)("waiting-novels"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getWaitingNovels", null);
 __decorate([
     (0, common_1.Delete)("delete/:novelId"),
     (0, swagger_1.ApiOperation)({ summary: "소설 삭제 (관리자 권한)" }),
@@ -73,15 +87,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "deleteNovel", null);
-__decorate([
-    (0, common_1.Post)("publish/:novelId"),
-    (0, swagger_1.ApiOperation)({ summary: "소설 출품 처리 (관리자 권한)" }),
-    (0, swagger_1.ApiParam)({ name: "novelId", type: "number", description: "소설 ID" }),
-    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], AdminController.prototype, "publishNovel", null);
 exports.AdminController = AdminController = __decorate([
     (0, swagger_1.ApiTags)("Admin (관리자)"),
     (0, common_1.Controller)("admin"),
