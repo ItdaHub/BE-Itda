@@ -47,6 +47,7 @@ let Novel = class Novel {
     type;
     created_at;
     genre;
+    isPublished;
     participants;
     chapters;
     aiGeneratedImages;
@@ -111,6 +112,10 @@ __decorate([
     }),
     __metadata("design:type", genre_entity_1.Genre)
 ], Novel.prototype, "genre", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], Novel.prototype, "isPublished", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => participant_entity_1.Participant, (participant) => participant.novel),
     __metadata("design:type", Array)

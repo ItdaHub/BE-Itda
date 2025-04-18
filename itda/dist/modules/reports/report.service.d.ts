@@ -1,7 +1,7 @@
-import { Repository } from "typeorm";
 import { Report } from "./report.entity";
+import { Repository } from "typeorm";
 export declare class ReportService {
-    private reportRepository;
+    private readonly reportRepository;
     constructor(reportRepository: Repository<Report>);
     findAll(): Promise<Report[]>;
     findOne(id: number): Promise<Report>;

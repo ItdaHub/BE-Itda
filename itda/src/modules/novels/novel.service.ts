@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
-import { Like } from "typeorm";
+import { Like, In } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Novel } from "./novel.entity";
@@ -31,6 +31,13 @@ export class NovelService {
 
   async getAllNovels(): Promise<Novel[]> {
     return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
+  }
+
+  async getPublishedNovels(): Promise<Novel[]> {
+    return this.novelRepo.find({
+      where: { isPublished: true },
+      relations: ["genre", "creator", "chapters"],
+    });
   }
 
   async getNovelById(id: number): Promise<any> {
@@ -370,5 +377,34 @@ export class NovelService {
     novel.status = NovelStatus.SUBMITTED;
     console.log("소설 상태를 SUBMITTED로 변경");
     return await this.novelRepo.save(novel);
+  }
+
+  async getCompletedNovels() {
+    const novels = await this.novelRepo.find({
+      where: { status: In(["submitted", "completed"]) }, // ✅ 수정됨
+      relations: ["creator"],
+      order: { created_at: "DESC" },
+    });
+
+    return novels.map((novel) => ({
+      id: novel.id,
+      title: novel.title,
+      writer: novel.creator?.name || "알 수 없음",
+      date: novel.created_at.toISOString().split("T")[0],
+      status: novel.status,
+    }));
+  }
+
+  async adminDeleteNovel(novelId: number) {
+    const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+    if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
+    return this.novelRepo.remove(novel);
+  }
+
+  async adminPublishNovel(novelId: number) {
+    const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+    if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
+    novel.isPublished = true;
+    return this.novelRepo.save(novel);
   }
 }

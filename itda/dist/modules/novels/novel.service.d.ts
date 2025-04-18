@@ -6,6 +6,7 @@ import { Genre } from "../genre/genre.entity";
 import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
+import { NovelStatus } from "./novel.entity";
 type CreateNovelInput = CreateNovelDto & {
     userId: number;
 };
@@ -17,6 +18,7 @@ export declare class NovelService {
     private readonly participantRepo;
     constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>);
     getAllNovels(): Promise<Novel[]>;
+    getPublishedNovels(): Promise<Novel[]>;
     getNovelById(id: number): Promise<any>;
     create(dto: CreateNovelInput): Promise<Novel>;
     addChapter(novelId: number, dto: AddChapterDto): Promise<any>;
@@ -37,5 +39,14 @@ export declare class NovelService {
     getRankedNovels(): Promise<Novel[]>;
     getRankedNovelsByAge(ageGroup: number): Promise<Novel[]>;
     submitNovelForCompletion(novelId: number): Promise<Novel>;
+    getCompletedNovels(): Promise<{
+        id: number;
+        title: string;
+        writer: string;
+        date: string;
+        status: NovelStatus;
+    }[]>;
+    adminDeleteNovel(novelId: number): Promise<Novel>;
+    adminPublishNovel(novelId: number): Promise<Novel>;
 }
 export {};

@@ -17,76 +17,126 @@ const common_1 = require("@nestjs/common");
 const report_service_1 = require("./report.service");
 const report_entity_1 = require("./report.entity");
 const swagger_1 = require("@nestjs/swagger");
+const jwtauth_guard_1 = require("../auth/jwtauth.guard");
+const admin_guard_1 = require("../auth/admin.guard");
 let ReportController = class ReportController {
     reportService;
     constructor(reportService) {
         this.reportService = reportService;
     }
-    async findAll() {
-        return this.reportService.findAll();
-    }
-    async findOne(id) {
-        return this.reportService.findOne(id);
-    }
-    async create(report) {
+    async reportComment(commentId, reportData, req) {
+        if (!reportData.reason) {
+            throw new common_1.BadRequestException("신고 사유를 입력해주세요.");
+        }
+        const report = new report_entity_1.Report();
+        report.reporter = req.user;
+        report.target_type = report_entity_1.TargetType.COMMENT;
+        report.target_id = commentId;
+        report.reason = reportData.reason;
         return this.reportService.create(report);
     }
-    async remove(id) {
-        return this.reportService.remove(id);
+    async reportNovel(novelId, reportData, req) {
+        if (!reportData.reason) {
+            throw new common_1.BadRequestException("신고 사유를 입력해주세요.");
+        }
+        const report = new report_entity_1.Report();
+        report.reporter = req.user;
+        report.target_type = report_entity_1.TargetType.CHAPTER;
+        report.target_id = novelId;
+        report.reason = reportData.reason;
+        return this.reportService.create(report);
+    }
+    async getAllReports() {
+        return this.reportService.findAll();
+    }
+    async getReportById(reportId) {
+        return this.reportService.findOne(reportId);
     }
 };
 exports.ReportController = ReportController;
 __decorate([
-    (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({
-        summary: "신고 목록 조회",
-        description: "등록된 모든 신고를 조회합니다.",
+    (0, common_1.Post)("comments/:commentId"),
+    (0, swagger_1.ApiOperation)({ summary: "댓글 신고 생성" }),
+    (0, swagger_1.ApiParam)({
+        name: "commentId",
+        type: "number",
+        description: "신고할 댓글 ID",
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: "신고 목록 반환" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                reason: { type: "string", description: "신고 사유" },
+            },
+            required: ["reason"],
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "댓글 신고 완료" }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: "잘못된 요청" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 댓글을 찾을 수 없음" }),
+    __param(0, (0, common_1.Param)("commentId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:returntype", Promise)
+], ReportController.prototype, "reportComment", null);
+__decorate([
+    (0, common_1.Post)("novels/:novelId"),
+    (0, swagger_1.ApiOperation)({ summary: "소설 신고 생성" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: "number", description: "신고할 소설 ID" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                reason: { type: "string", description: "신고 사유" },
+            },
+            required: ["reason"],
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "소설 신고 완료" }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: "잘못된 요청" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 소설을 찾을 수 없음" }),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:returntype", Promise)
+], ReportController.prototype, "reportNovel", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(admin_guard_1.AdminGuard),
+    (0, swagger_1.ApiOperation)({ summary: "모든 신고 목록 조회 (관리자)" }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: "신고 목록 조회 성공",
+        type: [report_entity_1.Report],
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], ReportController.prototype, "findAll", null);
+], ReportController.prototype, "getAllReports", null);
 __decorate([
-    (0, common_1.Get)(":id"),
-    (0, swagger_1.ApiOperation)({
-        summary: "신고 상세 조회",
-        description: "특정 ID의 신고 상세 정보를 반환합니다.",
+    (0, common_1.Get)(":reportId"),
+    (0, swagger_1.ApiOperation)({ summary: "특정 신고 ID로 신고 상세 정보 조회" }),
+    (0, swagger_1.ApiParam)({ name: "reportId", type: "number", description: "조회할 신고 ID" }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: "신고 상세 정보 조회 성공",
+        type: report_entity_1.Report,
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: "신고 상세 반환" }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 ID의 신고가 존재하지 않음" }),
-    __param(0, (0, common_1.Param)("id")),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 신고를 찾을 수 없음" }),
+    __param(0, (0, common_1.Param)("reportId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
-], ReportController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({
-        summary: "신고 생성",
-        description: "신고 정보를 생성합니다.",
-    }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: "신고 생성 완료" }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [report_entity_1.Report]),
-    __metadata("design:returntype", Promise)
-], ReportController.prototype, "create", null);
-__decorate([
-    (0, common_1.Delete)(":id"),
-    (0, swagger_1.ApiOperation)({
-        summary: "신고 삭제",
-        description: "특정 ID의 신고를 삭제합니다.",
-    }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: "신고 삭제 완료" }),
-    __param(0, (0, common_1.Param)("id")),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], ReportController.prototype, "remove", null);
+], ReportController.prototype, "getReportById", null);
 exports.ReportController = ReportController = __decorate([
     (0, swagger_1.ApiTags)("Reports"),
     (0, common_1.Controller)("reports"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [report_service_1.ReportService])
 ], ReportController);
 //# sourceMappingURL=report.controller.js.map

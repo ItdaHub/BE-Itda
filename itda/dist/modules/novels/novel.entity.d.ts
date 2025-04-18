@@ -31,6 +31,7 @@ export declare class Novel {
     type: NovelType;
     created_at: Date;
     genre: Genre;
+    isPublished: boolean;
     participants: Participant[];
     chapters: Chapter[];
     aiGeneratedImages: AIGeneratedImage[];

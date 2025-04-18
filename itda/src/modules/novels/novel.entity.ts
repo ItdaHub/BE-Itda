@@ -79,6 +79,9 @@ export class Novel {
   })
   genre: Genre;
 
+  @Column({ default: false })
+  isPublished: boolean;
+
   @OneToMany(() => Participant, (participant) => participant.novel)
   participants: Participant[];
 

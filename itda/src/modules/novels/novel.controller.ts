@@ -35,6 +35,12 @@ export class NovelController {
     return this.novelService.getAllNovels();
   }
 
+  @Get("/published")
+  @ApiOperation({ summary: "출품된 소설 목록 가져오기" })
+  async getPublishedNovels(): Promise<Novel[]> {
+    return this.novelService.getPublishedNovels();
+  }
+
   @Get("/filter")
   @ApiOperation({ summary: "소설 필터링 조회" })
   async getFilteredNovels(

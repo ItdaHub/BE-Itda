@@ -1,56 +1,130 @@
-import { Controller, Get, Post, Body, Param, Delete } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  BadRequestException,
+  Req,
+  UseGuards,
+  ParseIntPipe,
+  Get, // ✅ Get 데코레이터 import 확인
+} from "@nestjs/common";
 import { ReportService } from "./report.service";
-import { Report } from "./report.entity";
-import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { Report, TargetType } from "./report.entity";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+  ApiBearerAuth,
+} from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/jwtauth.guard";
+import { AdminGuard } from "../auth/admin.guard";
 
-// 🚨 신고(Report) 관련 API 컨트롤러
 @ApiTags("Reports")
 @Controller("reports")
+@UseGuards(JwtAuthGuard) // 기본적으로 JWT 인증 적용
+@ApiBearerAuth()
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
-  // ✅ 모든 신고 목록 조회
-  @Get()
-  @ApiOperation({
-    summary: "신고 목록 조회",
-    description: "등록된 모든 신고를 조회합니다.",
+  // ✅ 댓글 신고 생성
+  @Post("comments/:commentId")
+  @ApiOperation({ summary: "댓글 신고 생성" })
+  @ApiParam({
+    name: "commentId",
+    type: "number",
+    description: "신고할 댓글 ID",
   })
-  @ApiResponse({ status: 200, description: "신고 목록 반환" })
-  async findAll(): Promise<Report[]> {
-    return this.reportService.findAll();
-  }
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        reason: { type: "string", description: "신고 사유" },
+      },
+      required: ["reason"],
+    },
+  })
+  @ApiResponse({ status: 201, description: "댓글 신고 완료" })
+  @ApiResponse({ status: 400, description: "잘못된 요청" })
+  @ApiResponse({ status: 404, description: "해당 댓글을 찾을 수 없음" })
+  async reportComment(
+    @Param("commentId", ParseIntPipe) commentId: number,
+    @Body() reportData: { reason: string },
+    @Req() req: any // 요청 객체에서 사용자 정보 추출
+  ): Promise<Report> {
+    if (!reportData.reason) {
+      throw new BadRequestException("신고 사유를 입력해주세요.");
+    }
 
-  // ✅ 특정 신고 조회
-  @Get(":id")
-  @ApiOperation({
-    summary: "신고 상세 조회",
-    description: "특정 ID의 신고 상세 정보를 반환합니다.",
-  })
-  @ApiResponse({ status: 200, description: "신고 상세 반환" })
-  @ApiResponse({ status: 404, description: "해당 ID의 신고가 존재하지 않음" })
-  async findOne(@Param("id") id: number): Promise<Report> {
-    return this.reportService.findOne(id);
-  }
-
-  // ✅ 신고 생성
-  @Post()
-  @ApiOperation({
-    summary: "신고 생성",
-    description: "신고 정보를 생성합니다.",
-  })
-  @ApiResponse({ status: 201, description: "신고 생성 완료" })
-  async create(@Body() report: Report): Promise<Report> {
+    const report = new Report();
+    report.reporter = req.user; // 현재 로그인한 사용자 ID 설정
+    report.target_type = TargetType.COMMENT;
+    report.target_id = commentId;
+    report.reason = reportData.reason;
     return this.reportService.create(report);
   }
 
-  // ✅ 신고 삭제
-  @Delete(":id")
-  @ApiOperation({
-    summary: "신고 삭제",
-    description: "특정 ID의 신고를 삭제합니다.",
+  // ✅ 소설 신고 생성
+  @Post("novels/:novelId")
+  @ApiOperation({ summary: "소설 신고 생성" })
+  @ApiParam({ name: "novelId", type: "number", description: "신고할 소설 ID" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        reason: { type: "string", description: "신고 사유" },
+      },
+      required: ["reason"],
+    },
   })
-  @ApiResponse({ status: 200, description: "신고 삭제 완료" })
-  async remove(@Param("id") id: number): Promise<void> {
-    return this.reportService.remove(id);
+  @ApiResponse({ status: 201, description: "소설 신고 완료" })
+  @ApiResponse({ status: 400, description: "잘못된 요청" })
+  @ApiResponse({ status: 404, description: "해당 소설을 찾을 수 없음" })
+  async reportNovel(
+    @Param("novelId", ParseIntPipe) novelId: number,
+    @Body() reportData: { reason: string },
+    @Req() req: any // 요청 객체에서 사용자 정보 추출
+  ): Promise<Report> {
+    if (!reportData.reason) {
+      throw new BadRequestException("신고 사유를 입력해주세요.");
+    }
+
+    const report = new Report();
+    report.reporter = req.user; // 현재 로그인한 사용자 ID 설정
+    report.target_type = TargetType.CHAPTER; // 소설 신고의 target_type을 CHAPTER로 가정
+    report.target_id = novelId;
+    report.reason = reportData.reason;
+    return this.reportService.create(report);
+  }
+
+  // ✅ 모든 신고 목록 조회 (관리자 권한 필요)
+  @Get()
+  @UseGuards(AdminGuard) // ✅ 관리자 권한 가드 적용 (AdminGuard가 구현되어 있어야 함)
+  @ApiOperation({ summary: "모든 신고 목록 조회 (관리자)" })
+  @ApiResponse({
+    status: 200,
+    description: "신고 목록 조회 성공",
+    type: [Report],
+  })
+  async getAllReports(): Promise<Report[]> {
+    return this.reportService.findAll();
+  }
+
+  // ✅ 특정 신고 ID로 신고 상세 정보 조회
+  @Get(":reportId")
+  @ApiOperation({ summary: "특정 신고 ID로 신고 상세 정보 조회" })
+  @ApiParam({ name: "reportId", type: "number", description: "조회할 신고 ID" })
+  @ApiResponse({
+    status: 200,
+    description: "신고 상세 정보 조회 성공",
+    type: Report,
+  })
+  @ApiResponse({ status: 404, description: "해당 신고를 찾을 수 없음" })
+  async getReportById(
+    @Param("reportId", ParseIntPipe) reportId: number
+  ): Promise<Report> {
+    return this.reportService.findOne(reportId);
   }
 }

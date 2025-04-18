@@ -39,6 +39,12 @@ let NovelService = class NovelService {
     async getAllNovels() {
         return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
     }
+    async getPublishedNovels() {
+        return this.novelRepo.find({
+            where: { isPublished: true },
+            relations: ["genre", "creator", "chapters"],
+        });
+    }
     async getNovelById(id) {
         const novel = await this.novelRepo.findOne({
             where: { id },
@@ -313,6 +319,33 @@ let NovelService = class NovelService {
         novel.status = novel_entity_2.NovelStatus.SUBMITTED;
         console.log("소설 상태를 SUBMITTED로 변경");
         return await this.novelRepo.save(novel);
+    }
+    async getCompletedNovels() {
+        const novels = await this.novelRepo.find({
+            where: { status: (0, typeorm_1.In)(["submitted", "completed"]) },
+            relations: ["creator"],
+            order: { created_at: "DESC" },
+        });
+        return novels.map((novel) => ({
+            id: novel.id,
+            title: novel.title,
+            writer: novel.creator?.name || "알 수 없음",
+            date: novel.created_at.toISOString().split("T")[0],
+            status: novel.status,
+        }));
+    }
+    async adminDeleteNovel(novelId) {
+        const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+        if (!novel)
+            throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
+        return this.novelRepo.remove(novel);
+    }
+    async adminPublishNovel(novelId) {
+        const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+        if (!novel)
+            throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
+        novel.isPublished = true;
+        return this.novelRepo.save(novel);
     }
 };
 exports.NovelService = NovelService;

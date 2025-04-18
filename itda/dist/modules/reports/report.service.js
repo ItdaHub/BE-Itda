@@ -15,20 +15,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const typeorm_2 = require("typeorm");
 const report_entity_1 = require("./report.entity");
+const typeorm_2 = require("typeorm");
 let ReportService = class ReportService {
     reportRepository;
     constructor(reportRepository) {
         this.reportRepository = reportRepository;
     }
     async findAll() {
-        return this.reportRepository.find();
+        return this.reportRepository.find({ relations: ["reporter"] });
     }
     async findOne(id) {
-        const report = await this.reportRepository.findOne({ where: { id } });
+        const report = await this.reportRepository.findOne({
+            where: { id },
+            relations: ["reporter"],
+        });
         if (!report) {
-            throw new common_1.NotFoundException(`Report with id ${id} not found`);
+            throw new common_1.NotFoundException(`Report with ID ${id} not found`);
         }
         return report;
     }
@@ -36,10 +39,11 @@ let ReportService = class ReportService {
         return this.reportRepository.save(report);
     }
     async remove(id) {
-        const result = await this.reportRepository.delete(id);
-        if (result.affected === 0) {
-            throw new common_1.NotFoundException(`Report with id ${id} not found`);
+        const report = await this.reportRepository.findOne({ where: { id } });
+        if (!report) {
+            throw new common_1.NotFoundException(`Report with ID ${id} not found`);
         }
+        await this.reportRepository.remove(report);
     }
 };
 exports.ReportService = ReportService;
