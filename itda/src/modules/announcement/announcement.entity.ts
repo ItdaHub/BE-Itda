@@ -22,6 +22,9 @@ export class Announcement {
   @ManyToOne(() => User, (user) => user.id)
   admin: User;
 
+  @Column({ type: "enum", enum: ["urgent", "normal"], default: "normal" })
+  priority: "urgent" | "normal";
+
   @CreateDateColumn()
   start_date: Date;
 

@@ -25,7 +25,7 @@ import { AIGeneratedImage } from "./modules/novels/ai_image.entity";
 import { Payment } from "./modules/payments/payment.entity";
 import { Point } from "./modules/points/point.entity";
 import { AdminNotification } from "./modules/notifications/admin_notification.entity";
-import { Announcement } from "./modules/notifications/announcement.entity";
+import { Announcement } from "./modules/announcement/announcement.entity";
 import { AiModule } from "./modules/ai/ai.module";
 import { GenreModule } from "./modules/genre/genre.module";
 import { ChapterModule } from "./modules/chapter/chapter.module";
@@ -39,6 +39,7 @@ import * as handlebars from "handlebars";
 import * as fs from "fs";
 import { join } from "path";
 import { AdminModule } from "./modules/admin/admin.modules";
+import { AnnouncementModule } from "./modules/announcement/announcement.module";
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { AdminModule } from "./modules/admin/admin.modules";
     WritersModule,
     PointModule,
     AdminModule,
+    AnnouncementModule,
     MailerModule.forRoot({
       transport: {
         host: "smtp.gmail.com",

@@ -34,7 +34,7 @@ const ai_image_entity_1 = require("./modules/novels/ai_image.entity");
 const payment_entity_1 = require("./modules/payments/payment.entity");
 const point_entity_1 = require("./modules/points/point.entity");
 const admin_notification_entity_1 = require("./modules/notifications/admin_notification.entity");
-const announcement_entity_1 = require("./modules/notifications/announcement.entity");
+const announcement_entity_1 = require("./modules/announcement/announcement.entity");
 const ai_module_1 = require("./modules/ai/ai.module");
 const genre_module_1 = require("./modules/genre/genre.module");
 const chapter_module_1 = require("./modules/chapter/chapter.module");
@@ -48,6 +48,7 @@ const handlebars = require("handlebars");
 const fs = require("fs");
 const path_1 = require("path");
 const admin_modules_1 = require("./modules/admin/admin.modules");
+const announcement_module_1 = require("./modules/announcement/announcement.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -101,6 +102,7 @@ exports.AppModule = AppModule = __decorate([
             writers_module_1.WritersModule,
             point_module_1.PointModule,
             admin_modules_1.AdminModule,
+            announcement_module_1.AnnouncementModule,
             mailer_1.MailerModule.forRoot({
                 transport: {
                     host: "smtp.gmail.com",
