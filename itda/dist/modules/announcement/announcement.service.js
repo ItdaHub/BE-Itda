@@ -22,11 +22,12 @@ let AnnouncementService = class AnnouncementService {
     constructor(announcementRepo) {
         this.announcementRepo = announcementRepo;
     }
-    async createAnnouncement(title, content, admin) {
+    async createAnnouncement(title, content, admin, priority = "normal") {
         const newAnnouncement = this.announcementRepo.create({
             title,
             content,
             admin,
+            priority,
         });
         return await this.announcementRepo.save(newAnnouncement);
     }
@@ -38,15 +39,22 @@ let AnnouncementService = class AnnouncementService {
         return { message: "삭제되었습니다." };
     }
     async getAllAnnouncements() {
-        return this.announcementRepo.find({ relations: ["admin"] });
+        const announcements = await this.announcementRepo.find({
+            relations: ["admin"],
+        });
+        console.log("📜 모든 공지사항 조회 결과:", announcements);
+        return announcements;
     }
-    async updateAnnouncement(id, title, content) {
+    async updateAnnouncement(id, title, content, priority = "normal") {
         const announcement = await this.announcementRepo.findOneBy({ id });
         if (!announcement) {
             throw new common_1.NotFoundException(`Announcement with ID "${id}" not found`);
         }
         announcement.title = title;
         announcement.content = content;
+        if (priority) {
+            announcement.priority = priority;
+        }
         return this.announcementRepo.save(announcement);
     }
     async getAnnouncementById(id) {

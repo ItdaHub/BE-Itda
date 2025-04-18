@@ -22,9 +22,15 @@ export class AnnouncementController {
   @UseGuards(JwtAuthGuard)
   @Post("register")
   async createAnnouncement(@Req() req: Request, @Body() body: any) {
-    const { title, content } = body;
+    console.log("📢 컨트롤러 register body:", body); // 전체 body 로깅
+    const { title, content, priority } = body;
     const admin = req.user as User;
-    return this.announcementService.createAnnouncement(title, content, admin);
+    return this.announcementService.createAnnouncement(
+      title,
+      content,
+      admin,
+      priority
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -49,13 +55,15 @@ export class AnnouncementController {
   @Put(":id")
   async updateAnnouncement(
     @Param("id") id: string,
-    @Body() body: { title: string; content: string }
+    @Body()
+    body: { title: string; content: string; priority?: "urgent" | "normal" }
   ) {
-    const { title, content } = body;
+    const { title, content, priority } = body;
     return this.announcementService.updateAnnouncement(
       Number(id),
       title,
-      content
+      content,
+      priority
     );
   }
 }

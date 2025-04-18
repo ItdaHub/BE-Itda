@@ -11,11 +11,17 @@ export class AnnouncementService {
     private readonly announcementRepo: Repository<Announcement>
   ) {}
 
-  async createAnnouncement(title: string, content: string, admin: User) {
+  async createAnnouncement(
+    title: string,
+    content: string,
+    admin: User,
+    priority: "urgent" | "normal" = "normal"
+  ) {
     const newAnnouncement = this.announcementRepo.create({
       title,
       content,
       admin,
+      priority,
     });
     return await this.announcementRepo.save(newAnnouncement);
   }
@@ -28,16 +34,28 @@ export class AnnouncementService {
   }
 
   async getAllAnnouncements(): Promise<Announcement[]> {
-    return this.announcementRepo.find({ relations: ["admin"] }); // 작성자 정보 함께 로드
+    const announcements = await this.announcementRepo.find({
+      relations: ["admin"],
+    });
+    console.log("📜 모든 공지사항 조회 결과:", announcements);
+    return announcements;
   }
 
-  async updateAnnouncement(id: number, title: string, content: string) {
+  async updateAnnouncement(
+    id: number,
+    title: string,
+    content: string,
+    priority: "urgent" | "normal" = "normal"
+  ) {
     const announcement = await this.announcementRepo.findOneBy({ id });
     if (!announcement) {
       throw new NotFoundException(`Announcement with ID "${id}" not found`);
     }
     announcement.title = title;
     announcement.content = content;
+    if (priority) {
+      announcement.priority = priority;
+    }
     return this.announcementRepo.save(announcement);
   }
 

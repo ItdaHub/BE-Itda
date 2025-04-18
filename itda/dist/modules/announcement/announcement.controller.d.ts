@@ -13,5 +13,6 @@ export declare class AnnouncementController {
     updateAnnouncement(id: string, body: {
         title: string;
         content: string;
+        priority?: "urgent" | "normal";
     }): Promise<Announcement>;
 }

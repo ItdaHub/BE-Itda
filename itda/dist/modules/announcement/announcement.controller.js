@@ -22,9 +22,10 @@ let AnnouncementController = class AnnouncementController {
         this.announcementService = announcementService;
     }
     async createAnnouncement(req, body) {
-        const { title, content } = body;
+        console.log("📢 컨트롤러 register body:", body);
+        const { title, content, priority } = body;
         const admin = req.user;
-        return this.announcementService.createAnnouncement(title, content, admin);
+        return this.announcementService.createAnnouncement(title, content, admin, priority);
     }
     async deleteAnnouncement(id) {
         return this.announcementService.deleteAnnouncement(Number(id));
@@ -37,8 +38,8 @@ let AnnouncementController = class AnnouncementController {
         return this.announcementService.getAnnouncementById(Number(id));
     }
     async updateAnnouncement(id, body) {
-        const { title, content } = body;
-        return this.announcementService.updateAnnouncement(Number(id), title, content);
+        const { title, content, priority } = body;
+        return this.announcementService.updateAnnouncement(Number(id), title, content, priority);
     }
 };
 exports.AnnouncementController = AnnouncementController;
