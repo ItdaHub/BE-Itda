@@ -6,6 +6,7 @@ export declare class NovelController {
     private readonly novelService;
     constructor(novelService: NovelService);
     getAllNovels(): Promise<Novel[]>;
+    getPublishedNovels(): Promise<Novel[]>;
     getFilteredNovels(type?: "new" | "relay", genre?: string, age?: number, req?: any): Promise<any[]>;
     searchNovelsByTitle(query: string): Promise<Novel[]>;
     getRanking(age?: string): Promise<Novel[]>;

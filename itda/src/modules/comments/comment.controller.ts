@@ -37,7 +37,11 @@ export class CommentsController {
   @ApiBody({ type: CreateCommentDto })
   async create(@Body() createCommentDto: CreateCommentDto) {
     // 논리적으로 novelId 또는 chapterId가 없는 경우를 처리
-    if (!createCommentDto.novelId && !createCommentDto.chapterId) {
+    if (
+      !createCommentDto.parentId &&
+      !createCommentDto.novelId &&
+      !createCommentDto.chapterId
+    ) {
       throw new Error("소설 ID 또는 챕터 ID는 하나는 필요합니다.");
     }
 

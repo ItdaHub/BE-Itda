@@ -26,7 +26,9 @@ let CommentsController = class CommentsController {
         this.commentsService = commentsService;
     }
     async create(createCommentDto) {
-        if (!createCommentDto.novelId && !createCommentDto.chapterId) {
+        if (!createCommentDto.parentId &&
+            !createCommentDto.novelId &&
+            !createCommentDto.chapterId) {
             throw new Error("소설 ID 또는 챕터 ID는 하나는 필요합니다.");
         }
         return this.commentsService.createComment(createCommentDto);

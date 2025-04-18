@@ -15,7 +15,6 @@ const user_entity_1 = require("../users/user.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
 var TargetType;
 (function (TargetType) {
-    TargetType["USER"] = "user";
     TargetType["CHAPTER"] = "chapter";
     TargetType["COMMENT"] = "comment";
 })(TargetType || (exports.TargetType = TargetType = {}));

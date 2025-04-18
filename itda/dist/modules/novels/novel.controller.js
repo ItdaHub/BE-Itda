@@ -28,6 +28,9 @@ let NovelController = class NovelController {
     async getAllNovels() {
         return this.novelService.getAllNovels();
     }
+    async getPublishedNovels() {
+        return this.novelService.getPublishedNovels();
+    }
     async getFilteredNovels(type, genre, age, req) {
         return this.novelService.getFilteredNovels(type, genre, age);
     }
@@ -85,6 +88,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "getAllNovels", null);
+__decorate([
+    (0, common_1.Get)("/published"),
+    (0, swagger_1.ApiOperation)({ summary: "출품된 소설 목록 가져오기" }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], NovelController.prototype, "getPublishedNovels", null);
 __decorate([
     (0, common_1.Get)("/filter"),
     (0, swagger_1.ApiOperation)({ summary: "소설 필터링 조회" }),

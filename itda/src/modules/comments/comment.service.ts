@@ -37,7 +37,7 @@ export class CommentsService {
   }) {
     const user = await this.userRepo.findOneByOrFail({ id: userId });
 
-    if (!novelId && !chapterId) {
+    if (!parentId && !novelId && !chapterId) {
       throw new Error("소설 ID 또는 챕터 ID는 필수입니다.");
     }
 

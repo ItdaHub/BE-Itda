@@ -1,7 +1,6 @@
 import { User } from "../users/user.entity";
 import { Notification } from "../notifications/notification.entity";
 export declare enum TargetType {
-    USER = "user",
     CHAPTER = "chapter",
     COMMENT = "comment"
 }
