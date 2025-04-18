@@ -47,6 +47,11 @@ let UserController = class UserController {
         await this.userService.update(userId, { nickname });
         return { message: "닉네임이 성공적으로 변경되었습니다.", nickname };
     }
+    async updatePhone(req, phone) {
+        const userId = req.user.id;
+        await this.userService.update(userId, { phone });
+        return { message: "전화번호가 성공적으로 변경되었습니다.", phone };
+    }
     async uploadProfileImage(req, file) {
         const userId = req.user.id;
         if (!file) {
@@ -127,6 +132,19 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateNickname", null);
+__decorate([
+    (0, common_1.Put)("me/phone"),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: "내 전화번호 변경" }),
+    (0, swagger_1.ApiBody)({
+        schema: { type: "object", properties: { phone: { type: "string" } } },
+    }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)("phone")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updatePhone", null);
 __decorate([
     (0, common_1.Put)("me/profile-image"),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

@@ -14,6 +14,10 @@ export declare class UserController {
         message: string;
         nickname: string;
     }>;
+    updatePhone(req: any, phone: string): Promise<{
+        message: string;
+        phone: string;
+    }>;
     uploadProfileImage(req: any, file: Express.Multer.File): Promise<{
         message: string;
         filename?: undefined;

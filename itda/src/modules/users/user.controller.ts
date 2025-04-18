@@ -84,6 +84,19 @@ export class UserController {
     return { message: "닉네임이 성공적으로 변경되었습니다.", nickname };
   }
 
+  // ✅ 전화번호 변경
+  @Put("me/phone")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "내 전화번호 변경" })
+  @ApiBody({
+    schema: { type: "object", properties: { phone: { type: "string" } } },
+  })
+  async updatePhone(@Request() req, @Body("phone") phone: string) {
+    const userId = req.user.id;
+    await this.userService.update(userId, { phone });
+    return { message: "전화번호가 성공적으로 변경되었습니다.", phone };
+  }
+
   // ✅ 프로필 이미지 업로드 및 업데이트
   @Put("me/profile-image")
   @HttpCode(HttpStatus.OK)

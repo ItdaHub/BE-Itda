@@ -43,7 +43,7 @@ export class UserService {
 
   // 유저 업데이트
   async update(id: number, user: Partial<User>): Promise<User> {
-    const { password, nickname, phone, profile_img } = user; // 필요한 필드만 추출
+    const { password, nickname, phone, profile_img } = user;
 
     const updateData: Partial<User> = {};
     if (password) updateData.password = password;
