@@ -79,6 +79,9 @@ let NovelController = class NovelController {
         const userId = req.user?.id ?? null;
         return this.novelService.getNovelDetail(id, userId);
     }
+    async submitNovel(id) {
+        return this.novelService.submitNovelForCompletion(id);
+    }
 };
 exports.NovelController = NovelController;
 __decorate([
@@ -188,6 +191,17 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "getNovelDetail", null);
+__decorate([
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)(":id/submit"),
+    (0, swagger_1.ApiOperation)({ summary: "소설 출품 요청" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiParam)({ name: "id", description: "소설 ID" }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], NovelController.prototype, "submitNovel", null);
 exports.NovelController = NovelController = __decorate([
     (0, swagger_1.ApiTags)("Novel (소설)"),
     (0, common_1.Controller)("novels"),

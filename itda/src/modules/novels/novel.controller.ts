@@ -8,6 +8,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Query,
+  Patch,
   BadRequestException,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
@@ -141,5 +142,14 @@ export class NovelController {
   async getNovelDetail(@Param("id", ParseIntPipe) id: number, @Req() req) {
     const userId = req.user?.id ?? null;
     return this.novelService.getNovelDetail(id, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(":id/submit")
+  @ApiOperation({ summary: "소설 출품 요청" })
+  @ApiBearerAuth()
+  @ApiParam({ name: "id", description: "소설 ID" })
+  async submitNovel(@Param("id", ParseIntPipe) id: number) {
+    return this.novelService.submitNovelForCompletion(id);
   }
 }

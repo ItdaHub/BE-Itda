@@ -34,7 +34,7 @@ export class AdminController {
   @Get("complete")
   @ApiOperation({ summary: "출품 대기 중이거나 출품된 소설 목록" })
   async getCompletedNovels() {
-    return this.novelService.getCompletedNovels(); // 해당 메서드를 NovelService에 구현
+    return this.novelService.getCompletedNovels();
   }
 
   @Delete("delete/:novelId")

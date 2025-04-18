@@ -134,23 +134,28 @@ let NovelService = class NovelService {
         const newParticipantCount = await this.participantRepo.count({
             where: { novel: { id: novelId } },
         });
-        if (newParticipantCount >= novel.max_participants) {
-            console.log("참여자 수가 max_participants와 같거나 큽니다.", {
-                newParticipantCount,
-                maxParticipants: novel.max_participants,
-            });
-            console.log(`상태 변경 전 소설 상태: ${novel.status}`);
-            novel.status = novel_entity_2.NovelStatus.COMPLETED;
-            console.log("소설 상태를 completed로 변경:", novel.status);
-            await this.novelRepo.save(novel);
-            console.log("상태 변경이 완료되었습니다.");
-        }
+        await this.checkAndUpdateNovelStatus(novelId);
         return {
             chapter: savedChapter,
             peopleNum: novel.max_participants,
             currentPeople: newParticipantCount,
             status: novel.status,
         };
+    }
+    async checkAndUpdateNovelStatus(novelId) {
+        const novel = await this.novelRepo.findOne({
+            where: { id: novelId },
+            relations: ["chapters"],
+        });
+        if (!novel) {
+            throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
+        }
+        const chapterCount = novel.chapters.length;
+        if (chapterCount >= novel.max_participants &&
+            novel.status !== novel_entity_2.NovelStatus.COMPLETED) {
+            novel.status = novel_entity_2.NovelStatus.COMPLETED;
+            await this.novelRepo.save(novel);
+        }
     }
     async getChapters(novelId) {
         const chapters = await this.chapterRepo.find({

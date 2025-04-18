@@ -106,7 +106,6 @@ export class ChapterService {
     user: any,
     chapterNumber?: number
   ): Promise<Chapter> {
-    // novelId로 소설 조회
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
       relations: ["chapters"],
@@ -116,12 +115,10 @@ export class ChapterService {
       throw new NotFoundException(`Novel with ID ${novelId} not found`);
     }
 
-    // user 객체의 id 확인
     if (!user || !user.id) {
       throw new Error("유저 정보가 잘못되었습니다.");
     }
 
-    // 이미 이어쓴 기록이 있는지 확인
     const alreadyWrote = await this.chapterRepository.findOne({
       where: {
         novel: { id: novelId },
@@ -136,10 +133,8 @@ export class ChapterService {
     let newChapterNumber: number;
 
     if (chapterNumber) {
-      // 이어쓰기인 경우: 전달받은 chapterNumber를 사용
       newChapterNumber = chapterNumber;
     } else {
-      // 새로 쓰는 경우: 현재 소설의 챕터 수 + 1로 설정
       const chapterCount = await this.chapterRepository.count({
         where: { novel: { id: novelId } },
       });
@@ -149,7 +144,6 @@ export class ChapterService {
 
     console.log(`새로운 챕터 번호: ${newChapterNumber}`);
 
-    // 새 챕터 객체 생성
     const newChapter = this.chapterRepository.create({
       content,
       chapter_number: newChapterNumber,
@@ -157,22 +151,9 @@ export class ChapterService {
       author: user,
     });
 
-    // 챕터 저장
     await this.chapterRepository.save(newChapter);
 
-    // ✅ 소설 완료 여부 체크 및 상태 변경
-    const totalChapters = await this.chapterRepository.count({
-      where: { novel: { id: novelId } },
-    });
-
-    if (
-      totalChapters === novel.max_participants &&
-      novel.status !== NovelStatus.COMPLETED
-    ) {
-      novel.status = NovelStatus.COMPLETED;
-      await this.novelRepository.save(novel);
-      console.log(`소설 ID ${novel.id} 상태를 COMPLETED로 변경`);
-    }
+    // ✅ 상태 변경 로직 제거됨!
 
     return newChapter;
   }

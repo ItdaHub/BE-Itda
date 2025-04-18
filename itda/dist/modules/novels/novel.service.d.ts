@@ -22,6 +22,7 @@ export declare class NovelService {
     getNovelById(id: number): Promise<any>;
     create(dto: CreateNovelInput): Promise<Novel>;
     addChapter(novelId: number, dto: AddChapterDto): Promise<any>;
+    checkAndUpdateNovelStatus(novelId: number): Promise<void>;
     getChapters(novelId: number): Promise<any[]>;
     getParticipants(novelId: number): Promise<Participant[]>;
     getFilteredNovels(type?: string, genre?: string | number, age?: number): Promise<{

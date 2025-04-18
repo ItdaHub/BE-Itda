@@ -16,4 +16,5 @@ export declare class NovelController {
     addChapter(novelId: string, dto: AddChapterDto, req: any): Promise<any>;
     getParticipants(novelId: string): Promise<import("./participant.entity").Participant[]>;
     getNovelDetail(id: number, req: any): Promise<any>;
+    submitNovel(id: number): Promise<Novel>;
 }
