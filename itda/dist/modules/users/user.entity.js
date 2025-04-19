@@ -36,8 +36,7 @@ var UserType;
 var UserStatus;
 (function (UserStatus) {
     UserStatus["ACTIVE"] = "active";
-    UserStatus["BANNED"] = "banned";
-    UserStatus["DELETED"] = "deleted";
+    UserStatus["STOP"] = "stop";
 })(UserStatus || (exports.UserStatus = UserStatus = {}));
 var AgeGroup;
 (function (AgeGroup) {

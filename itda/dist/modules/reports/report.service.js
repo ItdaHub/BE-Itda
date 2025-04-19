@@ -96,25 +96,55 @@ let ReportService = class ReportService {
         }
         return null;
     }
+    async findReportedUserByComment(commentId) {
+        const comment = await this.commentRepository.findOne({
+            where: { id: commentId },
+            relations: ["user"],
+        });
+        return comment?.user ?? null;
+    }
     async handleReport(reportId) {
+        console.log(`신고 ID: ${reportId} 처리 시작`);
         const report = await this.findOne(reportId);
-        if (!report)
-            throw new common_1.NotFoundException("해당 신고가 존재하지 않습니다.");
+        if (!report) {
+            console.log(`신고 ID: ${reportId} 찾을 수 없음`);
+            return false;
+        }
+        console.log(`신고 데이터: ${JSON.stringify(report)}`);
+        if (!report.reported_user_id) {
+            const reportedUser = await this.findReportedUserByComment(report.target_id);
+            if (reportedUser) {
+                report.reported_user_id = reportedUser.id;
+            }
+            else {
+                console.log("신고 대상 유저를 찾을 수 없음");
+                return false;
+            }
+        }
         const reportedUser = await this.findReportedUser(report);
-        if (!reportedUser)
-            throw new common_1.NotFoundException("신고 대상 유저를 찾을 수 없습니다.");
+        if (!reportedUser) {
+            console.log(`신고 대상 유저를 찾을 수 없음: ${JSON.stringify(report)}`);
+            return false;
+        }
+        console.log(`신고 대상 유저: ${JSON.stringify(reportedUser)}`);
         reportedUser.report_count += 1;
-        let message = "⚠️ 신고가 접수되었습니다. 주의해 주세요!";
+        console.log(`신고 횟수 증가 후: ${reportedUser.report_count}`);
         if (reportedUser.report_count >= 2) {
-            reportedUser.status = user_entity_1.UserStatus.BANNED;
-            message = "🚨 신고가 누적되어 계정이 정지되었습니다!";
+            reportedUser.status = user_entity_1.UserStatus.STOP;
+            console.log(`유저 상태 변경: BANNED`);
         }
         await this.userService.save(reportedUser);
+        console.log(`유저 정보 저장 완료: ${JSON.stringify(reportedUser)}`);
+        const message = reportedUser.status === user_entity_1.UserStatus.STOP
+            ? "🚨 신고가 누적되어 계정이 정지되었습니다!"
+            : "⚠️ 신고가 접수되었습니다. 주의해 주세요!";
+        console.log(`알림 내용: ${message}`);
         await this.notificationService.sendNotification({
             user: reportedUser,
             content: message,
         });
-        return "신고 처리 완료";
+        console.log(`알림 전송 완료`);
+        return true;
     }
 };
 exports.ReportService = ReportService;

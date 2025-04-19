@@ -90,32 +90,75 @@ export class ReportService {
     return null;
   }
 
-  async handleReport(reportId: number): Promise<string> {
+  // 댓글 신고 시, 신고한 댓글 작성자 찾기
+  async findReportedUserByComment(commentId: number): Promise<User | null> {
+    const comment = await this.commentRepository.findOne({
+      where: { id: commentId },
+      relations: ["user"],
+    });
+
+    return comment?.user ?? null; // 댓글을 작성한 유저 반환
+  }
+
+  async handleReport(reportId: number): Promise<boolean> {
+    console.log(`신고 ID: ${reportId} 처리 시작`);
+
     const report = await this.findOne(reportId);
-    if (!report) throw new NotFoundException("해당 신고가 존재하지 않습니다.");
+    if (!report) {
+      console.log(`신고 ID: ${reportId} 찾을 수 없음`);
+      return false;
+    }
+    console.log(`신고 데이터: ${JSON.stringify(report)}`);
 
-    const reportedUser = await this.findReportedUser(report);
-    if (!reportedUser)
-      throw new NotFoundException("신고 대상 유저를 찾을 수 없습니다.");
-
-    // 신고 횟수 +1
-    reportedUser.report_count += 1;
-
-    // 신고 횟수가 2회 이상이면 정지 처리
-    let message = "⚠️ 신고가 접수되었습니다. 주의해 주세요!";
-    if (reportedUser.report_count >= 2) {
-      reportedUser.status = UserStatus.BANNED;
-      message = "🚨 신고가 누적되어 계정이 정지되었습니다!";
+    // reported_user_id가 null일 경우, 신고 대상 유저 찾기
+    if (!report.reported_user_id) {
+      // 예시로 댓글 신고라면, 댓글을 통해 신고한 유저를 찾을 수 있습니다.
+      const reportedUser = await this.findReportedUserByComment(
+        report.target_id
+      ); // 예시로 댓글 ID로 유저를 찾는 함수 사용
+      if (reportedUser) {
+        report.reported_user_id = reportedUser.id; // 신고 대상 유저 ID 설정
+      } else {
+        console.log("신고 대상 유저를 찾을 수 없음");
+        return false;
+      }
     }
 
+    // 신고 대상 유저 찾기
+    const reportedUser = await this.findReportedUser(report);
+    if (!reportedUser) {
+      console.log(`신고 대상 유저를 찾을 수 없음: ${JSON.stringify(report)}`);
+      return false;
+    }
+    console.log(`신고 대상 유저: ${JSON.stringify(reportedUser)}`);
+
+    // 신고 횟수 증가 및 계정 정지 처리
+    reportedUser.report_count += 1;
+    console.log(`신고 횟수 증가 후: ${reportedUser.report_count}`);
+    if (reportedUser.report_count >= 2) {
+      reportedUser.status = UserStatus.STOP;
+      console.log(`유저 상태 변경: BANNED`);
+    }
+
+    // 유저 정보 저장
     await this.userService.save(reportedUser);
+    console.log(`유저 정보 저장 완료: ${JSON.stringify(reportedUser)}`);
+
+    // 알림 메시지 준비 및 전송
+    const message =
+      reportedUser.status === UserStatus.STOP
+        ? "🚨 신고가 누적되어 계정이 정지되었습니다!"
+        : "⚠️ 신고가 접수되었습니다. 주의해 주세요!";
+
+    console.log(`알림 내용: ${message}`);
 
     // 알림 전송
     await this.notificationService.sendNotification({
       user: reportedUser,
       content: message,
     });
+    console.log(`알림 전송 완료`);
 
-    return "신고 처리 완료";
+    return true;
   }
 }

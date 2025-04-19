@@ -19,8 +19,7 @@ export declare enum UserType {
 }
 export declare enum UserStatus {
     ACTIVE = "active",
-    BANNED = "banned",
-    DELETED = "deleted"
+    STOP = "stop"
 }
 export declare enum AgeGroup {
     TEEN = "teen",

@@ -31,8 +31,7 @@ export enum UserType {
 
 export enum UserStatus {
   ACTIVE = "active",
-  BANNED = "banned",
-  DELETED = "deleted",
+  STOP = "stop",
 }
 
 export enum AgeGroup {

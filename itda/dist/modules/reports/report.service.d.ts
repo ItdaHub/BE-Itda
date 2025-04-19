@@ -17,5 +17,6 @@ export declare class ReportService {
     create(report: Report): Promise<Report>;
     delete(id: number): Promise<boolean>;
     findReportedUser(report: Report): Promise<User | null>;
-    handleReport(reportId: number): Promise<string>;
+    findReportedUserByComment(commentId: number): Promise<User | null>;
+    handleReport(reportId: number): Promise<boolean>;
 }

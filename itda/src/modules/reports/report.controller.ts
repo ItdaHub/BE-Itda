@@ -156,9 +156,16 @@ export class ReportController {
   @Patch(":id/handle")
   @ApiOperation({ summary: "신고 처리 (신고자에게 알림 + 신고 횟수 증가)" })
   @ApiParam({ name: "id", type: "number", description: "처리할 신고 ID" })
+  @ApiResponse({ status: 200, description: "신고 처리 성공" })
+  @ApiResponse({ status: 404, description: "해당 신고를 찾을 수 없음" })
   async handleReport(
-    @Param("id", ParseIntPipe) reportId: number
-  ): Promise<string> {
-    return this.reportService.handleReport(reportId);
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<{ message: string }> {
+    const result = await this.reportService.handleReport(id);
+    if (!result) {
+      throw new NotFoundException("해당 신고를 찾을 수 없습니다.");
+    }
+    console.log(`신고 처리 요청: ${id}`);
+    return { message: "신고가 처리되었습니다." };
   }
 }
