@@ -318,17 +318,17 @@ let NovelService = class NovelService {
             .slice(0, 10);
     }
     async submitNovelForCompletion(novelId) {
-        console.log("출품 요청된 소설 ID:", novelId);
+        console.log("소설 완료 요청 ID:", novelId);
         const novel = await this.novelRepo.findOneBy({ id: novelId });
-        console.log("조회된 소설:", novel);
         if (!novel) {
             throw new common_1.NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
         }
-        if (novel.status !== "completed") {
-            throw new common_1.BadRequestException("완료된 소설만 출품할 수 있습니다.");
+        if (novel.status === novel_entity_2.NovelStatus.COMPLETED ||
+            novel.status === novel_entity_2.NovelStatus.SUBMITTED) {
+            return novel;
         }
-        novel.status = novel_entity_2.NovelStatus.SUBMITTED;
-        console.log("소설 상태를 SUBMITTED로 변경");
+        novel.status = novel_entity_2.NovelStatus.COMPLETED;
+        console.log("소설 상태를 COMPLETED로 변경");
         return await this.novelRepo.save(novel);
     }
     async getCompletedNovels() {
