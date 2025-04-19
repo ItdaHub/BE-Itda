@@ -6,7 +6,7 @@ export declare class ReportController {
     reportComment(commentId: number, reportData: {
         reason: string;
     }, req: any): Promise<Report>;
-    reportNovel(novelId: number, reportData: {
+    reportChapter(chapterId: number, reportData: {
         reason: string;
     }, req: any): Promise<Report>;
     getAllReports(): Promise<Report[]>;

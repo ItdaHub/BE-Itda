@@ -43,7 +43,7 @@ let BannerController = class BannerController {
         console.log("본문 데이터:", body);
         const imagePath = `/uploads/banners/${file.filename}`;
         console.log("이미지 경로:", imagePath);
-        const banner = await this.bannerService.create(body.title, body.url, imagePath);
+        const banner = await this.bannerService.create(body.title, imagePath);
         return banner;
     }
     async deleteBanner(id) {

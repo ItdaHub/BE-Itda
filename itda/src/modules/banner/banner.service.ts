@@ -23,7 +23,7 @@ export class BannerService {
   }
 
   // 배너 생성
-  async create(title: string, url: string, imagePath: string): Promise<Banner> {
+  async create(title: string, imagePath: string): Promise<Banner> {
     const banner = this.bannerRepo.create({
       title,
       image_path: imagePath,

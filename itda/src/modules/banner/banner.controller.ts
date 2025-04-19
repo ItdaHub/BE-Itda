@@ -53,7 +53,7 @@ export class BannerController {
   )
   async registerBanner(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { title: string; url: string }
+    @Body() body: { title: string }
   ) {
     console.log("파일 정보:", file);
     console.log("본문 데이터:", body);
@@ -61,11 +61,7 @@ export class BannerController {
     const imagePath = `/uploads/banners/${file.filename}`;
     console.log("이미지 경로:", imagePath);
 
-    const banner = await this.bannerService.create(
-      body.title,
-      body.url,
-      imagePath
-    );
+    const banner = await this.bannerService.create(body.title, imagePath);
     return banner;
   }
 

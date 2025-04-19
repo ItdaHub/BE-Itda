@@ -68,10 +68,14 @@ export class ReportController {
     return this.reportService.create(report);
   }
 
-  // ✅ 소설 신고 생성
-  @Post("novels/:novelId")
-  @ApiOperation({ summary: "소설 신고 생성" })
-  @ApiParam({ name: "novelId", type: "number", description: "신고할 소설 ID" })
+  // ✅ 챕터 신고 생성
+  @Post("chapters/:chapterId")
+  @ApiOperation({ summary: "챕터 신고 생성" })
+  @ApiParam({
+    name: "chapterId",
+    type: "number",
+    description: "신고할 챕터 ID",
+  })
   @ApiBody({
     schema: {
       type: "object",
@@ -81,11 +85,11 @@ export class ReportController {
       required: ["reason"],
     },
   })
-  @ApiResponse({ status: 201, description: "소설 신고 완료" })
+  @ApiResponse({ status: 201, description: "챕터 신고 완료" })
   @ApiResponse({ status: 400, description: "잘못된 요청" })
-  @ApiResponse({ status: 404, description: "해당 소설을 찾을 수 없음" })
-  async reportNovel(
-    @Param("novelId", ParseIntPipe) novelId: number,
+  @ApiResponse({ status: 404, description: "해당 챕터를 찾을 수 없음" })
+  async reportChapter(
+    @Param("chapterId", ParseIntPipe) chapterId: number,
     @Body() reportData: { reason: string },
     @Req() req: any
   ): Promise<Report> {
@@ -96,11 +100,10 @@ export class ReportController {
     const report = new Report();
     report.reporter = req.user;
     report.target_type = TargetType.CHAPTER;
-    report.target_id = novelId;
+    report.target_id = chapterId;
     report.reason = reportData.reason;
     return this.reportService.create(report);
   }
-
   // ✅ 모든 신고 목록 조회 (관리자 권한 필요)
   @Get()
   @ApiOperation({ summary: "모든 신고 목록 조회 (관리자)" })

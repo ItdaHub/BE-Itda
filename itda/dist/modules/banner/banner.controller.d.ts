@@ -12,7 +12,6 @@ export declare class BannerController {
     }>;
     registerBanner(file: Express.Multer.File, body: {
         title: string;
-        url: string;
     }): Promise<import("./banner.entity").Banner>;
     deleteBanner(id: number): Promise<{
         message: string;

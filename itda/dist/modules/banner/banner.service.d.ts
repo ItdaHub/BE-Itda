@@ -5,6 +5,6 @@ export declare class BannerService {
     constructor(bannerRepo: Repository<Banner>);
     findAll(): Promise<Banner[]>;
     findById(id: number): Promise<Banner | null>;
-    create(title: string, url: string, imagePath: string): Promise<Banner>;
+    create(title: string, imagePath: string): Promise<Banner>;
     remove(id: number): Promise<void>;
 }

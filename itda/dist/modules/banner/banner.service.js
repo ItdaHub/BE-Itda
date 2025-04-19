@@ -30,7 +30,7 @@ let BannerService = class BannerService {
             where: { id },
         });
     }
-    async create(title, url, imagePath) {
+    async create(title, imagePath) {
         const banner = this.bannerRepo.create({
             title,
             image_path: imagePath,

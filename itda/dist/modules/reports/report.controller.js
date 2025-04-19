@@ -34,14 +34,14 @@ let ReportController = class ReportController {
         report.reason = reportData.reason;
         return this.reportService.create(report);
     }
-    async reportNovel(novelId, reportData, req) {
+    async reportChapter(chapterId, reportData, req) {
         if (!reportData.reason) {
             throw new common_1.BadRequestException("신고 사유를 입력해주세요.");
         }
         const report = new report_entity_1.Report();
         report.reporter = req.user;
         report.target_type = report_entity_1.TargetType.CHAPTER;
-        report.target_id = novelId;
+        report.target_id = chapterId;
         report.reason = reportData.reason;
         return this.reportService.create(report);
     }
@@ -102,9 +102,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "reportComment", null);
 __decorate([
-    (0, common_1.Post)("novels/:novelId"),
-    (0, swagger_1.ApiOperation)({ summary: "소설 신고 생성" }),
-    (0, swagger_1.ApiParam)({ name: "novelId", type: "number", description: "신고할 소설 ID" }),
+    (0, common_1.Post)("chapters/:chapterId"),
+    (0, swagger_1.ApiOperation)({ summary: "챕터 신고 생성" }),
+    (0, swagger_1.ApiParam)({
+        name: "chapterId",
+        type: "number",
+        description: "신고할 챕터 ID",
+    }),
     (0, swagger_1.ApiBody)({
         schema: {
             type: "object",
@@ -114,16 +118,16 @@ __decorate([
             required: ["reason"],
         },
     }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: "소설 신고 완료" }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "챕터 신고 완료" }),
     (0, swagger_1.ApiResponse)({ status: 400, description: "잘못된 요청" }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 소설을 찾을 수 없음" }),
-    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 챕터를 찾을 수 없음" }),
+    __param(0, (0, common_1.Param)("chapterId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)
-], ReportController.prototype, "reportNovel", null);
+], ReportController.prototype, "reportChapter", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: "모든 신고 목록 조회 (관리자)" }),
