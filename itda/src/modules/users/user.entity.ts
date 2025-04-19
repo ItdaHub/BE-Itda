@@ -92,6 +92,9 @@ export class User {
   @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
 
+  @Column({ default: 0 })
+  report_count: number;
+
   // 📚 관계 설정
 
   @OneToMany(() => Payment, (payment) => payment.user)

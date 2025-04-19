@@ -22,6 +22,7 @@ let Notification = class Notification {
     content;
     is_read;
     created_at;
+    type;
 };
 exports.Notification = Notification;
 __decorate([
@@ -58,6 +59,10 @@ __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Notification.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "enum", enum: ["REPORT", "NOVEL_SUBMIT"], default: "REPORT" }),
+    __metadata("design:type", String)
+], Notification.prototype, "type", void 0);
 exports.Notification = Notification = __decorate([
     (0, typeorm_1.Entity)("notifications")
 ], Notification);

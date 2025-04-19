@@ -41,6 +41,7 @@ export declare class User {
     created_at: Date;
     user_type: UserType;
     status: UserStatus;
+    report_count: number;
     payments: Payment[];
     createdNovels: Novel[];
     authoredNovels: Novel[];

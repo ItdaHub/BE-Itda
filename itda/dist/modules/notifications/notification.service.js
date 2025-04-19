@@ -31,42 +31,24 @@ let NotificationService = class NotificationService {
         this.novelRepository = novelRepository;
         this.reportRepository = reportRepository;
     }
-    async createNotification(userId, novelId, reportId, content) {
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-        if (!user) {
-            throw new Error("User not found");
-        }
-        const novel = novelId
-            ? await this.novelRepository.findOne({ where: { id: novelId } })
-            : null;
-        const report = reportId
-            ? await this.reportRepository.findOne({ where: { id: reportId } })
-            : null;
+    async sendNotification({ user, content, novel = null, report = null, }) {
         const notification = this.notificationRepository.create({
             user,
+            content,
             novel,
             report,
-            content,
-            is_read: false,
         });
-        return this.notificationRepository.save(notification);
-    }
-    async getNotificationsByUser(userId) {
-        return this.notificationRepository.find({
-            where: { user: { id: userId } },
-            relations: ["novel", "report"],
-            order: { created_at: "DESC" },
-        });
+        return await this.notificationRepository.save(notification);
     }
     async markNotificationAsRead(notificationId) {
         const notification = await this.notificationRepository.findOne({
             where: { id: notificationId },
         });
         if (!notification) {
-            throw new Error("Notification not found");
+            throw new Error("알림을 찾을 수 없습니다.");
         }
         notification.is_read = true;
-        return this.notificationRepository.save(notification);
+        return await this.notificationRepository.save(notification);
     }
 };
 exports.NotificationService = NotificationService;

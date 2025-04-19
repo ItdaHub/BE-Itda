@@ -7,6 +7,7 @@ import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
 import { NovelStatus } from "./novel.entity";
+import { NotificationService } from "../notifications/notification.service";
 type CreateNovelInput = CreateNovelDto & {
     userId: number;
 };
@@ -16,7 +17,8 @@ export declare class NovelService {
     private readonly userRepo;
     private readonly chapterRepo;
     private readonly participantRepo;
-    constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>);
+    private readonly notificationService;
+    constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>, notificationService: NotificationService);
     getAllNovels(): Promise<Novel[]>;
     getPublishedNovels(): Promise<Novel[]>;
     getNovelById(id: number): Promise<any>;

@@ -17,6 +17,7 @@ const chapter_entity_1 = require("../chapter/chapter.entity");
 const user_entity_1 = require("../users/user.entity");
 const user_module_1 = require("../users/user.module");
 const participant_entity_1 = require("./participant.entity");
+const notification_module_1 = require("../notifications/notification.module");
 let NovelModule = class NovelModule {
 };
 exports.NovelModule = NovelModule;
@@ -25,6 +26,7 @@ exports.NovelModule = NovelModule = __decorate([
         imports: [
             typeorm_1.TypeOrmModule.forFeature([novel_entity_1.Novel, genre_entity_1.Genre, chapter_entity_1.Chapter, user_entity_1.User, participant_entity_1.Participant]),
             user_module_1.UserModule,
+            notification_module_1.NotificationModule,
         ],
         controllers: [novel_controller_1.NovelController],
         providers: [novel_service_1.NovelService],

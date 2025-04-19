@@ -10,6 +10,7 @@ import {
   Get,
   Delete,
   NotFoundException,
+  Patch,
 } from "@nestjs/common";
 import { ReportService } from "./report.service";
 import { Report, TargetType } from "./report.entity";
@@ -150,5 +151,14 @@ export class ReportController {
       throw new NotFoundException("해당 신고를 찾을 수 없습니다.");
     }
     return { message: "신고가 삭제되었습니다." };
+  }
+
+  @Patch(":reportId/handle")
+  @ApiOperation({ summary: "신고 처리 (신고자에게 알림 + 신고 횟수 증가)" })
+  @ApiParam({ name: "reportId", type: "number", description: "처리할 신고 ID" })
+  async handleReport(
+    @Param("reportId", ParseIntPipe) reportId: number
+  ): Promise<string> {
+    return this.reportService.handleReport(reportId);
   }
 }

@@ -23,18 +23,21 @@ const user_entity_1 = require("../users/user.entity");
 const chapter_entity_1 = require("../chapter/chapter.entity");
 const participant_entity_1 = require("./participant.entity");
 const novel_entity_2 = require("./novel.entity");
+const notification_service_1 = require("../notifications/notification.service");
 let NovelService = class NovelService {
     novelRepo;
     genreRepo;
     userRepo;
     chapterRepo;
     participantRepo;
-    constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo) {
+    notificationService;
+    constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo, notificationService) {
         this.novelRepo = novelRepo;
         this.genreRepo = genreRepo;
         this.userRepo = userRepo;
         this.chapterRepo = chapterRepo;
         this.participantRepo = participantRepo;
+        this.notificationService = notificationService;
     }
     async getAllNovels() {
         return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
@@ -321,12 +324,19 @@ let NovelService = class NovelService {
         if (!novel) {
             throw new common_1.NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
         }
-        if (novel.status === "completed") {
-            console.log("이미 완료된 소설입니다.");
-            throw new common_1.BadRequestException("이미 완료된 소설입니다.");
+        if (novel.status !== "completed") {
+            throw new common_1.BadRequestException("완료된 소설만 출품할 수 있습니다.");
         }
         novel.status = novel_entity_2.NovelStatus.SUBMITTED;
         console.log("소설 상태를 SUBMITTED로 변경");
+        const writer = novel.creator;
+        if (writer) {
+            await this.notificationService.sendNotification({
+                user: writer,
+                content: `🎉 "${novel.title}" 소설이 출품되었습니다!`,
+                novel,
+            });
+        }
         return await this.novelRepo.save(novel);
     }
     async getCompletedNovels() {
@@ -383,6 +393,7 @@ exports.NovelService = NovelService = __decorate([
         typeorm_3.Repository,
         typeorm_3.Repository,
         typeorm_3.Repository,
-        typeorm_3.Repository])
+        typeorm_3.Repository,
+        notification_service_1.NotificationService])
 ], NovelService);
 //# sourceMappingURL=novel.service.js.map

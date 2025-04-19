@@ -11,5 +11,6 @@ import { Report } from "../reports/report.entity";
   imports: [TypeOrmModule.forFeature([Notification, User, Novel, Report])],
   providers: [NotificationService],
   controllers: [NotificationController],
+  exports: [NotificationService],
 })
 export class NotificationModule {}

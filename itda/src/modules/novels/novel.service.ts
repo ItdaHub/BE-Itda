@@ -14,6 +14,7 @@ import { User } from "../users/user.entity";
 import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
 import { NovelStatus } from "./novel.entity";
+import { NotificationService } from "../notifications/notification.service";
 
 type CreateNovelInput = CreateNovelDto & { userId: number };
 
@@ -26,7 +27,8 @@ export class NovelService {
     @InjectRepository(Chapter)
     private readonly chapterRepo: Repository<Chapter>,
     @InjectRepository(Participant)
-    private readonly participantRepo: Repository<Participant>
+    private readonly participantRepo: Repository<Participant>,
+    private readonly notificationService: NotificationService
   ) {}
 
   async getAllNovels(): Promise<Novel[]> {
@@ -376,13 +378,23 @@ export class NovelService {
       throw new NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
     }
 
-    if (novel.status === "completed") {
-      console.log("이미 완료된 소설입니다.");
-      throw new BadRequestException("이미 완료된 소설입니다.");
+    if (novel.status !== "completed") {
+      throw new BadRequestException("완료된 소설만 출품할 수 있습니다.");
     }
 
     novel.status = NovelStatus.SUBMITTED;
     console.log("소설 상태를 SUBMITTED로 변경");
+
+    // 🔔 알림 추가 (옵션)
+    const writer = novel.creator; // 이미 relation으로 불러온 경우
+    if (writer) {
+      await this.notificationService.sendNotification({
+        user: writer,
+        content: `🎉 "${novel.title}" 소설이 출품되었습니다!`,
+        novel,
+      });
+    }
+
     return await this.novelRepo.save(novel);
   }
 

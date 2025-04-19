@@ -14,4 +14,5 @@ export declare class ReportController {
     deleteReport(id: number): Promise<{
         message: string;
     }>;
+    handleReport(reportId: number): Promise<string>;
 }

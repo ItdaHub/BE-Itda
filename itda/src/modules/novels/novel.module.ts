@@ -8,11 +8,13 @@ import { Chapter } from "../chapter/chapter.entity";
 import { User } from "../users/user.entity";
 import { UserModule } from "../users/user.module";
 import { Participant } from "./participant.entity";
+import { NotificationModule } from "../notifications/notification.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Novel, Genre, Chapter, User, Participant]),
     UserModule,
+    NotificationModule,
   ],
   controllers: [NovelController],
   providers: [NovelService],

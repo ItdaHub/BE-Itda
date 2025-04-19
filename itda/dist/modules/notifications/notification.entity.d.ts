@@ -9,4 +9,5 @@ export declare class Notification {
     content: string;
     is_read: boolean;
     created_at: Date;
+    type: "REPORT" | "NOVEL_SUBMIT";
 }

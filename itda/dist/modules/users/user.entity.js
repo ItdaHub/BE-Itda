@@ -59,6 +59,7 @@ let User = class User {
     created_at;
     user_type;
     status;
+    report_count;
     payments;
     createdNovels;
     authoredNovels;
@@ -131,6 +132,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE }),
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "report_count", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => payment_entity_1.Payment, (payment) => payment.user),
     __metadata("design:type", Array)

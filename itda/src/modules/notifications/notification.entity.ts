@@ -37,4 +37,7 @@ export class Notification {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ type: "enum", enum: ["REPORT", "NOVEL_SUBMIT"], default: "REPORT" })
+  type: "REPORT" | "NOVEL_SUBMIT";
 }

@@ -64,6 +64,9 @@ let ReportController = class ReportController {
         }
         return { message: "신고가 삭제되었습니다." };
     }
+    async handleReport(reportId) {
+        return this.reportService.handleReport(reportId);
+    }
 };
 exports.ReportController = ReportController;
 __decorate([
@@ -154,6 +157,15 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "deleteReport", null);
+__decorate([
+    (0, common_1.Patch)(":reportId/handle"),
+    (0, swagger_1.ApiOperation)({ summary: "신고 처리 (신고자에게 알림 + 신고 횟수 증가)" }),
+    (0, swagger_1.ApiParam)({ name: "reportId", type: "number", description: "처리할 신고 ID" }),
+    __param(0, (0, common_1.Param)("reportId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ReportController.prototype, "handleReport", null);
 exports.ReportController = ReportController = __decorate([
     (0, swagger_1.ApiTags)("Reports"),
     (0, common_1.Controller)("reports"),

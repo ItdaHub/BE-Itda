@@ -23,6 +23,7 @@ exports.NotificationModule = NotificationModule = __decorate([
         imports: [typeorm_1.TypeOrmModule.forFeature([notification_entity_1.Notification, user_entity_1.User, novel_entity_1.Novel, report_entity_1.Report])],
         providers: [notification_service_1.NotificationService],
         controllers: [notification_controller_1.NotificationController],
+        exports: [notification_service_1.NotificationService],
     })
 ], NotificationModule);
 //# sourceMappingURL=notification.module.js.map
