@@ -224,16 +224,17 @@ export class NovelService {
       .leftJoinAndSelect("novel.creator", "user")
       .leftJoinAndSelect("novel.genre", "genre")
       .leftJoinAndSelect("novel.likes", "likes")
-      .loadRelationCountAndMap("novel.likeCount", "novel.likes");
+      .loadRelationCountAndMap("novel.likeCount", "novel.likes")
+      .where("novel.status != :submitted", {
+        submitted: NovelStatus.SUBMITTED,
+      });
 
     if (type === "new") {
       query
         .leftJoin("novel.chapters", "chapter_new")
         .andWhere("chapter_new.chapter_number = 1");
     } else if (type === "relay") {
-      query
-        .andWhere("novel.type = :type", { type })
-        .andWhere("novel.status != :submitted", { submitted: "submitted" });
+      query.andWhere("novel.type = :type", { type });
     }
 
     if (typeof genre === "string" && genre !== "all" && genre !== "전체") {
@@ -437,13 +438,15 @@ export class NovelService {
   async adminPublishNovel(novelId: number) {
     const novel = await this.novelRepo.findOne({
       where: { id: novelId },
-      relations: ["creator", "chapters"], // ⬅️ 챕터도 불러옴
+      relations: ["creator", "chapters"],
     });
 
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
 
     // 출품 상태로 변경
     novel.status = NovelStatus.SUBMITTED;
+    novel.isPublished = true;
+
     await this.novelRepo.save(novel);
 
     // 유료 회차 전환: 뒤쪽 2/3 유료로 설정
@@ -452,13 +455,13 @@ export class NovelService {
     );
 
     const total = chapters.length;
-    const freeLimit = Math.floor(total / 3); // 앞 1/3은 무료
+    const freeLimit = Math.floor(total / 3);
 
     for (let i = 0; i < total; i++) {
       chapters[i].isPaid = i >= freeLimit;
     }
 
-    await this.chapterRepo.save(chapters); // 챕터 저장
+    await this.chapterRepo.save(chapters);
 
     // 알림 전송
     await this.notificationService.sendNotification({
@@ -466,6 +469,7 @@ export class NovelService {
       content: `당신의 소설 "${novel.title}"이 출품되었습니다.`,
       novel,
     });
+    console.log("✅ 출품 완료 상태 저장:", novel);
 
     return novel;
   }

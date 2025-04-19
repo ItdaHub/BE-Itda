@@ -188,16 +188,17 @@ let NovelService = class NovelService {
             .leftJoinAndSelect("novel.creator", "user")
             .leftJoinAndSelect("novel.genre", "genre")
             .leftJoinAndSelect("novel.likes", "likes")
-            .loadRelationCountAndMap("novel.likeCount", "novel.likes");
+            .loadRelationCountAndMap("novel.likeCount", "novel.likes")
+            .where("novel.status != :submitted", {
+            submitted: novel_entity_2.NovelStatus.SUBMITTED,
+        });
         if (type === "new") {
             query
                 .leftJoin("novel.chapters", "chapter_new")
                 .andWhere("chapter_new.chapter_number = 1");
         }
         else if (type === "relay") {
-            query
-                .andWhere("novel.type = :type", { type })
-                .andWhere("novel.status != :submitted", { submitted: "submitted" });
+            query.andWhere("novel.type = :type", { type });
         }
         if (typeof genre === "string" && genre !== "all" && genre !== "전체") {
             const foundGenre = await this.genreRepo.findOne({
@@ -372,6 +373,7 @@ let NovelService = class NovelService {
         if (!novel)
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
         novel.status = novel_entity_2.NovelStatus.SUBMITTED;
+        novel.isPublished = true;
         await this.novelRepo.save(novel);
         const chapters = novel.chapters.sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number));
         const total = chapters.length;
@@ -385,6 +387,7 @@ let NovelService = class NovelService {
             content: `당신의 소설 "${novel.title}"이 출품되었습니다.`,
             novel,
         });
+        console.log("✅ 출품 완료 상태 저장:", novel);
         return novel;
     }
     async getWaitingNovelsForSubmission() {
