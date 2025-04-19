@@ -32,7 +32,9 @@ export class Report {
   @Column("text")
   reason: string;
 
-  // Report Entity
+  @Column("text", { nullable: true })
+  reported_content: string;
+
   @ManyToOne(() => Chapter, (chapter) => chapter.reports, {
     onDelete: "CASCADE",
   })

@@ -15,12 +15,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const report_entity_1 = require("./report.entity");
 const typeorm_2 = require("typeorm");
+const report_entity_1 = require("./report.entity");
+const comment_entity_1 = require("../comments/comment.entity");
+const chapter_entity_1 = require("../chapter/chapter.entity");
 let ReportService = class ReportService {
     reportRepository;
-    constructor(reportRepository) {
+    commentRepository;
+    chapterRepository;
+    constructor(reportRepository, commentRepository, chapterRepository) {
         this.reportRepository = reportRepository;
+        this.commentRepository = commentRepository;
+        this.chapterRepository = chapterRepository;
     }
     async findAll() {
         return this.reportRepository.find({ relations: ["reporter"] });
@@ -36,20 +42,45 @@ let ReportService = class ReportService {
         return report;
     }
     async create(report) {
+        console.log("🎯 Reporting:", report);
+        if (report.target_type === report_entity_1.TargetType.COMMENT) {
+            const comment = await this.commentRepository.findOneBy({
+                id: report.target_id,
+            });
+            if (!comment)
+                throw new common_1.NotFoundException("댓글을 찾을 수 없습니다.");
+            report.reported_content = comment.content;
+            console.log("📝 Reported Content (Comment):", report.reported_content);
+        }
+        else if (report.target_type === report_entity_1.TargetType.CHAPTER) {
+            const chapter = await this.chapterRepository.findOne({
+                where: { id: report.target_id },
+                relations: ["novel"],
+            });
+            if (!chapter)
+                throw new common_1.NotFoundException("챕터를 찾을 수 없습니다.");
+            report.reported_content = `[${chapter.novel.title} - ${chapter.chapter_number}화]\n${chapter.content}`;
+            console.log("📝 Reported Content (Chapter):", report.reported_content);
+        }
+        console.log("✅ Saving Report:", report);
         return this.reportRepository.save(report);
     }
-    async remove(id) {
+    async delete(id) {
         const report = await this.reportRepository.findOne({ where: { id } });
-        if (!report) {
-            throw new common_1.NotFoundException(`Report with ID ${id} not found`);
-        }
+        if (!report)
+            return false;
         await this.reportRepository.remove(report);
+        return true;
     }
 };
 exports.ReportService = ReportService;
 exports.ReportService = ReportService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(report_entity_1.Report)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(comment_entity_1.Comment)),
+    __param(2, (0, typeorm_1.InjectRepository)(chapter_entity_1.Chapter)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository])
 ], ReportService);
 //# sourceMappingURL=report.service.js.map

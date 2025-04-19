@@ -11,4 +11,7 @@ export declare class ReportController {
     }, req: any): Promise<Report>;
     getAllReports(): Promise<Report[]>;
     getReportById(reportId: number): Promise<Report>;
+    deleteReport(id: number): Promise<{
+        message: string;
+    }>;
 }

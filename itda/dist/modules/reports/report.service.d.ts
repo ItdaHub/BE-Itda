@@ -1,10 +1,14 @@
-import { Report } from "./report.entity";
 import { Repository } from "typeorm";
+import { Report } from "./report.entity";
+import { Comment } from "../comments/comment.entity";
+import { Chapter } from "../chapter/chapter.entity";
 export declare class ReportService {
     private readonly reportRepository;
-    constructor(reportRepository: Repository<Report>);
+    private readonly commentRepository;
+    private readonly chapterRepository;
+    constructor(reportRepository: Repository<Report>, commentRepository: Repository<Comment>, chapterRepository: Repository<Chapter>);
     findAll(): Promise<Report[]>;
     findOne(id: number): Promise<Report>;
     create(report: Report): Promise<Report>;
-    remove(id: number): Promise<void>;
+    delete(id: number): Promise<boolean>;
 }

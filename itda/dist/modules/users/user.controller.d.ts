@@ -4,7 +4,6 @@ import { CreateUserDto } from "./dto/ceateuser.dto";
 import { UpdateUserDto } from "./dto/updateuser.dto";
 export declare class UserController {
     private readonly userService;
-    private readonly logger;
     constructor(userService: UserService);
     findAll(): Promise<User[]>;
     findOne(id: number): Promise<User>;

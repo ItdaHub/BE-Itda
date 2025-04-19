@@ -11,6 +11,7 @@ export declare class Report {
     target_type: TargetType;
     target_id: number;
     reason: string;
+    reported_content: string;
     chapter: Chapter;
     created_at: Date;
     notifications: Notification[];

@@ -46,10 +46,23 @@ let ReportController = class ReportController {
         return this.reportService.create(report);
     }
     async getAllReports() {
+        const reports = await this.reportService.findAll();
+        console.log("📋 All Reports:", reports.map((r) => ({
+            id: r.id,
+            reason: r.reason,
+            reported_content: r.reported_content,
+        })));
         return this.reportService.findAll();
     }
     async getReportById(reportId) {
         return this.reportService.findOne(reportId);
+    }
+    async deleteReport(id) {
+        const success = await this.reportService.delete(id);
+        if (!success) {
+            throw new common_1.NotFoundException("해당 신고를 찾을 수 없습니다.");
+        }
+        return { message: "신고가 삭제되었습니다." };
     }
 };
 exports.ReportController = ReportController;
@@ -130,6 +143,17 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "getReportById", null);
+__decorate([
+    (0, common_1.Delete)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "신고 삭제 (관리자)" }),
+    (0, swagger_1.ApiParam)({ name: "id", type: "number", description: "삭제할 신고 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "신고 삭제 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 신고를 찾을 수 없음" }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ReportController.prototype, "deleteReport", null);
 exports.ReportController = ReportController = __decorate([
     (0, swagger_1.ApiTags)("Reports"),
     (0, common_1.Controller)("reports"),

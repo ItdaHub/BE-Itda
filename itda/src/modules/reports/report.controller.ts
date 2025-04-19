@@ -7,7 +7,9 @@ import {
   Req,
   UseGuards,
   ParseIntPipe,
-  Get, // ✅ Get 데코레이터 import 확인
+  Get,
+  Delete,
+  NotFoundException,
 } from "@nestjs/common";
 import { ReportService } from "./report.service";
 import { Report, TargetType } from "./report.entity";
@@ -23,7 +25,7 @@ import { JwtAuthGuard } from "../auth/jwtauth.guard";
 
 @ApiTags("Reports")
 @Controller("reports")
-@UseGuards(JwtAuthGuard) // 기본적으로 JWT 인증 적용
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
@@ -51,7 +53,7 @@ export class ReportController {
   async reportComment(
     @Param("commentId", ParseIntPipe) commentId: number,
     @Body() reportData: { reason: string },
-    @Req() req: any // 요청 객체에서 사용자 정보 추출
+    @Req() req: any
   ): Promise<Report> {
     if (!reportData.reason) {
       throw new BadRequestException("신고 사유를 입력해주세요.");
@@ -84,15 +86,15 @@ export class ReportController {
   async reportNovel(
     @Param("novelId", ParseIntPipe) novelId: number,
     @Body() reportData: { reason: string },
-    @Req() req: any // 요청 객체에서 사용자 정보 추출
+    @Req() req: any
   ): Promise<Report> {
     if (!reportData.reason) {
       throw new BadRequestException("신고 사유를 입력해주세요.");
     }
 
     const report = new Report();
-    report.reporter = req.user; // 현재 로그인한 사용자 ID 설정
-    report.target_type = TargetType.CHAPTER; // 소설 신고의 target_type을 CHAPTER로 가정
+    report.reporter = req.user;
+    report.target_type = TargetType.CHAPTER;
     report.target_id = novelId;
     report.reason = reportData.reason;
     return this.reportService.create(report);
@@ -107,6 +109,15 @@ export class ReportController {
     type: [Report],
   })
   async getAllReports(): Promise<Report[]> {
+    const reports = await this.reportService.findAll();
+    console.log(
+      "📋 All Reports:",
+      reports.map((r) => ({
+        id: r.id,
+        reason: r.reason,
+        reported_content: r.reported_content,
+      }))
+    );
     return this.reportService.findAll();
   }
 
@@ -124,5 +135,20 @@ export class ReportController {
     @Param("reportId", ParseIntPipe) reportId: number
   ): Promise<Report> {
     return this.reportService.findOne(reportId);
+  }
+
+  @Delete(":id")
+  @ApiOperation({ summary: "신고 삭제 (관리자)" })
+  @ApiParam({ name: "id", type: "number", description: "삭제할 신고 ID" })
+  @ApiResponse({ status: 200, description: "신고 삭제 성공" })
+  @ApiResponse({ status: 404, description: "해당 신고를 찾을 수 없음" })
+  async deleteReport(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<{ message: string }> {
+    const success = await this.reportService.delete(id);
+    if (!success) {
+      throw new NotFoundException("해당 신고를 찾을 수 없습니다.");
+    }
+    return { message: "신고가 삭제되었습니다." };
   }
 }

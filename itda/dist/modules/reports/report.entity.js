@@ -25,6 +25,7 @@ let Report = class Report {
     target_type;
     target_id;
     reason;
+    reported_content;
     chapter;
     created_at;
     notifications;
@@ -50,6 +51,10 @@ __decorate([
     (0, typeorm_1.Column)("text"),
     __metadata("design:type", String)
 ], Report.prototype, "reason", void 0);
+__decorate([
+    (0, typeorm_1.Column)("text", { nullable: true }),
+    __metadata("design:type", String)
+], Report.prototype, "reported_content", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => chapter_entity_1.Chapter, (chapter) => chapter.reports, {
         onDelete: "CASCADE",
