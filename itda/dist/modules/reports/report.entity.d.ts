@@ -13,6 +13,7 @@ export declare class Report {
     reason: string;
     reported_content: string;
     chapter: Chapter;
+    reported_user_id?: number;
     created_at: Date;
     notifications: Notification[];
 }

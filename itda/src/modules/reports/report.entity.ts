@@ -40,6 +40,9 @@ export class Report {
   })
   chapter: Chapter;
 
+  @Column({ nullable: true })
+  reported_user_id?: number;
+
   @CreateDateColumn()
   created_at: Date;
 

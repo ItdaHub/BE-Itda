@@ -5,7 +5,7 @@ import {
   Get,
   Param,
   Post,
-  Put, // 추가
+  Put,
   UseGuards,
   Req,
 } from "@nestjs/common";
@@ -22,7 +22,7 @@ export class AnnouncementController {
   @UseGuards(JwtAuthGuard)
   @Post("register")
   async createAnnouncement(@Req() req: Request, @Body() body: any) {
-    console.log("📢 컨트롤러 register body:", body); // 전체 body 로깅
+    console.log("📢 컨트롤러 register body:", body);
     const { title, content, priority } = body;
     const admin = req.user as User;
     return this.announcementService.createAnnouncement(

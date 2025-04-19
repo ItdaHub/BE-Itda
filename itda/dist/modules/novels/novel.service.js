@@ -329,14 +329,6 @@ let NovelService = class NovelService {
         }
         novel.status = novel_entity_2.NovelStatus.SUBMITTED;
         console.log("소설 상태를 SUBMITTED로 변경");
-        const writer = novel.creator;
-        if (writer) {
-            await this.notificationService.sendNotification({
-                user: writer,
-                content: `🎉 "${novel.title}" 소설이 출품되었습니다!`,
-                novel,
-            });
-        }
         return await this.novelRepo.save(novel);
     }
     async getCompletedNovels() {
@@ -360,11 +352,20 @@ let NovelService = class NovelService {
         return this.novelRepo.remove(novel);
     }
     async adminPublishNovel(novelId) {
-        const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+        const novel = await this.novelRepo.findOne({
+            where: { id: novelId },
+            relations: ["creator"],
+        });
         if (!novel)
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
-        novel.isPublished = true;
-        return this.novelRepo.save(novel);
+        novel.status = novel_entity_2.NovelStatus.SUBMITTED;
+        await this.novelRepo.save(novel);
+        await this.notificationService.sendNotification({
+            user: novel.creator,
+            content: `당신의 소설 "${novel.title}"이 출품되었습니다.`,
+            novel,
+        });
+        return novel;
     }
     async getWaitingNovelsForSubmission() {
         const novels = await this.novelRepo.find({

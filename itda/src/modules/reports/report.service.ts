@@ -38,18 +38,25 @@ export class ReportService {
 
   async create(report: Report): Promise<Report> {
     if (report.target_type === TargetType.COMMENT) {
-      const comment = await this.commentRepository.findOneBy({
-        id: report.target_id,
+      const comment = await this.commentRepository.findOne({
+        where: { id: report.target_id },
+        relations: ["user"],
       });
       if (!comment) throw new NotFoundException("댓글을 찾을 수 없습니다.");
+
       report.reported_content = comment.content;
+      report.reported_user_id = comment.user?.id;
     } else if (report.target_type === TargetType.CHAPTER) {
       const chapter = await this.chapterRepository.findOne({
         where: { id: report.target_id },
-        relations: ["novel"], // ✅ novel 관계 포함
+        relations: ["author", "novel"],
       });
       if (!chapter) throw new NotFoundException("챕터를 찾을 수 없습니다.");
+
       report.reported_content = `[${chapter.novel.title} - ${chapter.chapter_number}화]\n${chapter.content}`;
+      report.reported_user_id = chapter.author?.id;
+
+      report.chapter = chapter;
     }
 
     return this.reportRepository.save(report);

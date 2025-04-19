@@ -27,6 +27,7 @@ let Report = class Report {
     reason;
     reported_content;
     chapter;
+    reported_user_id;
     created_at;
     notifications;
 };
@@ -61,6 +62,10 @@ __decorate([
     }),
     __metadata("design:type", chapter_entity_1.Chapter)
 ], Report.prototype, "chapter", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], Report.prototype, "reported_user_id", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
