@@ -24,6 +24,7 @@ let Chapter = class Chapter {
     created_at;
     comments;
     reports;
+    isPaid;
 };
 exports.Chapter = Chapter;
 __decorate([
@@ -58,6 +59,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => report_entity_1.Report, (report) => report.chapter),
     __metadata("design:type", Array)
 ], Chapter.prototype, "reports", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], Chapter.prototype, "isPaid", void 0);
 exports.Chapter = Chapter = __decorate([
     (0, typeorm_1.Entity)("chapters")
 ], Chapter);

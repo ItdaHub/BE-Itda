@@ -11,4 +11,5 @@ export declare class Chapter {
     created_at: Date;
     comments: Comment[];
     reports: Report[];
+    isPaid: boolean;
 }

@@ -280,6 +280,7 @@ export class NovelService {
         "chapters.reports",
       ],
     });
+
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
 
     novel.viewCount += 1;
@@ -293,6 +294,25 @@ export class NovelService {
     const sortedChapters = [...novel.chapters].sort(
       (a, b) => a.chapter_number - b.chapter_number
     );
+
+    // 전체 챕터 수의 2/3을 계산
+    const totalChapters = sortedChapters.length;
+    const paidChapterCount = Math.floor((totalChapters * 2) / 3);
+
+    // 2/3 이후 부분을 유료로 설정
+    sortedChapters.forEach((chapter, index) => {
+      if (index >= paidChapterCount) {
+        chapter.isPaid = true; // 유료
+        console.log(
+          `Chapter ${chapter.chapter_number} is set to paid: ${chapter.isPaid}`
+        );
+      } else {
+        chapter.isPaid = false; // 무료
+        console.log(
+          `Chapter ${chapter.chapter_number} is set to free: ${chapter.isPaid}`
+        );
+      }
+    });
 
     return {
       id: novel.id,
@@ -309,16 +329,15 @@ export class NovelService {
       type: novel.type,
       createdAt: novel.created_at.toISOString(),
       peopleNum: novel.max_participants,
-      chapters: novel.chapters
-        .sort((a, b) => a.chapter_number - b.chapter_number)
-        .map((chapter) => ({
-          id: chapter.id,
-          content: chapter.content,
-          chapterNumber: chapter.chapter_number,
-          authorId: chapter.author?.id,
-          authorNickname: chapter.author?.nickname ?? null,
-          reportCount: chapter.reports?.length ?? 0,
-        })),
+      chapters: sortedChapters.map((chapter) => ({
+        id: chapter.id,
+        content: chapter.content,
+        chapterNumber: chapter.chapter_number,
+        authorId: chapter.author?.id,
+        authorNickname: chapter.author?.nickname ?? null,
+        reportCount: chapter.reports?.length ?? 0,
+        isPaid: chapter.isPaid,
+      })),
       nextChapterNumber: sortedChapters.length + 1,
     };
   }
@@ -416,15 +435,30 @@ export class NovelService {
   async adminPublishNovel(novelId: number) {
     const novel = await this.novelRepo.findOne({
       where: { id: novelId },
-      relations: ["creator"],
+      relations: ["creator", "chapters"], // ⬅️ 챕터도 불러옴
     });
 
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
 
+    // 출품 상태로 변경
     novel.status = NovelStatus.SUBMITTED;
     await this.novelRepo.save(novel);
 
-    // 알림 보내기
+    // 유료 회차 전환: 뒤쪽 2/3 유료로 설정
+    const chapters = novel.chapters.sort(
+      (a, b) => Number(a.chapter_number) - Number(b.chapter_number)
+    );
+
+    const total = chapters.length;
+    const freeLimit = Math.floor(total / 3); // 앞 1/3은 무료
+
+    for (let i = 0; i < total; i++) {
+      chapters[i].isPaid = i >= freeLimit;
+    }
+
+    await this.chapterRepo.save(chapters); // 챕터 저장
+
+    // 알림 전송
     await this.notificationService.sendNotification({
       user: novel.creator,
       content: `당신의 소설 "${novel.title}"이 출품되었습니다.`,

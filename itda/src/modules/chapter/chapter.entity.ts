@@ -36,4 +36,7 @@ export class Chapter {
 
   @OneToMany(() => Report, (report) => report.chapter)
   reports: Report[];
+
+  @Column({ default: false })
+  isPaid: boolean;
 }

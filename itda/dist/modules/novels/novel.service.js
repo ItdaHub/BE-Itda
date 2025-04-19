@@ -250,6 +250,18 @@ let NovelService = class NovelService {
             ? novel.likes.some((like) => like.user.id === userId)
             : false;
         const sortedChapters = [...novel.chapters].sort((a, b) => a.chapter_number - b.chapter_number);
+        const totalChapters = sortedChapters.length;
+        const paidChapterCount = Math.floor((totalChapters * 2) / 3);
+        sortedChapters.forEach((chapter, index) => {
+            if (index >= paidChapterCount) {
+                chapter.isPaid = true;
+                console.log(`Chapter ${chapter.chapter_number} is set to paid: ${chapter.isPaid}`);
+            }
+            else {
+                chapter.isPaid = false;
+                console.log(`Chapter ${chapter.chapter_number} is set to free: ${chapter.isPaid}`);
+            }
+        });
         return {
             id: novel.id,
             title: novel.title,
@@ -265,15 +277,14 @@ let NovelService = class NovelService {
             type: novel.type,
             createdAt: novel.created_at.toISOString(),
             peopleNum: novel.max_participants,
-            chapters: novel.chapters
-                .sort((a, b) => a.chapter_number - b.chapter_number)
-                .map((chapter) => ({
+            chapters: sortedChapters.map((chapter) => ({
                 id: chapter.id,
                 content: chapter.content,
                 chapterNumber: chapter.chapter_number,
                 authorId: chapter.author?.id,
                 authorNickname: chapter.author?.nickname ?? null,
                 reportCount: chapter.reports?.length ?? 0,
+                isPaid: chapter.isPaid,
             })),
             nextChapterNumber: sortedChapters.length + 1,
         };
@@ -354,12 +365,19 @@ let NovelService = class NovelService {
     async adminPublishNovel(novelId) {
         const novel = await this.novelRepo.findOne({
             where: { id: novelId },
-            relations: ["creator"],
+            relations: ["creator", "chapters"],
         });
         if (!novel)
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
         novel.status = novel_entity_2.NovelStatus.SUBMITTED;
         await this.novelRepo.save(novel);
+        const chapters = novel.chapters.sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number));
+        const total = chapters.length;
+        const freeLimit = Math.floor(total / 3);
+        for (let i = 0; i < total; i++) {
+            chapters[i].isPaid = i >= freeLimit;
+        }
+        await this.chapterRepo.save(chapters);
         await this.notificationService.sendNotification({
             user: novel.creator,
             content: `당신의 소설 "${novel.title}"이 출품되었습니다.`,
