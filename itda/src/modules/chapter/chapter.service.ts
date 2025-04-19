@@ -153,8 +153,6 @@ export class ChapterService {
 
     await this.chapterRepository.save(newChapter);
 
-    // ✅ 상태 변경 로직 제거됨!
-
     return newChapter;
   }
 

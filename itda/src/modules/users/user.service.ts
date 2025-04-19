@@ -5,10 +5,11 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { User } from "./user.entity";
+import { User, UserType } from "./user.entity";
 import { Point } from "../points/point.entity";
 import { FindOptionsWhere } from "typeorm";
 import { CreateUserDto } from "./dto/ceateuser.dto";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UserService {
@@ -41,19 +42,6 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  // // 유저 업데이트
-  // async update(id: number, user: Partial<User>): Promise<User> {
-  //   const { password, nickname, phone, profile_img } = user;
-
-  //   const updateData: Partial<User> = {};
-  //   if (password) updateData.password = password;
-  //   if (nickname) updateData.nickname = nickname;
-  //   if (phone) updateData.phone = phone;
-  //   if (profile_img) updateData.profile_img = profile_img;
-
-  //   await this.userRepository.update(id, updateData);
-  //   return this.findOne(id);
-  // }
   // 유저 업데이트
   async update(id: number, userData: Partial<User>): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
@@ -61,10 +49,38 @@ export class UserService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // userData에 있는 모든 필드를 user 엔티티에 병합합니다.
+    console.log("🔥 업데이트 요청 데이터:", userData);
+
+    // 비밀번호가 포함된 경우 비밀번호 처리 (비밀번호 변경 로직)
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 10);
+    }
+
+    // 상태 업데이트 (활동/정지)
+    if (userData.status) {
+      console.log("📛 상태 변경 요청:", userData.status);
+      const validStatuses = ["active", "stop"];
+      if (!validStatuses.includes(userData.status)) {
+        throw new ForbiddenException("Invalid status value");
+      }
+      user.status = userData.status;
+    }
+
+    // 권한 업데이트 (user/admin)
+    if (userData.user_type) {
+      console.log("👑 권한 변경 요청:", userData.user_type);
+      const validRoles = [UserType.USER, UserType.ADMIN];
+      if (!validRoles.includes(userData.user_type)) {
+        throw new ForbiddenException("Invalid user_type value");
+      }
+      user.user_type = userData.user_type;
+    }
+
     Object.assign(user, userData);
 
-    await this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+    console.log("✅ 저장된 유저 정보:", savedUser);
+
     return this.findOne(id);
   }
 
@@ -115,7 +131,7 @@ export class UserService {
 
   // 유저 삭제 (배열)
   async removeMultiple(ids: number[]): Promise<void> {
-    await this.userRepository.delete(ids); // TypeORM에서는 배열로 한 번에 삭제 가능
+    await this.userRepository.delete(ids);
   }
 
   // ✅ 관리자에 의한 유저 완전 삭제
@@ -128,7 +144,7 @@ export class UserService {
   // ✅ 유저 및 관련 데이터 삭제 (포인트 등) - 공통 로직
   private async deleteUserAndRelatedData(userId: number): Promise<void> {
     // 1. 포인트 정보 삭제
-    const where: FindOptionsWhere<Point> = { user: { id: userId } }; // FindOptionsWhere를 사용하여 조건 설정
+    const where: FindOptionsWhere<Point> = { user: { id: userId } };
     await this.pointRepository.delete(where);
 
     // 2. 유저 정보 삭제
@@ -137,6 +153,5 @@ export class UserService {
     if (deleteResult.affected === 0) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-    // 추가적으로 다른 연관된 데이터 삭제 로직이 있다면 여기에 추가합니다.
   }
 }

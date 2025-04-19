@@ -18,6 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const point_entity_1 = require("../points/point.entity");
+const bcrypt = require("bcrypt");
 let UserService = class UserService {
     userRepository;
     pointRepository;
@@ -46,8 +47,29 @@ let UserService = class UserService {
         if (!user) {
             throw new common_1.NotFoundException(`User with ID ${id} not found`);
         }
+        console.log("🔥 업데이트 요청 데이터:", userData);
+        if (userData.password) {
+            userData.password = await bcrypt.hash(userData.password, 10);
+        }
+        if (userData.status) {
+            console.log("📛 상태 변경 요청:", userData.status);
+            const validStatuses = ["active", "stop"];
+            if (!validStatuses.includes(userData.status)) {
+                throw new common_1.ForbiddenException("Invalid status value");
+            }
+            user.status = userData.status;
+        }
+        if (userData.user_type) {
+            console.log("👑 권한 변경 요청:", userData.user_type);
+            const validRoles = [user_entity_1.UserType.USER, user_entity_1.UserType.ADMIN];
+            if (!validRoles.includes(userData.user_type)) {
+                throw new common_1.ForbiddenException("Invalid user_type value");
+            }
+            user.user_type = userData.user_type;
+        }
         Object.assign(user, userData);
-        await this.userRepository.save(user);
+        const savedUser = await this.userRepository.save(user);
+        console.log("✅ 저장된 유저 정보:", savedUser);
         return this.findOne(id);
     }
     async remove(userId, requestUser) {
