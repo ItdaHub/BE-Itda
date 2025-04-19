@@ -49,6 +49,8 @@ const fs = require("fs");
 const path_1 = require("path");
 const admin_modules_1 = require("./modules/admin/admin.modules");
 const announcement_module_1 = require("./modules/announcement/announcement.module");
+const banner_module_1 = require("./modules/banner/banner.module");
+const banner_entity_1 = require("./modules/banner/banner.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -81,6 +83,7 @@ exports.AppModule = AppModule = __decorate([
                     point_entity_1.Point,
                     admin_notification_entity_1.AdminNotification,
                     announcement_entity_1.Announcement,
+                    banner_entity_1.Banner,
                 ],
                 synchronize: true,
             }),
@@ -103,6 +106,7 @@ exports.AppModule = AppModule = __decorate([
             point_module_1.PointModule,
             admin_modules_1.AdminModule,
             announcement_module_1.AnnouncementModule,
+            banner_module_1.BannerModule,
             mailer_1.MailerModule.forRoot({
                 transport: {
                     host: "smtp.gmail.com",

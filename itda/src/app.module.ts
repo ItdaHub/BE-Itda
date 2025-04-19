@@ -40,6 +40,8 @@ import * as fs from "fs";
 import { join } from "path";
 import { AdminModule } from "./modules/admin/admin.modules";
 import { AnnouncementModule } from "./modules/announcement/announcement.module";
+import { BannerModule } from "./modules/banner/banner.module";
+import { Banner } from "./modules/banner/banner.entity";
 
 @Module({
   imports: [
@@ -69,13 +71,16 @@ import { AnnouncementModule } from "./modules/announcement/announcement.module";
         Point,
         AdminNotification,
         Announcement,
+        Banner,
       ],
+
       synchronize: true,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "uploads"), // 'uploads' 디렉토리 경로 설정
       serveRoot: "/uploads/", // URL 경로 설정
     }),
+
     UserModule,
     ReportModule,
     PaymentsModule,
@@ -91,6 +96,7 @@ import { AnnouncementModule } from "./modules/announcement/announcement.module";
     PointModule,
     AdminModule,
     AnnouncementModule,
+    BannerModule,
     MailerModule.forRoot({
       transport: {
         host: "smtp.gmail.com",
