@@ -26,6 +26,18 @@ let BannerController = class BannerController {
     async getBanners() {
         return this.bannerService.findAll();
     }
+    async getBanner(id) {
+        try {
+            const banner = await this.bannerService.findById(id);
+            if (!banner) {
+                return { message: `배너 ${id}를 찾을 수 없습니다.` };
+            }
+            return banner;
+        }
+        catch (error) {
+            return { message: "배너 조회에 실패했습니다.", error: error.message };
+        }
+    }
     async registerBanner(file, body) {
         console.log("파일 정보:", file);
         console.log("본문 데이터:", body);
@@ -51,6 +63,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], BannerController.prototype, "getBanners", null);
+__decorate([
+    (0, common_1.Get)(":id"),
+    __param(0, (0, common_1.Param)("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], BannerController.prototype, "getBanner", null);
 __decorate([
     (0, common_1.Post)("register"),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("image", {

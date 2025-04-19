@@ -153,11 +153,11 @@ export class ReportController {
     return { message: "신고가 삭제되었습니다." };
   }
 
-  @Patch(":reportId/handle")
+  @Patch(":id/handle")
   @ApiOperation({ summary: "신고 처리 (신고자에게 알림 + 신고 횟수 증가)" })
-  @ApiParam({ name: "reportId", type: "number", description: "처리할 신고 ID" })
+  @ApiParam({ name: "id", type: "number", description: "처리할 신고 ID" })
   async handleReport(
-    @Param("reportId", ParseIntPipe) reportId: number
+    @Param("id", ParseIntPipe) reportId: number
   ): Promise<string> {
     return this.reportService.handleReport(reportId);
   }

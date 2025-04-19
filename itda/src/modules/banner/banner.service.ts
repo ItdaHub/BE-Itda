@@ -15,6 +15,13 @@ export class BannerService {
     return this.bannerRepo.find({ order: { created_at: "DESC" } });
   }
 
+  // 특정 배너 조회
+  async findById(id: number) {
+    return this.bannerRepo.findOne({
+      where: { id },
+    });
+  }
+
   // 배너 생성
   async create(title: string, url: string, imagePath: string): Promise<Banner> {
     const banner = this.bannerRepo.create({

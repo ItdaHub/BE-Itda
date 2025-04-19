@@ -23,6 +23,20 @@ export class BannerController {
     return this.bannerService.findAll();
   }
 
+  // 특정 배너 조회
+  @Get(":id")
+  async getBanner(@Param("id") id: number) {
+    try {
+      const banner = await this.bannerService.findById(id);
+      if (!banner) {
+        return { message: `배너 ${id}를 찾을 수 없습니다.` };
+      }
+      return banner;
+    } catch (error) {
+      return { message: "배너 조회에 실패했습니다.", error: error.message };
+    }
+  }
+
   @Post("register")
   @UseInterceptors(
     FileInterceptor("image", {

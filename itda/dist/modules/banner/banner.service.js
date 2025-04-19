@@ -25,6 +25,11 @@ let BannerService = class BannerService {
     async findAll() {
         return this.bannerRepo.find({ order: { created_at: "DESC" } });
     }
+    async findById(id) {
+        return this.bannerRepo.findOne({
+            where: { id },
+        });
+    }
     async create(title, url, imagePath) {
         const banner = this.bannerRepo.create({
             title,
