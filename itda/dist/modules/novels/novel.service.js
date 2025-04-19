@@ -195,7 +195,9 @@ let NovelService = class NovelService {
                 .andWhere("chapter_new.chapter_number = 1");
         }
         else if (type === "relay") {
-            query.andWhere("novel.type = :type", { type });
+            query
+                .andWhere("novel.type = :type", { type })
+                .andWhere("novel.status != :submitted", { submitted: "submitted" });
         }
         if (typeof genre === "string" && genre !== "all" && genre !== "전체") {
             const foundGenre = await this.genreRepo.findOne({
