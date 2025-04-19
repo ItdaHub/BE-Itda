@@ -14,9 +14,6 @@ export class Banner {
   title: string;
 
   @Column()
-  url: string;
-
-  @Column()
   image_path: string;
 
   @CreateDateColumn()

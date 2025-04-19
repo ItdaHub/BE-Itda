@@ -90,14 +90,14 @@ export class ReportService {
     return null;
   }
 
-  // 댓글 신고 시, 신고한 댓글 작성자 찾기
+  // 댓글을 작성한 유저 찾는 함수
   async findReportedUserByComment(commentId: number): Promise<User | null> {
     const comment = await this.commentRepository.findOne({
       where: { id: commentId },
       relations: ["user"],
     });
 
-    return comment?.user ?? null; // 댓글을 작성한 유저 반환
+    return comment?.user ?? null;
   }
 
   async handleReport(reportId: number): Promise<boolean> {

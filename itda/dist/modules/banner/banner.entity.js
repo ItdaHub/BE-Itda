@@ -14,7 +14,6 @@ const typeorm_1 = require("typeorm");
 let Banner = class Banner {
     id;
     title;
-    url;
     image_path;
     created_at;
 };
@@ -27,10 +26,6 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Banner.prototype, "title", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Banner.prototype, "url", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)

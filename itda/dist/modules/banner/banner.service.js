@@ -33,7 +33,6 @@ let BannerService = class BannerService {
     async create(title, url, imagePath) {
         const banner = this.bannerRepo.create({
             title,
-            url,
             image_path: imagePath,
         });
         return this.bannerRepo.save(banner);

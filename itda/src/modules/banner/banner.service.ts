@@ -26,7 +26,6 @@ export class BannerService {
   async create(title: string, url: string, imagePath: string): Promise<Banner> {
     const banner = this.bannerRepo.create({
       title,
-      url,
       image_path: imagePath,
     });
     return this.bannerRepo.save(banner);
