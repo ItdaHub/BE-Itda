@@ -265,9 +265,6 @@ let NovelService = class NovelService {
                 console.log(`Chapter ${chapter.chapter_number} is set to free: ${chapter.isPaid}`);
             }
         });
-        const isSubmitted = novel.status === "submitted";
-        const isCompleted = isSubmitted || sortedChapters.length === novel.max_participants;
-        const status = isCompleted ? "completed" : "ongoing";
         return {
             id: novel.id,
             title: novel.title,
@@ -293,7 +290,7 @@ let NovelService = class NovelService {
                 isPaid: chapter.isPaid,
             })),
             nextChapterNumber: sortedChapters.length + 1,
-            status,
+            status: novel.status,
         };
     }
     async findMyNovels(userId) {
