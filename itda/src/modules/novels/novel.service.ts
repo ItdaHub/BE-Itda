@@ -317,12 +317,13 @@ export class NovelService {
       }
     });
 
-    // ✅ 상태 계산 로직 추가
-    const isSubmitted = novel.status === "submitted"; // 이미 제출 상태인지
+    // ✅ 상태 계산 로직 수정
+    const isSubmitted = novel.status === "submitted";
     const isCompleted =
-      sortedChapters.length - 1 === novel.max_participants || isSubmitted;
+      isSubmitted || sortedChapters.length === novel.max_participants;
 
-    const status = isCompleted ? "completed" : "ongoing"; // 상태 계산
+    const status = isCompleted ? "completed" : "ongoing";
+
     return {
       id: novel.id,
       title: novel.title,

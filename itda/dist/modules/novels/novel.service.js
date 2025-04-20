@@ -266,7 +266,7 @@ let NovelService = class NovelService {
             }
         });
         const isSubmitted = novel.status === "submitted";
-        const isCompleted = sortedChapters.length - 1 === novel.max_participants || isSubmitted;
+        const isCompleted = isSubmitted || sortedChapters.length === novel.max_participants;
         const status = isCompleted ? "completed" : "ongoing";
         return {
             id: novel.id,
