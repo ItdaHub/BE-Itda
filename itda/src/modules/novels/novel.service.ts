@@ -438,7 +438,7 @@ export class NovelService {
   async adminPublishNovel(novelId: number) {
     const novel = await this.novelRepo.findOne({
       where: { id: novelId },
-      relations: ["creator", "chapters"],
+      relations: ["creator", "chapters", "chapters.author"], // author 포함해서 불러오기!
     });
 
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
@@ -463,13 +463,25 @@ export class NovelService {
 
     await this.chapterRepo.save(chapters);
 
-    // 알림 전송
-    await this.notificationService.sendNotification({
-      user: novel.creator,
-      content: `당신의 소설 "${novel.title}"이 출품되었습니다.`,
-      novel,
-    });
-    console.log("✅ 출품 완료 상태 저장:", novel);
+    // ✅ 참여자 추출 (중복 제거)
+    const participantMap = new Map<number, User>();
+    for (const chapter of chapters) {
+      if (chapter.author && !participantMap.has(chapter.author.id)) {
+        participantMap.set(chapter.author.id, chapter.author);
+      }
+    }
+
+    // ✅ 알림 전송
+    for (const user of participantMap.values()) {
+      await this.notificationService.sendNotification({
+        user,
+        content: `당신이 참여한 소설 "${novel.title}"이 출품되었습니다!`,
+        novel,
+        type: "NOVEL_SUBMIT",
+      });
+    }
+
+    console.log("✅ 출품 완료 및 알림 전송 완료:", novel.title);
 
     return novel;
   }
