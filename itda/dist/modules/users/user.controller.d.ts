@@ -25,6 +25,9 @@ export declare class UserController {
         message: string;
         filename: string;
     }>;
+    deleteProfileImage(req: any): Promise<{
+        message: string;
+    }>;
     deleteMyAccount(req: any): Promise<void>;
     deleteUsersByAdmin(userIds: number[]): Promise<{
         message: string;

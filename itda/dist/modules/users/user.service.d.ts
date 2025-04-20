@@ -5,11 +5,13 @@ import { CreateUserDto } from "./dto/ceateuser.dto";
 export declare class UserService {
     private userRepository;
     private pointRepository;
+    private readonly logger;
     constructor(userRepository: Repository<User>, pointRepository: Repository<Point>);
     findAll(): Promise<User[]>;
     findOne(id: number): Promise<User>;
     create(userDto: CreateUserDto): Promise<User>;
     update(id: number, userData: Partial<User>): Promise<User>;
+    deleteProfileImage(userId: number): Promise<void>;
     remove(userId: number, requestUser: User): Promise<void>;
     findByPhone(phone: string): Promise<User | null>;
     findByEmail(email: string): Promise<User | null>;

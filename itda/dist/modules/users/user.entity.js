@@ -91,7 +91,7 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], User.prototype, "profile_img", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true, nullable: true }),

@@ -63,6 +63,11 @@ let UserController = class UserController {
             filename: file.filename,
         };
     }
+    async deleteProfileImage(req) {
+        const userId = req.user.id;
+        await this.userService.deleteProfileImage(userId);
+        return { message: "프로필 이미지가 성공적으로 삭제되었습니다." };
+    }
     async deleteMyAccount(req) {
         const userId = req.user.id;
         const requestUser = req.user;
@@ -167,6 +172,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "uploadProfileImage", null);
+__decorate([
+    (0, common_1.Delete)("me/profile-image"),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: "내 프로필 이미지 삭제" }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "deleteProfileImage", null);
 __decorate([
     (0, common_1.Delete)("me"),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),

@@ -31,7 +31,7 @@ export declare class User {
     id: number;
     email: string;
     password: string;
-    profile_img: string;
+    profile_img: string | null;
     phone: string;
     type: LoginType;
     name?: string;

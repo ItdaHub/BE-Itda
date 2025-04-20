@@ -132,6 +132,16 @@ export class UserController {
     };
   }
 
+  // ✅ 내 프로필 이미지 삭제
+  @Delete("me/profile-image")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "내 프로필 이미지 삭제" })
+  async deleteProfileImage(@Request() req): Promise<{ message: string }> {
+    const userId = req.user.id;
+    await this.userService.deleteProfileImage(userId);
+    return { message: "프로필 이미지가 성공적으로 삭제되었습니다." };
+  }
+
   // ✅ 본인 회원 탈퇴 (회원 삭제)
   @Delete("me")
   @HttpCode(HttpStatus.NO_CONTENT)

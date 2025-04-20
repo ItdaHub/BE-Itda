@@ -59,7 +59,7 @@ export class User {
   @Column({ nullable: true })
   @IsOptional()
   @IsString()
-  profile_img: string;
+  profile_img: string | null;
 
   @Column({ unique: true, nullable: true })
   @IsOptional()

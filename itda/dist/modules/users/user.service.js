@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var UserService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
@@ -19,9 +20,13 @@ const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const point_entity_1 = require("../points/point.entity");
 const bcrypt = require("bcrypt");
-let UserService = class UserService {
+const promises_1 = require("fs/promises");
+const path_1 = require("path");
+const common_2 = require("@nestjs/common");
+let UserService = UserService_1 = class UserService {
     userRepository;
     pointRepository;
+    logger = new common_2.Logger(UserService_1.name);
     constructor(userRepository, pointRepository) {
         this.userRepository = userRepository;
         this.pointRepository = pointRepository;
@@ -71,6 +76,20 @@ let UserService = class UserService {
         const savedUser = await this.userRepository.save(user);
         console.log("✅ 저장된 유저 정보:", savedUser);
         return this.findOne(id);
+    }
+    async deleteProfileImage(userId) {
+        const user = await this.findOne(userId);
+        if (user.profile_img) {
+            const filePath = (0, path_1.join)(__dirname, "..", "..", "uploads", "profiles", user.profile_img);
+            try {
+                await (0, promises_1.unlink)(filePath);
+            }
+            catch (err) {
+                this.logger.warn(`프로필 이미지 파일 삭제 실패: ${filePath}`);
+            }
+            user.profile_img = null;
+            await this.userRepository.save(user);
+        }
     }
     async remove(userId, requestUser) {
         if (userId !== requestUser.id) {
@@ -122,7 +141,7 @@ let UserService = class UserService {
     }
 };
 exports.UserService = UserService;
-exports.UserService = UserService = __decorate([
+exports.UserService = UserService = UserService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __param(1, (0, typeorm_1.InjectRepository)(point_entity_1.Point)),

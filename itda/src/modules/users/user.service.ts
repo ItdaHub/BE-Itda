@@ -10,9 +10,14 @@ import { Point } from "../points/point.entity";
 import { FindOptionsWhere } from "typeorm";
 import { CreateUserDto } from "./dto/ceateuser.dto";
 import * as bcrypt from "bcrypt";
+import { unlink } from "fs/promises";
+import { join } from "path";
+import { Logger } from "@nestjs/common";
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -82,6 +87,27 @@ export class UserService {
     console.log("✅ 저장된 유저 정보:", savedUser);
 
     return this.findOne(id);
+  }
+
+  async deleteProfileImage(userId: number): Promise<void> {
+    const user = await this.findOne(userId);
+    if (user.profile_img) {
+      const filePath = join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        "profiles",
+        user.profile_img
+      );
+      try {
+        await unlink(filePath);
+      } catch (err) {
+        this.logger.warn(`프로필 이미지 파일 삭제 실패: ${filePath}`);
+      }
+      user.profile_img = null;
+      await this.userRepository.save(user);
+    }
   }
 
   // 일반 유저가 직접 탈퇴
