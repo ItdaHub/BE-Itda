@@ -147,6 +147,15 @@ export class ReportService {
       `👤 신고 대상 유저: ${reportedUser.nickname} (ID: ${reportedUser.id})`
     );
 
+    // 👉 신고된 콘텐츠 삭제
+    if (report.target_type === TargetType.COMMENT) {
+      await this.commentRepository.delete(report.target_id);
+      console.log(`🗑️ 댓글(ID: ${report.target_id}) 삭제됨`);
+    } else if (report.target_type === TargetType.CHAPTER) {
+      await this.chapterRepository.delete(report.target_id);
+      console.log(`🗑️ 챕터(ID: ${report.target_id}) 삭제됨`);
+    }
+
     // 신고 횟수 증가
     reportedUser.report_count = (reportedUser.report_count || 0) + 1;
     console.log(`⚠️ 신고 횟수: ${reportedUser.report_count}`);
