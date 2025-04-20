@@ -50,4 +50,7 @@ export class Report {
     cascade: true,
   })
   notifications: Notification[];
+
+  @Column({ default: false })
+  handled: boolean;
 }

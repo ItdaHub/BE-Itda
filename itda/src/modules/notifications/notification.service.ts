@@ -20,17 +20,26 @@ export class NotificationService {
     private reportRepository: Repository<Report>
   ) {}
 
+  async getUserNotifications(userId: number): Promise<Notification[]> {
+    return this.notificationRepository.find({
+      where: { user: { id: userId } },
+      order: { created_at: "DESC" },
+    });
+  }
+
   async sendNotification({
     user,
     content,
     novel = null,
     report = null,
+    type = "REPORT", // 기본값 설정
   }: SendNotificationDto) {
     const notification = this.notificationRepository.create({
       user,
       content,
       novel,
       report,
+      type,
     });
 
     return await this.notificationRepository.save(notification);

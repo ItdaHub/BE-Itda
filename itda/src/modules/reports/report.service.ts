@@ -126,53 +126,71 @@ export class ReportService {
   }
 
   // 신고 처리
-  // 신고 처리
   async handleReport(reportId: number): Promise<boolean> {
-    console.log(`신고 ID: ${reportId} 처리 시작`);
+    console.log(`🛠️ 신고 ID: ${reportId} 처리 시작`);
 
     const report = await this.findOne(reportId);
     if (!report) {
-      console.log(`신고 ID: ${reportId} 찾을 수 없음`);
+      console.log(`❌ 신고 ID ${reportId}를 찾을 수 없습니다`);
       return false;
     }
-    console.log(`신고 데이터: ${JSON.stringify(report)}`);
+
+    console.log(`📄 신고 데이터:`, report);
 
     // 신고 대상 유저 찾기
     const reportedUser = await this.findReportedUser(report);
     if (!reportedUser) {
-      console.log(`신고 대상 유저를 찾을 수 없음: ${JSON.stringify(report)}`);
+      console.log(`❌ 신고 대상 유저를 찾을 수 없습니다`);
       return false;
     }
-    console.log(`신고 대상 유저: ${JSON.stringify(reportedUser)}`);
 
-    // 신고 횟수 증가 및 계정 정지 처리
-    reportedUser.report_count += 1;
-    console.log(`신고 횟수 증가 후: ${reportedUser.report_count}`);
+    console.log(
+      `👤 신고 대상 유저: ${reportedUser.nickname} (ID: ${reportedUser.id})`
+    );
+
+    // ✅ 신고 횟수 증가
+    reportedUser.report_count = (reportedUser.report_count || 0) + 1;
+    console.log(`⚠️ 신고 횟수: ${reportedUser.report_count}`);
+
+    // ✅ 신고 누적 처리 (ex: 2회 이상이면 정지)
     if (reportedUser.report_count >= 2) {
       reportedUser.status = UserStatus.STOP;
-      console.log(`유저 상태 변경: BANNED`);
+      console.log(`🚫 유저 상태 STOP으로 변경됨`);
     }
 
-    // 유저 정보 저장
+    // ✅ 유저 정보 저장
     await this.userService.save(reportedUser);
-    console.log(`유저 정보 저장 완료: ${JSON.stringify(reportedUser)}`);
+    console.log(`💾 유저 정보 저장 완료`);
 
-    // 알림 메시지 준비 및 전송
+    // ✅ 알림 메시지 전송
     const message =
       reportedUser.status === UserStatus.STOP
         ? "🚨 신고가 누적되어 계정이 정지되었습니다!"
         : "⚠️ 신고가 접수되었습니다. 주의해 주세요!";
 
-    console.log(`알림 내용: ${message}`);
-
-    // 알림 전송
     await this.notificationService.sendNotification({
       user: reportedUser,
       content: message,
     });
 
-    console.log(`알림 전송 완료`);
+    console.log(`📢 알림 전송 완료 → ${reportedUser.nickname}: ${message}`);
 
     return true;
+  }
+
+  async saveUser(user: User): Promise<User> {
+    return this.userService.save(user);
+  }
+
+  async sendNotification(user: User, content: string): Promise<void> {
+    await this.notificationService.sendNotification({
+      user,
+      content,
+    });
+  }
+
+  async markHandled(report: Report): Promise<void> {
+    report.handled = true;
+    await this.reportRepository.save(report);
   }
 }

@@ -16,4 +16,5 @@ export declare class Report {
     reported_user_id?: number;
     created_at: Date;
     notifications: Notification[];
+    handled: boolean;
 }

@@ -6,6 +6,7 @@ class SendNotificationDto {
     content;
     novel;
     report;
+    type;
 }
 exports.SendNotificationDto = SendNotificationDto;
 //# sourceMappingURL=notification.dto.js.map

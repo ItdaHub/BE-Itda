@@ -128,6 +128,20 @@ export class ReportController {
     return this.reportService.findAll();
   }
 
+  // ✅ 신고 단건 조회
+  @Get(":id")
+  @ApiOperation({ summary: "신고 단건 조회" })
+  @ApiParam({ name: "id", type: "number", description: "조회할 신고 ID" })
+  @ApiResponse({ status: 200, description: "신고 조회 성공", type: Report })
+  @ApiResponse({ status: 404, description: "해당 신고를 찾을 수 없음" })
+  async getReportById(@Param("id", ParseIntPipe) id: number): Promise<Report> {
+    const report = await this.reportService.findOne(id);
+    if (!report) {
+      throw new NotFoundException("해당 신고를 찾을 수 없습니다.");
+    }
+    return report;
+  }
+
   @Delete(":id")
   @ApiOperation({ summary: "신고 삭제 (관리자)" })
   @ApiParam({ name: "id", type: "number", description: "삭제할 신고 ID" })
@@ -147,15 +161,32 @@ export class ReportController {
   @ApiOperation({ summary: "신고 처리 (신고자에게 알림 + 신고 횟수 증가)" })
   @ApiParam({ name: "id", type: "number", description: "처리할 신고 ID" })
   @ApiResponse({ status: 200, description: "신고 처리 성공" })
-  @ApiResponse({ status: 404, description: "해당 신고를 찾을 수 없음" })
   async handleReport(
     @Param("id", ParseIntPipe) id: number
   ): Promise<{ message: string }> {
-    const result = await this.reportService.handleReport(id);
-    if (!result) {
+    const report = await this.reportService.findOne(id);
+    if (!report) {
       throw new NotFoundException("해당 신고를 찾을 수 없습니다.");
     }
-    console.log(`신고 처리 요청: ${id}`);
+
+    const targetUser = await this.reportService.findReportedUser(report);
+    if (!targetUser) {
+      throw new NotFoundException("신고 대상 유저를 찾을 수 없습니다.");
+    }
+
+    // ✅ 신고 횟수 +1
+    targetUser.report_count = (targetUser.report_count || 0) + 1;
+    await this.reportService.saveUser(targetUser);
+
+    // ✅ 알림 전송
+    await this.reportService.sendNotification(
+      targetUser,
+      "신고가 접수되었습니다. 경고 누적 시 계정이 정지될 수 있습니다."
+    );
+
+    // ✅ 신고 상태 처리됨으로 표시 등 추가 로직 필요 시 여기에
+    await this.reportService.markHandled(report);
+
     return { message: "신고가 처리되었습니다." };
   }
 }

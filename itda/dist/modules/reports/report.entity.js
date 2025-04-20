@@ -30,6 +30,7 @@ let Report = class Report {
     reported_user_id;
     created_at;
     notifications;
+    handled;
 };
 exports.Report = Report;
 __decorate([
@@ -76,6 +77,10 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Report.prototype, "notifications", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], Report.prototype, "handled", void 0);
 exports.Report = Report = __decorate([
     (0, typeorm_1.Entity)("reports")
 ], Report);

@@ -15,16 +15,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationController = void 0;
 const common_1 = require("@nestjs/common");
 const notification_service_1 = require("./notification.service");
+const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 let NotificationController = class NotificationController {
     notificationService;
     constructor(notificationService) {
         this.notificationService = notificationService;
+    }
+    async getUserNotifications(req) {
+        const user = req.user;
+        return this.notificationService.getUserNotifications(user.id);
     }
     async markNotificationAsRead(notificationId) {
         return this.notificationService.markNotificationAsRead(notificationId);
     }
 };
 exports.NotificationController = NotificationController;
+__decorate([
+    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationController.prototype, "getUserNotifications", null);
 __decorate([
     (0, common_1.Patch)(":notificationId/read"),
     __param(0, (0, common_1.Param)("notificationId")),

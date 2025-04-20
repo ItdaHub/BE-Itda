@@ -10,6 +10,7 @@ export declare class NotificationService {
     private novelRepository;
     private reportRepository;
     constructor(notificationRepository: Repository<Notification>, userRepository: Repository<User>, novelRepository: Repository<Novel>, reportRepository: Repository<Report>);
-    sendNotification({ user, content, novel, report, }: SendNotificationDto): Promise<Notification>;
+    getUserNotifications(userId: number): Promise<Notification[]>;
+    sendNotification({ user, content, novel, report, type, }: SendNotificationDto): Promise<Notification>;
     markNotificationAsRead(notificationId: number): Promise<Notification>;
 }

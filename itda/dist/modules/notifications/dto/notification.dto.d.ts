@@ -6,4 +6,5 @@ export declare class SendNotificationDto {
     content: string;
     novel?: Novel | null;
     report?: Report | null;
+    type?: "REPORT" | "NOVEL_SUBMIT";
 }
