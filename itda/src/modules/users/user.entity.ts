@@ -56,7 +56,7 @@ export class User {
   @IsString()
   password: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", length: 255, nullable: true })
   @IsOptional()
   @IsString()
   profile_img: string | null;
