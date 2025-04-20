@@ -35,14 +35,14 @@ let ReportController = class ReportController {
         return this.reportService.create(report);
     }
     async reportChapter(chapterId, reportData, req) {
-        if (!reportData.reason) {
-            throw new common_1.BadRequestException("신고 사유를 입력해주세요.");
-        }
+        console.log(`신고 대상 챕터 ID: ${chapterId}`);
+        console.log("신고 사유:", reportData.reason);
         const report = new report_entity_1.Report();
         report.reporter = req.user;
         report.target_type = report_entity_1.TargetType.CHAPTER;
         report.target_id = chapterId;
         report.reason = reportData.reason;
+        console.log("생성된 report 객체:", report);
         return this.reportService.create(report);
     }
     async getAllReports() {
@@ -53,9 +53,6 @@ let ReportController = class ReportController {
             reported_content: r.reported_content,
         })));
         return this.reportService.findAll();
-    }
-    async getReportById(reportId) {
-        return this.reportService.findOne(reportId);
     }
     async deleteReport(id) {
         const success = await this.reportService.delete(id);
@@ -140,21 +137,6 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "getAllReports", null);
-__decorate([
-    (0, common_1.Get)(":reportId"),
-    (0, swagger_1.ApiOperation)({ summary: "특정 신고 ID로 신고 상세 정보 조회" }),
-    (0, swagger_1.ApiParam)({ name: "reportId", type: "number", description: "조회할 신고 ID" }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: "신고 상세 정보 조회 성공",
-        type: report_entity_1.Report,
-    }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: "해당 신고를 찾을 수 없음" }),
-    __param(0, (0, common_1.Param)("reportId", common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], ReportController.prototype, "getReportById", null);
 __decorate([
     (0, common_1.Delete)(":id"),
     (0, swagger_1.ApiOperation)({ summary: "신고 삭제 (관리자)" }),

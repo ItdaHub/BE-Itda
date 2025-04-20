@@ -29,7 +29,8 @@ let AnnouncementService = class AnnouncementService {
             admin,
             priority,
         });
-        return await this.announcementRepo.save(newAnnouncement);
+        const saved = await this.announcementRepo.save(newAnnouncement);
+        return this.toDto(saved);
     }
     async deleteAnnouncement(id) {
         const found = await this.announcementRepo.findOne({ where: { id } });
@@ -41,30 +42,50 @@ let AnnouncementService = class AnnouncementService {
     async getAllAnnouncements() {
         const announcements = await this.announcementRepo.find({
             relations: ["admin"],
+            order: { start_date: "DESC" },
         });
-        console.log("📜 모든 공지사항 조회 결과:", announcements);
-        return announcements;
+        return announcements.map((a) => this.toDto(a));
+    }
+    async getAnnouncementById(id) {
+        const announcement = await this.announcementRepo.findOne({
+            where: { id },
+            relations: ["admin"],
+        });
+        if (!announcement) {
+            throw new common_1.NotFoundException("공지사항을 찾을 수 없습니다.");
+        }
+        return this.toDto(announcement);
     }
     async updateAnnouncement(id, title, content, priority = "normal") {
-        const announcement = await this.announcementRepo.findOneBy({ id });
+        const announcement = await this.announcementRepo.findOne({
+            where: { id },
+            relations: ["admin"],
+        });
         if (!announcement) {
             throw new common_1.NotFoundException(`Announcement with ID "${id}" not found`);
         }
         announcement.title = title;
         announcement.content = content;
-        if (priority) {
-            announcement.priority = priority;
-        }
-        return this.announcementRepo.save(announcement);
+        announcement.priority = priority;
+        const updated = await this.announcementRepo.save(announcement);
+        return this.toDto(updated);
     }
-    async getAnnouncementById(id) {
-        console.log("🔍 ID 조회 시도:", id);
-        const announcement = await this.announcementRepo.findOne({ where: { id } });
-        console.log("✅ 조회 결과:", announcement);
-        if (!announcement) {
-            throw new common_1.NotFoundException("공지사항을 찾을 수 없습니다.");
-        }
-        return announcement;
+    toDto(entity) {
+        const { id, title, content, priority, start_date, created_at, updated_at, admin, } = entity;
+        return {
+            id,
+            title,
+            content,
+            priority,
+            start_date,
+            created_at,
+            updated_at,
+            admin: {
+                id: admin.id,
+                email: admin.email,
+                nickname: admin.nickname,
+            },
+        };
     }
 };
 exports.AnnouncementService = AnnouncementService;

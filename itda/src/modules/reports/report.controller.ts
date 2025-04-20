@@ -61,7 +61,7 @@ export class ReportController {
     }
 
     const report = new Report();
-    report.reporter = req.user; // 현재 로그인한 사용자 ID 설정
+    report.reporter = req.user;
     report.target_type = TargetType.COMMENT;
     report.target_id = commentId;
     report.reason = reportData.reason;
@@ -93,17 +93,20 @@ export class ReportController {
     @Body() reportData: { reason: string },
     @Req() req: any
   ): Promise<Report> {
-    if (!reportData.reason) {
-      throw new BadRequestException("신고 사유를 입력해주세요.");
-    }
+    console.log(`신고 대상 챕터 ID: ${chapterId}`);
+    console.log("신고 사유:", reportData.reason);
 
     const report = new Report();
     report.reporter = req.user;
     report.target_type = TargetType.CHAPTER;
     report.target_id = chapterId;
     report.reason = reportData.reason;
+
+    console.log("생성된 report 객체:", report);
+
     return this.reportService.create(report);
   }
+
   // ✅ 모든 신고 목록 조회 (관리자 권한 필요)
   @Get()
   @ApiOperation({ summary: "모든 신고 목록 조회 (관리자)" })
@@ -123,22 +126,6 @@ export class ReportController {
       }))
     );
     return this.reportService.findAll();
-  }
-
-  // ✅ 특정 신고 ID로 신고 상세 정보 조회
-  @Get(":reportId")
-  @ApiOperation({ summary: "특정 신고 ID로 신고 상세 정보 조회" })
-  @ApiParam({ name: "reportId", type: "number", description: "조회할 신고 ID" })
-  @ApiResponse({
-    status: 200,
-    description: "신고 상세 정보 조회 성공",
-    type: Report,
-  })
-  @ApiResponse({ status: 404, description: "해당 신고를 찾을 수 없음" })
-  async getReportById(
-    @Param("reportId", ParseIntPipe) reportId: number
-  ): Promise<Report> {
-    return this.reportService.findOne(reportId);
   }
 
   @Delete(":id")

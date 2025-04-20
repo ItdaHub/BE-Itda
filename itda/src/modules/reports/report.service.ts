@@ -28,15 +28,41 @@ export class ReportService {
   async findOne(id: number): Promise<Report> {
     const report = await this.reportRepository.findOne({
       where: { id },
-      relations: ["reporter"],
+      relations: ["reporter"], // 관계를 최소화
     });
+
     if (!report) {
       throw new NotFoundException(`Report with ID ${id} not found`);
     }
+
+    // 신고된 대상의 존재 여부를 target_type에 따라 확인
+    if (report.target_type === TargetType.CHAPTER) {
+      const chapter = await this.chapterRepository.findOne({
+        where: { id: report.target_id },
+      });
+      if (!chapter) {
+        throw new NotFoundException(
+          `Chapter not found for ID ${report.target_id}`
+        );
+      }
+    }
+
+    if (report.target_type === TargetType.COMMENT) {
+      const comment = await this.commentRepository.findOne({
+        where: { id: report.target_id },
+      });
+      if (!comment) {
+        throw new NotFoundException(
+          `Comment not found for ID ${report.target_id}`
+        );
+      }
+    }
+
     return report;
   }
 
   async create(report: Report): Promise<Report> {
+    // 댓글 신고 처리
     if (report.target_type === TargetType.COMMENT) {
       const comment = await this.commentRepository.findOne({
         where: { id: report.target_id },
@@ -46,30 +72,31 @@ export class ReportService {
 
       report.reported_content = comment.content;
       report.reported_user_id = comment.user?.id;
-    } else if (report.target_type === TargetType.CHAPTER) {
+    }
+
+    // 챕터 신고 처리
+    else if (report.target_type === TargetType.CHAPTER) {
       const chapter = await this.chapterRepository.findOne({
         where: { id: report.target_id },
         relations: ["author", "novel"],
       });
+
+      console.log("신고 타겟 ID:", report.target_id); // 꼭 찍어보세요
+
+      console.log("챕터 내용:", chapter);
+
       if (!chapter) throw new NotFoundException("챕터를 찾을 수 없습니다.");
 
+      // 수정된 부분
+      report.chapter = chapter;
       report.reported_content = `[${chapter.novel.title} - ${chapter.chapter_number}화]\n${chapter.content}`;
       report.reported_user_id = chapter.author?.id;
-
-      report.chapter = chapter;
     }
 
     return this.reportRepository.save(report);
   }
 
-  async delete(id: number): Promise<boolean> {
-    const report = await this.reportRepository.findOne({ where: { id } });
-    if (!report) return false;
-
-    await this.reportRepository.remove(report);
-    return true;
-  }
-
+  // 신고 대상 유저 찾기 (댓글 또는 챕터에 따라)
   async findReportedUser(report: Report): Promise<User | null> {
     if (report.target_type === TargetType.COMMENT) {
       const comment = await this.commentRepository.findOne({
@@ -82,7 +109,7 @@ export class ReportService {
     if (report.target_type === TargetType.CHAPTER) {
       const chapter = await this.chapterRepository.findOne({
         where: { id: report.target_id },
-        relations: ["writer"],
+        relations: ["author"],
       });
       return chapter?.author ?? null;
     }
@@ -90,16 +117,16 @@ export class ReportService {
     return null;
   }
 
-  // 댓글을 작성한 유저 찾는 함수
-  async findReportedUserByComment(commentId: number): Promise<User | null> {
-    const comment = await this.commentRepository.findOne({
-      where: { id: commentId },
-      relations: ["user"],
-    });
+  async delete(id: number): Promise<boolean> {
+    const report = await this.reportRepository.findOne({ where: { id } });
+    if (!report) return false;
 
-    return comment?.user ?? null;
+    await this.reportRepository.remove(report);
+    return true;
   }
 
+  // 신고 처리
+  // 신고 처리
   async handleReport(reportId: number): Promise<boolean> {
     console.log(`신고 ID: ${reportId} 처리 시작`);
 
@@ -109,20 +136,6 @@ export class ReportService {
       return false;
     }
     console.log(`신고 데이터: ${JSON.stringify(report)}`);
-
-    // reported_user_id가 null일 경우, 신고 대상 유저 찾기
-    if (!report.reported_user_id) {
-      // 예시로 댓글 신고라면, 댓글을 통해 신고한 유저를 찾을 수 있습니다.
-      const reportedUser = await this.findReportedUserByComment(
-        report.target_id
-      ); // 예시로 댓글 ID로 유저를 찾는 함수 사용
-      if (reportedUser) {
-        report.reported_user_id = reportedUser.id; // 신고 대상 유저 ID 설정
-      } else {
-        console.log("신고 대상 유저를 찾을 수 없음");
-        return false;
-      }
-    }
 
     // 신고 대상 유저 찾기
     const reportedUser = await this.findReportedUser(report);
@@ -157,6 +170,7 @@ export class ReportService {
       user: reportedUser,
       content: message,
     });
+
     console.log(`알림 전송 완료`);
 
     return true;

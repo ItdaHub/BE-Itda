@@ -1,18 +1,17 @@
 import { AnnouncementService } from "./announcement.service";
 import { Request } from "express";
-import { Announcement } from "./announcement.entity";
 export declare class AnnouncementController {
     private readonly announcementService;
     constructor(announcementService: AnnouncementService);
-    createAnnouncement(req: Request, body: any): Promise<Announcement>;
+    createAnnouncement(req: Request, body: any): Promise<import("./dto/announcement.dto").AnnouncementWithAdminDto>;
     deleteAnnouncement(id: string): Promise<{
         message: string;
     }>;
-    getAllAnnouncements(): Promise<Announcement[]>;
-    getAnnouncement(id: string): Promise<Announcement>;
+    getAllAnnouncements(): Promise<import("./dto/announcement.dto").AnnouncementWithAdminDto[]>;
+    getAnnouncement(id: string): Promise<import("./dto/announcement.dto").AnnouncementWithAdminDto>;
     updateAnnouncement(id: string, body: {
         title: string;
         content: string;
         priority?: "urgent" | "normal";
-    }): Promise<Announcement>;
+    }): Promise<import("./dto/announcement.dto").AnnouncementWithAdminDto>;
 }

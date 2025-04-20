@@ -15,8 +15,7 @@ export declare class ReportService {
     findAll(): Promise<Report[]>;
     findOne(id: number): Promise<Report>;
     create(report: Report): Promise<Report>;
-    delete(id: number): Promise<boolean>;
     findReportedUser(report: Report): Promise<User | null>;
-    findReportedUserByComment(commentId: number): Promise<User | null>;
+    delete(id: number): Promise<boolean>;
     handleReport(reportId: number): Promise<boolean>;
 }

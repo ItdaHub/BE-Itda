@@ -10,7 +10,6 @@ export declare class ReportController {
         reason: string;
     }, req: any): Promise<Report>;
     getAllReports(): Promise<Report[]>;
-    getReportById(reportId: number): Promise<Report>;
     deleteReport(id: number): Promise<{
         message: string;
     }>;

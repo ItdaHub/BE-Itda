@@ -46,6 +46,22 @@ let ReportService = class ReportService {
         if (!report) {
             throw new common_1.NotFoundException(`Report with ID ${id} not found`);
         }
+        if (report.target_type === report_entity_1.TargetType.CHAPTER) {
+            const chapter = await this.chapterRepository.findOne({
+                where: { id: report.target_id },
+            });
+            if (!chapter) {
+                throw new common_1.NotFoundException(`Chapter not found for ID ${report.target_id}`);
+            }
+        }
+        if (report.target_type === report_entity_1.TargetType.COMMENT) {
+            const comment = await this.commentRepository.findOne({
+                where: { id: report.target_id },
+            });
+            if (!comment) {
+                throw new common_1.NotFoundException(`Comment not found for ID ${report.target_id}`);
+            }
+        }
         return report;
     }
     async create(report) {
@@ -64,20 +80,15 @@ let ReportService = class ReportService {
                 where: { id: report.target_id },
                 relations: ["author", "novel"],
             });
+            console.log("신고 타겟 ID:", report.target_id);
+            console.log("챕터 내용:", chapter);
             if (!chapter)
                 throw new common_1.NotFoundException("챕터를 찾을 수 없습니다.");
+            report.chapter = chapter;
             report.reported_content = `[${chapter.novel.title} - ${chapter.chapter_number}화]\n${chapter.content}`;
             report.reported_user_id = chapter.author?.id;
-            report.chapter = chapter;
         }
         return this.reportRepository.save(report);
-    }
-    async delete(id) {
-        const report = await this.reportRepository.findOne({ where: { id } });
-        if (!report)
-            return false;
-        await this.reportRepository.remove(report);
-        return true;
     }
     async findReportedUser(report) {
         if (report.target_type === report_entity_1.TargetType.COMMENT) {
@@ -90,18 +101,18 @@ let ReportService = class ReportService {
         if (report.target_type === report_entity_1.TargetType.CHAPTER) {
             const chapter = await this.chapterRepository.findOne({
                 where: { id: report.target_id },
-                relations: ["writer"],
+                relations: ["author"],
             });
             return chapter?.author ?? null;
         }
         return null;
     }
-    async findReportedUserByComment(commentId) {
-        const comment = await this.commentRepository.findOne({
-            where: { id: commentId },
-            relations: ["user"],
-        });
-        return comment?.user ?? null;
+    async delete(id) {
+        const report = await this.reportRepository.findOne({ where: { id } });
+        if (!report)
+            return false;
+        await this.reportRepository.remove(report);
+        return true;
     }
     async handleReport(reportId) {
         console.log(`신고 ID: ${reportId} 처리 시작`);
@@ -111,16 +122,6 @@ let ReportService = class ReportService {
             return false;
         }
         console.log(`신고 데이터: ${JSON.stringify(report)}`);
-        if (!report.reported_user_id) {
-            const reportedUser = await this.findReportedUserByComment(report.target_id);
-            if (reportedUser) {
-                report.reported_user_id = reportedUser.id;
-            }
-            else {
-                console.log("신고 대상 유저를 찾을 수 없음");
-                return false;
-            }
-        }
         const reportedUser = await this.findReportedUser(report);
         if (!reportedUser) {
             console.log(`신고 대상 유저를 찾을 수 없음: ${JSON.stringify(report)}`);
