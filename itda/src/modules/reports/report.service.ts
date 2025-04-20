@@ -22,13 +22,17 @@ export class ReportService {
   ) {}
 
   async findAll(): Promise<Report[]> {
-    return this.reportRepository.find({ relations: ["reporter"] });
+    return this.reportRepository.find({
+      where: { handled: false }, // ✅ 처리되지 않은 신고만
+      relations: ["reporter"],
+      order: { created_at: "DESC" },
+    });
   }
 
   async findOne(id: number): Promise<Report> {
     const report = await this.reportRepository.findOne({
       where: { id },
-      relations: ["reporter"], // 관계를 최소화
+      relations: ["reporter"],
     });
 
     if (!report) {
@@ -62,7 +66,6 @@ export class ReportService {
   }
 
   async create(report: Report): Promise<Report> {
-    // 댓글 신고 처리
     if (report.target_type === TargetType.COMMENT) {
       const comment = await this.commentRepository.findOne({
         where: { id: report.target_id },
@@ -72,22 +75,14 @@ export class ReportService {
 
       report.reported_content = comment.content;
       report.reported_user_id = comment.user?.id;
-    }
-
-    // 챕터 신고 처리
-    else if (report.target_type === TargetType.CHAPTER) {
+    } else if (report.target_type === TargetType.CHAPTER) {
       const chapter = await this.chapterRepository.findOne({
         where: { id: report.target_id },
         relations: ["author", "novel"],
       });
 
-      console.log("신고 타겟 ID:", report.target_id); // 꼭 찍어보세요
-
-      console.log("챕터 내용:", chapter);
-
       if (!chapter) throw new NotFoundException("챕터를 찾을 수 없습니다.");
 
-      // 수정된 부분
       report.chapter = chapter;
       report.reported_content = `[${chapter.novel.title} - ${chapter.chapter_number}화]\n${chapter.content}`;
       report.reported_user_id = chapter.author?.id;
@@ -96,7 +91,19 @@ export class ReportService {
     return this.reportRepository.save(report);
   }
 
-  // 신고 대상 유저 찾기 (댓글 또는 챕터에 따라)
+  async delete(id: number): Promise<boolean> {
+    const report = await this.reportRepository.findOne({ where: { id } });
+
+    if (!report) {
+      throw new NotFoundException(`Report with ID ${id} not found`);
+    }
+
+    // 삭제하려는 신고가 존재하면 삭제
+    await this.reportRepository.remove(report);
+    return true;
+  }
+
+  // 신고 대상 유저 찾기
   async findReportedUser(report: Report): Promise<User | null> {
     if (report.target_type === TargetType.COMMENT) {
       const comment = await this.commentRepository.findOne({
@@ -115,14 +122,6 @@ export class ReportService {
     }
 
     return null;
-  }
-
-  async delete(id: number): Promise<boolean> {
-    const report = await this.reportRepository.findOne({ where: { id } });
-    if (!report) return false;
-
-    await this.reportRepository.remove(report);
-    return true;
   }
 
   // 신고 처리
@@ -148,21 +147,21 @@ export class ReportService {
       `👤 신고 대상 유저: ${reportedUser.nickname} (ID: ${reportedUser.id})`
     );
 
-    // ✅ 신고 횟수 증가
+    // 신고 횟수 증가
     reportedUser.report_count = (reportedUser.report_count || 0) + 1;
     console.log(`⚠️ 신고 횟수: ${reportedUser.report_count}`);
 
-    // ✅ 신고 누적 처리 (ex: 2회 이상이면 정지)
+    // 신고 누적 처리 (2회 이상이면 정지)
     if (reportedUser.report_count >= 2) {
       reportedUser.status = UserStatus.STOP;
       console.log(`🚫 유저 상태 STOP으로 변경됨`);
     }
 
-    // ✅ 유저 정보 저장
+    // 유저 정보 저장
     await this.userService.save(reportedUser);
     console.log(`💾 유저 정보 저장 완료`);
 
-    // ✅ 알림 메시지 전송
+    // 알림 메시지 전송
     const message =
       reportedUser.status === UserStatus.STOP
         ? "🚨 신고가 누적되어 계정이 정지되었습니다!"
@@ -175,18 +174,11 @@ export class ReportService {
 
     console.log(`📢 알림 전송 완료 → ${reportedUser.nickname}: ${message}`);
 
-    return true;
-  }
+    // 신고 상태를 처리됨으로 표시
+    await this.markHandled(report);
+    console.log(`📋 신고 상태 처리됨으로 변경`);
 
-  async saveUser(user: User): Promise<User> {
-    return this.userService.save(user);
-  }
-
-  async sendNotification(user: User, content: string): Promise<void> {
-    await this.notificationService.sendNotification({
-      user,
-      content,
-    });
+    return true; // 신고 처리 성공 시 true 반환
   }
 
   async markHandled(report: Report): Promise<void> {

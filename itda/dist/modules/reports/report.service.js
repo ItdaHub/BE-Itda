@@ -36,7 +36,11 @@ let ReportService = class ReportService {
         this.notificationService = notificationService;
     }
     async findAll() {
-        return this.reportRepository.find({ relations: ["reporter"] });
+        return this.reportRepository.find({
+            where: { handled: false },
+            relations: ["reporter"],
+            order: { created_at: "DESC" },
+        });
     }
     async findOne(id) {
         const report = await this.reportRepository.findOne({
@@ -80,8 +84,6 @@ let ReportService = class ReportService {
                 where: { id: report.target_id },
                 relations: ["author", "novel"],
             });
-            console.log("신고 타겟 ID:", report.target_id);
-            console.log("챕터 내용:", chapter);
             if (!chapter)
                 throw new common_1.NotFoundException("챕터를 찾을 수 없습니다.");
             report.chapter = chapter;
@@ -89,6 +91,14 @@ let ReportService = class ReportService {
             report.reported_user_id = chapter.author?.id;
         }
         return this.reportRepository.save(report);
+    }
+    async delete(id) {
+        const report = await this.reportRepository.findOne({ where: { id } });
+        if (!report) {
+            throw new common_1.NotFoundException(`Report with ID ${id} not found`);
+        }
+        await this.reportRepository.remove(report);
+        return true;
     }
     async findReportedUser(report) {
         if (report.target_type === report_entity_1.TargetType.COMMENT) {
@@ -106,13 +116,6 @@ let ReportService = class ReportService {
             return chapter?.author ?? null;
         }
         return null;
-    }
-    async delete(id) {
-        const report = await this.reportRepository.findOne({ where: { id } });
-        if (!report)
-            return false;
-        await this.reportRepository.remove(report);
-        return true;
     }
     async handleReport(reportId) {
         console.log(`🛠️ 신고 ID: ${reportId} 처리 시작`);
@@ -144,16 +147,9 @@ let ReportService = class ReportService {
             content: message,
         });
         console.log(`📢 알림 전송 완료 → ${reportedUser.nickname}: ${message}`);
+        await this.markHandled(report);
+        console.log(`📋 신고 상태 처리됨으로 변경`);
         return true;
-    }
-    async saveUser(user) {
-        return this.userService.save(user);
-    }
-    async sendNotification(user, content) {
-        await this.notificationService.sendNotification({
-            user,
-            content,
-        });
     }
     async markHandled(report) {
         report.handled = true;

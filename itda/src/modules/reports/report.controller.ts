@@ -65,6 +65,7 @@ export class ReportController {
     report.target_type = TargetType.COMMENT;
     report.target_id = commentId;
     report.reason = reportData.reason;
+
     return this.reportService.create(report);
   }
 
@@ -93,16 +94,15 @@ export class ReportController {
     @Body() reportData: { reason: string },
     @Req() req: any
   ): Promise<Report> {
-    console.log(`신고 대상 챕터 ID: ${chapterId}`);
-    console.log("신고 사유:", reportData.reason);
+    if (!reportData.reason) {
+      throw new BadRequestException("신고 사유를 입력해주세요.");
+    }
 
     const report = new Report();
     report.reporter = req.user;
     report.target_type = TargetType.CHAPTER;
     report.target_id = chapterId;
     report.reason = reportData.reason;
-
-    console.log("생성된 report 객체:", report);
 
     return this.reportService.create(report);
   }
@@ -116,15 +116,6 @@ export class ReportController {
     type: [Report],
   })
   async getAllReports(): Promise<Report[]> {
-    const reports = await this.reportService.findAll();
-    console.log(
-      "📋 All Reports:",
-      reports.map((r) => ({
-        id: r.id,
-        reason: r.reason,
-        reported_content: r.reported_content,
-      }))
-    );
     return this.reportService.findAll();
   }
 
@@ -142,6 +133,7 @@ export class ReportController {
     return report;
   }
 
+  // ✅ 신고 삭제 (관리자 권한 필요)
   @Delete(":id")
   @ApiOperation({ summary: "신고 삭제 (관리자)" })
   @ApiParam({ name: "id", type: "number", description: "삭제할 신고 ID" })
@@ -157,6 +149,7 @@ export class ReportController {
     return { message: "신고가 삭제되었습니다." };
   }
 
+  // ✅ 신고 처리 (신고자에게 알림 + 신고 횟수 증가)
   @Patch(":id/handle")
   @ApiOperation({ summary: "신고 처리 (신고자에게 알림 + 신고 횟수 증가)" })
   @ApiParam({ name: "id", type: "number", description: "처리할 신고 ID" })
@@ -164,29 +157,12 @@ export class ReportController {
   async handleReport(
     @Param("id", ParseIntPipe) id: number
   ): Promise<{ message: string }> {
-    const report = await this.reportService.findOne(id);
-    if (!report) {
-      throw new NotFoundException("해당 신고를 찾을 수 없습니다.");
+    const success = await this.reportService.handleReport(id); // handleReport 메서드 호출
+
+    if (!success) {
+      throw new NotFoundException("해당 신고를 처리할 수 없습니다.");
     }
 
-    const targetUser = await this.reportService.findReportedUser(report);
-    if (!targetUser) {
-      throw new NotFoundException("신고 대상 유저를 찾을 수 없습니다.");
-    }
-
-    // ✅ 신고 횟수 +1
-    targetUser.report_count = (targetUser.report_count || 0) + 1;
-    await this.reportService.saveUser(targetUser);
-
-    // ✅ 알림 전송
-    await this.reportService.sendNotification(
-      targetUser,
-      "신고가 접수되었습니다. 경고 누적 시 계정이 정지될 수 있습니다."
-    );
-
-    // ✅ 신고 상태 처리됨으로 표시 등 추가 로직 필요 시 여기에
-    await this.reportService.markHandled(report);
-
-    return { message: "신고가 처리되었습니다." };
+    return { message: "신고가 처리되었습니다." }; // 처리 성공 메시지 반환
   }
 }

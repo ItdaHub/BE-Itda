@@ -35,23 +35,17 @@ let ReportController = class ReportController {
         return this.reportService.create(report);
     }
     async reportChapter(chapterId, reportData, req) {
-        console.log(`신고 대상 챕터 ID: ${chapterId}`);
-        console.log("신고 사유:", reportData.reason);
+        if (!reportData.reason) {
+            throw new common_1.BadRequestException("신고 사유를 입력해주세요.");
+        }
         const report = new report_entity_1.Report();
         report.reporter = req.user;
         report.target_type = report_entity_1.TargetType.CHAPTER;
         report.target_id = chapterId;
         report.reason = reportData.reason;
-        console.log("생성된 report 객체:", report);
         return this.reportService.create(report);
     }
     async getAllReports() {
-        const reports = await this.reportService.findAll();
-        console.log("📋 All Reports:", reports.map((r) => ({
-            id: r.id,
-            reason: r.reason,
-            reported_content: r.reported_content,
-        })));
         return this.reportService.findAll();
     }
     async getReportById(id) {
@@ -69,18 +63,10 @@ let ReportController = class ReportController {
         return { message: "신고가 삭제되었습니다." };
     }
     async handleReport(id) {
-        const report = await this.reportService.findOne(id);
-        if (!report) {
-            throw new common_1.NotFoundException("해당 신고를 찾을 수 없습니다.");
+        const success = await this.reportService.handleReport(id);
+        if (!success) {
+            throw new common_1.NotFoundException("해당 신고를 처리할 수 없습니다.");
         }
-        const targetUser = await this.reportService.findReportedUser(report);
-        if (!targetUser) {
-            throw new common_1.NotFoundException("신고 대상 유저를 찾을 수 없습니다.");
-        }
-        targetUser.report_count = (targetUser.report_count || 0) + 1;
-        await this.reportService.saveUser(targetUser);
-        await this.reportService.sendNotification(targetUser, "신고가 접수되었습니다. 경고 누적 시 계정이 정지될 수 있습니다.");
-        await this.reportService.markHandled(report);
         return { message: "신고가 처리되었습니다." };
     }
 };

@@ -15,10 +15,8 @@ export declare class ReportService {
     findAll(): Promise<Report[]>;
     findOne(id: number): Promise<Report>;
     create(report: Report): Promise<Report>;
-    findReportedUser(report: Report): Promise<User | null>;
     delete(id: number): Promise<boolean>;
+    findReportedUser(report: Report): Promise<User | null>;
     handleReport(reportId: number): Promise<boolean>;
-    saveUser(user: User): Promise<User>;
-    sendNotification(user: User, content: string): Promise<void>;
     markHandled(report: Report): Promise<void>;
 }
