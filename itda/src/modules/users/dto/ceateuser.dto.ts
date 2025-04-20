@@ -35,10 +35,10 @@ export class CreateUserDto {
   user_type?: UserType;
 
   @IsOptional()
-  @IsEnum(UserStatus) // ✅ 여기서 UserStatus 사용
-  status?: UserStatus; // ✅ 선택적 필드로 변경
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 
   @IsOptional()
   @IsString()
-  birthYear?: string; // ✅ 네이버 로그인을 위해 추가
+  birthYear?: string;
 }

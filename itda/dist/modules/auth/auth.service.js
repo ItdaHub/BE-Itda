@@ -200,7 +200,6 @@ let AuthService = class AuthService {
     }
     async register(userDto) {
         console.log("🚀 회원 가입 요청:", userDto);
-        console.log("📌 age_group in register:", userDto.age_group);
         const { email, name, password, birthYear, phone, type } = userDto;
         const emailUser = await this.entityManager.findOne(user_entity_1.User, {
             where: { email, type },
@@ -227,6 +226,7 @@ let AuthService = class AuthService {
             password: hashedPassword,
             status: user_entity_2.UserStatus.ACTIVE,
             age_group: userDto.age_group,
+            user_type: user_entity_1.UserType.USER,
         });
         await this.entityManager.save(newUser);
         console.log("✅ 회원 가입 완료:", newUser);

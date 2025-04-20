@@ -44,8 +44,21 @@ let UserService = UserService_1 = class UserService {
         return user;
     }
     async create(userDto) {
-        const user = this.userRepository.create(userDto);
-        return this.userRepository.save(user);
+        console.log("🔥 전달된 userDto:", userDto);
+        const validRoles = [user_entity_1.UserType.USER, user_entity_1.UserType.ADMIN];
+        const userType = userDto.user_type ?? user_entity_1.UserType.USER;
+        if (!validRoles.includes(userType)) {
+            throw new common_1.ForbiddenException("Invalid user_type value");
+        }
+        const hashedPassword = userDto.password
+            ? await bcrypt.hash(userDto.password, 10)
+            : null;
+        const newUser = this.userRepository.create({
+            password: hashedPassword,
+            user_type: userType,
+            ...userDto,
+        });
+        return this.userRepository.save(newUser);
     }
     async update(id, userData) {
         const user = await this.userRepository.findOneBy({ id });

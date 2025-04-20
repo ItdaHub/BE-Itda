@@ -43,8 +43,27 @@ export class UserService {
 
   // 유저 생성
   async create(userDto: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(userDto);
-    return this.userRepository.save(user);
+    console.log("🔥 전달된 userDto:", userDto); // 👈 요기!
+
+    // 👑 user_type 유효성 검사 및 기본값 설정
+    const validRoles = [UserType.USER, UserType.ADMIN];
+    const userType = userDto.user_type ?? UserType.USER;
+
+    if (!validRoles.includes(userType)) {
+      throw new ForbiddenException("Invalid user_type value");
+    }
+
+    const hashedPassword = userDto.password
+      ? await bcrypt.hash(userDto.password, 10)
+      : null;
+
+    const newUser = this.userRepository.create({
+      password: hashedPassword,
+      user_type: userType,
+      ...userDto,
+    });
+
+    return this.userRepository.save(newUser);
   }
 
   // 유저 업데이트

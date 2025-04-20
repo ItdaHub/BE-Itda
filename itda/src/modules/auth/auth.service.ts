@@ -282,9 +282,6 @@ export class AuthService {
   async register(userDto: RegisterDto): Promise<{ user: User }> {
     console.log("🚀 회원 가입 요청:", userDto);
 
-    // 👇 여기서 명확하게 찍어줘
-    console.log("📌 age_group in register:", userDto.age_group);
-
     const { email, name, password, birthYear, phone, type } = userDto;
 
     const emailUser = await this.entityManager.findOne(User, {
@@ -319,6 +316,7 @@ export class AuthService {
       password: hashedPassword,
       status: UserStatus.ACTIVE,
       age_group: userDto.age_group,
+      user_type: UserType.USER,
     });
 
     await this.entityManager.save(newUser);
