@@ -317,6 +317,12 @@ export class NovelService {
       }
     });
 
+    // ✅ 상태 계산 로직 추가
+    const isSubmitted = novel.status === "submitted"; // 이미 제출 상태인지
+    const isCompleted =
+      sortedChapters.length - 1 === novel.max_participants || isSubmitted;
+
+    const status = isCompleted ? "completed" : "ongoing"; // 상태 계산
     return {
       id: novel.id,
       title: novel.title,
@@ -342,6 +348,7 @@ export class NovelService {
         isPaid: chapter.isPaid,
       })),
       nextChapterNumber: sortedChapters.length + 1,
+      status,
     };
   }
 
