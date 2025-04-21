@@ -69,6 +69,16 @@ let ReportService = class ReportService {
         return report;
     }
     async create(report) {
+        const existingReport = await this.reportRepository.findOne({
+            where: {
+                reporter: report.reporter,
+                target_id: report.target_id,
+                target_type: report.target_type,
+            },
+        });
+        if (existingReport) {
+            throw new common_1.BadRequestException("이미 해당 콘텐츠에 대해 신고한 이력이 있습니다.");
+        }
         if (report.target_type === report_entity_1.TargetType.COMMENT) {
             const comment = await this.commentRepository.findOne({
                 where: { id: report.target_id },

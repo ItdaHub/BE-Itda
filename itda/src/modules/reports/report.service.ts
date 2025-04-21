@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Report, TargetType } from "./report.entity";
@@ -23,7 +27,7 @@ export class ReportService {
 
   async findAll(): Promise<Report[]> {
     return this.reportRepository.find({
-      where: { handled: false }, // ✅ 처리되지 않은 신고만
+      where: { handled: false },
       relations: ["reporter"],
       order: { created_at: "DESC" },
     });
@@ -66,6 +70,21 @@ export class ReportService {
   }
 
   async create(report: Report): Promise<Report> {
+    // 중복 신고 체크
+    const existingReport = await this.reportRepository.findOne({
+      where: {
+        reporter: report.reporter,
+        target_id: report.target_id,
+        target_type: report.target_type,
+      },
+    });
+
+    if (existingReport) {
+      throw new BadRequestException(
+        "이미 해당 콘텐츠에 대해 신고한 이력이 있습니다."
+      );
+    }
+
     if (report.target_type === TargetType.COMMENT) {
       const comment = await this.commentRepository.findOne({
         where: { id: report.target_id },
@@ -98,7 +117,6 @@ export class ReportService {
       throw new NotFoundException(`Report with ID ${id} not found`);
     }
 
-    // 삭제하려는 신고가 존재하면 삭제
     await this.reportRepository.remove(report);
     return true;
   }
