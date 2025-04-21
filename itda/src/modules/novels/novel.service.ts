@@ -349,7 +349,7 @@ export class NovelService {
   async findMyNovels(userId: number) {
     const chapters = await this.chapterRepo.find({
       where: { author: { id: userId } },
-      relations: ["novel", "novel.creator"],
+      relations: ["novel", "novel.creator", "novel.genre"],
     });
 
     // 소설 중복 제거

@@ -126,6 +126,7 @@ let ChapterService = class ChapterService {
             author: user,
         });
         await this.chapterRepository.save(newChapter);
+        console.log("Calling updatePaidStatus for novelId:", novelId);
         await this.updatePaidStatus(novelId);
         return newChapter;
     }
@@ -151,21 +152,28 @@ let ChapterService = class ChapterService {
         return chapter.isPaid ?? false;
     }
     async updatePaidStatus(novelId) {
+        console.log("Executing updatePaidStatus for novelId:", novelId);
         const chapters = await this.chapterRepository.find({
             where: { novel: { id: novelId } },
             order: { chapter_number: "ASC" },
         });
+        if (!chapters || chapters.length === 0) {
+            console.log("No chapters found for novelId:", novelId);
+            return;
+        }
+        console.log("Found chapters:", chapters);
         const totalChapters = chapters.length;
         const paidCount = Math.floor(totalChapters * (2 / 3));
         const paidStartIndex = totalChapters - paidCount;
+        console.log(`Paid chapters start from index: ${paidStartIndex}`);
         for (let i = 0; i < chapters.length; i++) {
             const chapter = chapters[i];
             const isPaid = i >= paidStartIndex;
             if (chapter.isPaid !== isPaid) {
                 chapter.isPaid = isPaid;
                 await this.chapterRepository.save(chapter);
+                console.log(`✅ Chapter ${chapter.chapter_number} is set to ${isPaid ? "paid" : "free"}`);
             }
-            console.log(`✅ Chapter ${chapter.chapter_number} is set to ${isPaid ? "paid" : "free"}`);
         }
     }
 };

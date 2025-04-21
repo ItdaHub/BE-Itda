@@ -10,10 +10,8 @@ export class ChapterService {
   constructor(
     @InjectRepository(Chapter)
     private readonly chapterRepository: Repository<Chapter>,
-
     @InjectRepository(Novel)
     private readonly novelRepository: Repository<Novel>,
-
     private readonly aiService: AiService
   ) {}
 
@@ -167,6 +165,7 @@ export class ChapterService {
 
     await this.chapterRepository.save(newChapter);
 
+    console.log("Calling updatePaidStatus for novelId:", novelId);
     // 챕터 저장 후에 유료 상태를 업데이트
     await this.updatePaidStatus(novelId);
 
@@ -203,15 +202,27 @@ export class ChapterService {
   }
 
   async updatePaidStatus(novelId: number): Promise<void> {
+    console.log("Executing updatePaidStatus for novelId:", novelId);
+
     const chapters = await this.chapterRepository.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
     });
 
+    if (!chapters || chapters.length === 0) {
+      console.log("No chapters found for novelId:", novelId);
+      return;
+    }
+
+    console.log("Found chapters:", chapters);
+
     const totalChapters = chapters.length;
     const paidCount = Math.floor(totalChapters * (2 / 3)); // 2/3만큼 유료
     const paidStartIndex = totalChapters - paidCount; // 유료 시작 인덱스
 
+    console.log(`Paid chapters start from index: ${paidStartIndex}`);
+
+    // 2/3 이후부터 유료로 설정
     for (let i = 0; i < chapters.length; i++) {
       const chapter = chapters[i];
       const isPaid = i >= paidStartIndex; // 뒤에서부터 유료 설정
@@ -219,11 +230,10 @@ export class ChapterService {
       if (chapter.isPaid !== isPaid) {
         chapter.isPaid = isPaid;
         await this.chapterRepository.save(chapter);
+        console.log(
+          `✅ Chapter ${chapter.chapter_number} is set to ${isPaid ? "paid" : "free"}`
+        );
       }
-
-      console.log(
-        `✅ Chapter ${chapter.chapter_number} is set to ${isPaid ? "paid" : "free"}`
-      );
     }
   }
 }

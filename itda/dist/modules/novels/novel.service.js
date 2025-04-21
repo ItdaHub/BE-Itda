@@ -296,7 +296,7 @@ let NovelService = class NovelService {
     async findMyNovels(userId) {
         const chapters = await this.chapterRepo.find({
             where: { author: { id: userId } },
-            relations: ["novel", "novel.creator"],
+            relations: ["novel", "novel.creator", "novel.genre"],
         });
         const novelsMap = new Map();
         for (const chapter of chapters) {
