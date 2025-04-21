@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
-import { Like, In } from "typeorm";
+import { Like, In, Not, IsNull } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Novel } from "./novel.entity";
@@ -347,11 +347,23 @@ export class NovelService {
   }
 
   async findMyNovels(userId: number) {
-    return this.novelRepo.find({
-      where: { creator: { id: userId } },
-      relations: ["creator"],
-      order: { created_at: "DESC" },
+    const chapters = await this.chapterRepo.find({
+      where: { author: { id: userId } },
+      relations: ["novel", "novel.creator"],
     });
+
+    // 소설 중복 제거
+    const novelsMap = new Map<number, Novel>();
+    for (const chapter of chapters) {
+      const novel = chapter.novel;
+      if (novel.status === "ongoing" || novel.status === "submitted") {
+        novelsMap.set(novel.id, novel);
+      }
+    }
+
+    return Array.from(novelsMap.values()).sort(
+      (a, b) => +new Date(b.created_at) - +new Date(a.created_at)
+    );
   }
 
   async searchNovelsByTitle(query: string): Promise<Novel[]> {

@@ -294,11 +294,18 @@ let NovelService = class NovelService {
         };
     }
     async findMyNovels(userId) {
-        return this.novelRepo.find({
-            where: { creator: { id: userId } },
-            relations: ["creator"],
-            order: { created_at: "DESC" },
+        const chapters = await this.chapterRepo.find({
+            where: { author: { id: userId } },
+            relations: ["novel", "novel.creator"],
         });
+        const novelsMap = new Map();
+        for (const chapter of chapters) {
+            const novel = chapter.novel;
+            if (novel.status === "ongoing" || novel.status === "submitted") {
+                novelsMap.set(novel.id, novel);
+            }
+        }
+        return Array.from(novelsMap.values()).sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
     }
     async searchNovelsByTitle(query) {
         return this.novelRepo.find({

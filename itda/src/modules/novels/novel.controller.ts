@@ -152,6 +152,4 @@ export class NovelController {
   async submitNovel(@Param("id", ParseIntPipe) id: number) {
     return this.novelService.submitNovelForCompletion(id);
   }
-
-  // id/popcorn
 }
