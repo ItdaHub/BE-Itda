@@ -3,10 +3,12 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "../users/user.entity";
+import { AnnouncementRead } from "./announcementread.entity";
 
 @Entity("Announcement")
 export class Announcement {
@@ -33,4 +35,7 @@ export class Announcement {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => AnnouncementRead, (read) => read.announcement)
+  reads: AnnouncementRead[];
 }

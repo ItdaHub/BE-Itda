@@ -16,6 +16,7 @@ import { Like } from "../likes/like.entity";
 import { Report } from "../reports/report.entity";
 import { Notification } from "../notifications/notification.entity";
 import { Point } from "../points/point.entity";
+import { AnnouncementRead } from "../announcement/announcementread.entity";
 
 export enum LoginType {
   LOCAL = "local",
@@ -129,4 +130,7 @@ export class User {
   @Column({ type: "int", nullable: true })
   @IsOptional()
   age_group?: number;
+
+  @OneToMany(() => AnnouncementRead, (read) => read.user)
+  announcementReads: AnnouncementRead[];
 }

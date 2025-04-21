@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnnouncementController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const announcement_service_1 = require("./announcement.service");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 let AnnouncementController = class AnnouncementController {
@@ -41,11 +42,34 @@ let AnnouncementController = class AnnouncementController {
         const { title, content, priority } = body;
         return this.announcementService.updateAnnouncement(Number(id), title, content, priority);
     }
+    async markAsRead(id, req) {
+        const user = req.user;
+        return this.announcementService.markAsRead(id, user.id);
+    }
 };
 exports.AnnouncementController = AnnouncementController;
 __decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Post)("register"),
+    (0, swagger_1.ApiOperation)({ summary: "공지사항 등록 (관리자용)" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                title: { type: "string", example: "서비스 점검 안내" },
+                content: {
+                    type: "string",
+                    example: "4월 23일 오전 2시 서비스 점검이 있습니다.",
+                },
+                priority: {
+                    type: "string",
+                    enum: ["urgent", "normal"],
+                    example: "urgent",
+                },
+            },
+        },
+    }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -55,6 +79,9 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Delete)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "공지사항 삭제 (관리자용)" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiParam)({ name: "id", description: "삭제할 공지사항 ID" }),
     __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -63,12 +90,16 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: "모든 공지사항 조회 (관리자용)" }),
+    (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AnnouncementController.prototype, "getAllAnnouncements", null);
 __decorate([
     (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "공지사항 단건 조회 (사용자용)" }),
+    (0, swagger_1.ApiParam)({ name: "id", description: "조회할 공지사항 ID" }),
     __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -77,13 +108,43 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Put)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "공지사항 수정 (관리자용)" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiParam)({ name: "id", description: "수정할 공지사항 ID" }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                title: { type: "string", example: "업데이트 안내" },
+                content: { type: "string", example: "새로운 기능이 추가됩니다." },
+                priority: {
+                    type: "string",
+                    enum: ["urgent", "normal"],
+                    example: "normal",
+                },
+            },
+        },
+    }),
     __param(0, (0, common_1.Param)("id")),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], AnnouncementController.prototype, "updateAnnouncement", null);
+__decorate([
+    (0, common_1.Post)("/read/:id"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: "공지사항 읽음 처리 (사용자용)" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiParam)({ name: "id", description: "읽음 처리할 공지사항 ID" }),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], AnnouncementController.prototype, "markAsRead", null);
 exports.AnnouncementController = AnnouncementController = __decorate([
+    (0, swagger_1.ApiTags)("공지사항"),
     (0, common_1.Controller)("announcement"),
     __metadata("design:paramtypes", [announcement_service_1.AnnouncementService])
 ], AnnouncementController);

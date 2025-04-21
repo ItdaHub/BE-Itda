@@ -4,12 +4,15 @@ import { Repository } from "typeorm";
 import { Announcement } from "./announcement.entity";
 import { User } from "../users/user.entity";
 import { AnnouncementWithAdminDto } from "./dto/announcement.dto";
+import { AnnouncementRead } from "./announcementread.entity";
 
 @Injectable()
 export class AnnouncementService {
   constructor(
     @InjectRepository(Announcement)
-    private readonly announcementRepo: Repository<Announcement>
+    private readonly announcementRepo: Repository<Announcement>,
+    @InjectRepository(AnnouncementRead)
+    private readonly readRepo: Repository<AnnouncementRead>
   ) {}
 
   async createAnnouncement(
@@ -102,5 +105,45 @@ export class AnnouncementService {
         nickname: admin.nickname,
       },
     };
+  }
+
+  async markAsRead(announcementId: number, userId: number) {
+    const announcement = await this.announcementRepo.findOne({
+      where: { id: announcementId },
+    });
+    if (!announcement) throw new NotFoundException("공지사항이 없습니다.");
+
+    const alreadyRead = await this.readRepo.findOne({
+      where: { announcement: { id: announcementId }, user: { id: userId } },
+    });
+
+    if (!alreadyRead) {
+      const read = this.readRepo.create({
+        announcement,
+        user: { id: userId },
+      });
+      await this.readRepo.save(read);
+    }
+
+    return { message: "읽음 처리 완료" };
+  }
+
+  async getUnreadAnnouncements(userId: number) {
+    const allAnnouncements = await this.announcementRepo.find({
+      relations: ["admin"],
+      order: { start_date: "DESC" },
+    });
+
+    const readAnnouncements = await this.readRepo.find({
+      where: { user: { id: userId } },
+      relations: ["announcement"],
+    });
+
+    const readIds = new Set(
+      readAnnouncements.map((read) => read.announcement.id)
+    );
+    const unread = allAnnouncements.filter((a) => !readIds.has(a.id));
+
+    return unread.map((a) => this.toDto(a));
   }
 }

@@ -2,9 +2,11 @@ import { Repository } from "typeorm";
 import { Announcement } from "./announcement.entity";
 import { User } from "../users/user.entity";
 import { AnnouncementWithAdminDto } from "./dto/announcement.dto";
+import { AnnouncementRead } from "./announcementread.entity";
 export declare class AnnouncementService {
     private readonly announcementRepo;
-    constructor(announcementRepo: Repository<Announcement>);
+    private readonly readRepo;
+    constructor(announcementRepo: Repository<Announcement>, readRepo: Repository<AnnouncementRead>);
     createAnnouncement(title: string, content: string, admin: User, priority?: "urgent" | "normal"): Promise<AnnouncementWithAdminDto>;
     deleteAnnouncement(id: number): Promise<{
         message: string;
@@ -13,4 +15,8 @@ export declare class AnnouncementService {
     getAnnouncementById(id: number): Promise<AnnouncementWithAdminDto>;
     updateAnnouncement(id: number, title: string, content: string, priority?: "urgent" | "normal"): Promise<AnnouncementWithAdminDto>;
     private toDto;
+    markAsRead(announcementId: number, userId: number): Promise<{
+        message: string;
+    }>;
+    getUnreadAnnouncements(userId: number): Promise<AnnouncementWithAdminDto[]>;
 }

@@ -7,6 +7,7 @@ import { Like } from "../likes/like.entity";
 import { Report } from "../reports/report.entity";
 import { Notification } from "../notifications/notification.entity";
 import { Point } from "../points/point.entity";
+import { AnnouncementRead } from "../announcement/announcementread.entity";
 export declare enum LoginType {
     LOCAL = "local",
     KAKAO = "kakao",
@@ -52,4 +53,5 @@ export declare class User {
     notifications: Notification[];
     points: Point[];
     age_group?: number;
+    announcementReads: AnnouncementRead[];
 }

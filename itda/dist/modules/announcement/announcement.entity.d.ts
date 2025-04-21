@@ -1,4 +1,5 @@
 import { User } from "../users/user.entity";
+import { AnnouncementRead } from "./announcementread.entity";
 export declare class Announcement {
     id: number;
     title: string;
@@ -8,4 +9,5 @@ export declare class Announcement {
     start_date: Date;
     created_at: Date;
     updated_at: Date;
+    reads: AnnouncementRead[];
 }

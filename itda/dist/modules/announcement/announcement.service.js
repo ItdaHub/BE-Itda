@@ -17,10 +17,13 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const announcement_entity_1 = require("./announcement.entity");
+const announcementread_entity_1 = require("./announcementread.entity");
 let AnnouncementService = class AnnouncementService {
     announcementRepo;
-    constructor(announcementRepo) {
+    readRepo;
+    constructor(announcementRepo, readRepo) {
         this.announcementRepo = announcementRepo;
+        this.readRepo = readRepo;
     }
     async createAnnouncement(title, content, admin, priority = "normal") {
         const newAnnouncement = this.announcementRepo.create({
@@ -87,11 +90,44 @@ let AnnouncementService = class AnnouncementService {
             },
         };
     }
+    async markAsRead(announcementId, userId) {
+        const announcement = await this.announcementRepo.findOne({
+            where: { id: announcementId },
+        });
+        if (!announcement)
+            throw new common_1.NotFoundException("공지사항이 없습니다.");
+        const alreadyRead = await this.readRepo.findOne({
+            where: { announcement: { id: announcementId }, user: { id: userId } },
+        });
+        if (!alreadyRead) {
+            const read = this.readRepo.create({
+                announcement,
+                user: { id: userId },
+            });
+            await this.readRepo.save(read);
+        }
+        return { message: "읽음 처리 완료" };
+    }
+    async getUnreadAnnouncements(userId) {
+        const allAnnouncements = await this.announcementRepo.find({
+            relations: ["admin"],
+            order: { start_date: "DESC" },
+        });
+        const readAnnouncements = await this.readRepo.find({
+            where: { user: { id: userId } },
+            relations: ["announcement"],
+        });
+        const readIds = new Set(readAnnouncements.map((read) => read.announcement.id));
+        const unread = allAnnouncements.filter((a) => !readIds.has(a.id));
+        return unread.map((a) => this.toDto(a));
+    }
 };
 exports.AnnouncementService = AnnouncementService;
 exports.AnnouncementService = AnnouncementService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(announcement_entity_1.Announcement)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(announcementread_entity_1.AnnouncementRead)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], AnnouncementService);
 //# sourceMappingURL=announcement.service.js.map

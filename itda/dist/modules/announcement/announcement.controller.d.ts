@@ -14,4 +14,7 @@ export declare class AnnouncementController {
         content: string;
         priority?: "urgent" | "normal";
     }): Promise<import("./dto/announcement.dto").AnnouncementWithAdminDto>;
+    markAsRead(id: number, req: any): Promise<{
+        message: string;
+    }>;
 }

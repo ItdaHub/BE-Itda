@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Announcement = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../users/user.entity");
+const announcementread_entity_1 = require("./announcementread.entity");
 let Announcement = class Announcement {
     id;
     title;
@@ -21,6 +22,7 @@ let Announcement = class Announcement {
     start_date;
     created_at;
     updated_at;
+    reads;
 };
 exports.Announcement = Announcement;
 __decorate([
@@ -55,6 +57,10 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], Announcement.prototype, "updated_at", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => announcementread_entity_1.AnnouncementRead, (read) => read.announcement),
+    __metadata("design:type", Array)
+], Announcement.prototype, "reads", void 0);
 exports.Announcement = Announcement = __decorate([
     (0, typeorm_1.Entity)("Announcement")
 ], Announcement);

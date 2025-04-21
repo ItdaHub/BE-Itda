@@ -35,6 +35,7 @@ const payment_entity_1 = require("./modules/payments/payment.entity");
 const point_entity_1 = require("./modules/points/point.entity");
 const admin_notification_entity_1 = require("./modules/notifications/admin_notification.entity");
 const announcement_entity_1 = require("./modules/announcement/announcement.entity");
+const announcementread_entity_1 = require("./modules/announcement/announcementread.entity");
 const ai_module_1 = require("./modules/ai/ai.module");
 const genre_module_1 = require("./modules/genre/genre.module");
 const chapter_module_1 = require("./modules/chapter/chapter.module");
@@ -83,6 +84,7 @@ exports.AppModule = AppModule = __decorate([
                     point_entity_1.Point,
                     admin_notification_entity_1.AdminNotification,
                     announcement_entity_1.Announcement,
+                    announcementread_entity_1.AnnouncementRead,
                     banner_entity_1.Banner,
                 ],
                 synchronize: true,

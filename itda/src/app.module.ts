@@ -26,6 +26,7 @@ import { Payment } from "./modules/payments/payment.entity";
 import { Point } from "./modules/points/point.entity";
 import { AdminNotification } from "./modules/notifications/admin_notification.entity";
 import { Announcement } from "./modules/announcement/announcement.entity";
+import { AnnouncementRead } from "./modules/announcement/announcementread.entity";
 import { AiModule } from "./modules/ai/ai.module";
 import { GenreModule } from "./modules/genre/genre.module";
 import { ChapterModule } from "./modules/chapter/chapter.module";
@@ -71,6 +72,7 @@ import { Banner } from "./modules/banner/banner.entity";
         Point,
         AdminNotification,
         Announcement,
+        AnnouncementRead,
         Banner,
       ],
 
