@@ -109,4 +109,14 @@ export class ChapterController {
       ),
     };
   }
+
+  @Get(":novelId/popcorn")
+  @ApiOperation({ summary: "챕터 유료 여부 조회" })
+  async getIsPaidChapter(
+    @Param("novelId", ParseIntPipe) novelId: number,
+    @Query("chapterId", ParseIntPipe) chapterId: number
+  ): Promise<{ isPaid: boolean }> {
+    const isPaid = await this.chapterService.checkIsPaid(novelId, chapterId);
+    return { isPaid };
+  }
 }

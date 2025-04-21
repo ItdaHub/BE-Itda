@@ -4,4 +4,5 @@ export declare class CreateNovelDto {
     title: string;
     content: string;
     type: "new" | "relay";
+    imageUrl?: string;
 }

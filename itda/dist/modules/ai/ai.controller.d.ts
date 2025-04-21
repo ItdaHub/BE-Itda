@@ -10,4 +10,17 @@ export declare class AiController {
         genre: string | undefined;
         userId: any;
     }>;
+    summarize(content: string): Promise<string>;
+    generateSummaryWithImageAndSave(body: {
+        content: string;
+        categoryId: number;
+        peopleNum: 5 | 7 | 9;
+        type: "new" | "relay";
+    }, req: any): Promise<any>;
+    saveUserWrittenNovelWithAiData(body: {
+        content: string;
+        categoryId: number;
+        peopleNum: 5 | 7 | 9;
+        type: "new" | "relay";
+    }, req: any): Promise<any>;
 }

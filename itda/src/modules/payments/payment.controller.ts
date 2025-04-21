@@ -38,7 +38,10 @@ export class PaymentsController {
       dto.userId,
       dto.amount,
       dto.method,
-      dto.orderId
+      dto.orderId,
+      dto.type,
+      dto.novelId,
+      dto.chapterId
     );
   }
 

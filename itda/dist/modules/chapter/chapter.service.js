@@ -18,12 +18,15 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const chapter_entity_1 = require("./chapter.entity");
 const novel_entity_1 = require("../novels/novel.entity");
+const ai_service_1 = require("../ai/ai.service");
 let ChapterService = class ChapterService {
     chapterRepository;
     novelRepository;
-    constructor(chapterRepository, novelRepository) {
+    aiService;
+    constructor(chapterRepository, novelRepository, aiService) {
         this.chapterRepository = chapterRepository;
         this.novelRepository = novelRepository;
+        this.aiService = aiService;
     }
     async getChaptersByNovel(novelId) {
         const novel = await this.novelRepository.findOne({
@@ -44,6 +47,7 @@ let ChapterService = class ChapterService {
             created_at: chapter.created_at,
             nickname: chapter.author?.nickname || "알 수 없음",
             comments: chapter.comments,
+            isPublished: novel.isPublished,
         }));
     }
     async getChapterContent(novelId, chapterId) {
@@ -77,12 +81,13 @@ let ChapterService = class ChapterService {
             writerId: chapter.author?.id,
             chapterNumber: chapter.chapter_number,
             isLastChapter,
+            isPublished: novel.isPublished,
         };
     }
     async createChapter(novelId, content, user, chapterNumber) {
         const novel = await this.novelRepository.findOne({
             where: { id: novelId },
-            relations: ["chapters"],
+            relations: ["chapters", "genre"],
         });
         if (!novel) {
             throw new common_1.NotFoundException(`Novel with ID ${novelId} not found`);
@@ -107,10 +112,13 @@ let ChapterService = class ChapterService {
             const chapterCount = await this.chapterRepository.count({
                 where: { novel: { id: novelId } },
             });
-            console.log(`현재 소설의 총 챕터 수: ${chapterCount}`);
             newChapterNumber = chapterCount + 1;
         }
-        console.log(`새로운 챕터 번호: ${newChapterNumber}`);
+        if (newChapterNumber === 1) {
+            const { summary, imageUrl } = await this.aiService.createNovelWithAi(content, user.id, novel.genre.id, novel.max_participants, novel.type);
+            novel.cover_image = imageUrl;
+            await this.novelRepository.save(novel);
+        }
         const newChapter = this.chapterRepository.create({
             content,
             chapter_number: newChapterNumber,
@@ -118,6 +126,7 @@ let ChapterService = class ChapterService {
             author: user,
         });
         await this.chapterRepository.save(newChapter);
+        await this.updatePaidStatus(novelId);
         return newChapter;
     }
     async hasUserParticipatedInNovel(novelId, userId) {
@@ -129,6 +138,36 @@ let ChapterService = class ChapterService {
         });
         return !!alreadyParticipated;
     }
+    async checkIsPaid(novelId, chapterId) {
+        const chapter = await this.chapterRepository.findOne({
+            where: {
+                id: chapterId,
+                novel: { id: novelId },
+            },
+        });
+        if (!chapter) {
+            throw new common_1.NotFoundException("해당 챕터를 찾을 수 없습니다.");
+        }
+        return chapter.isPaid ?? false;
+    }
+    async updatePaidStatus(novelId) {
+        const chapters = await this.chapterRepository.find({
+            where: { novel: { id: novelId } },
+            order: { chapter_number: "ASC" },
+        });
+        const totalChapters = chapters.length;
+        const paidCount = Math.floor(totalChapters * (2 / 3));
+        const paidStartIndex = totalChapters - paidCount;
+        for (let i = 0; i < chapters.length; i++) {
+            const chapter = chapters[i];
+            const isPaid = i >= paidStartIndex;
+            if (chapter.isPaid !== isPaid) {
+                chapter.isPaid = isPaid;
+                await this.chapterRepository.save(chapter);
+            }
+            console.log(`✅ Chapter ${chapter.chapter_number} is set to ${isPaid ? "paid" : "free"}`);
+        }
+    }
 };
 exports.ChapterService = ChapterService;
 exports.ChapterService = ChapterService = __decorate([
@@ -136,6 +175,7 @@ exports.ChapterService = ChapterService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(chapter_entity_1.Chapter)),
     __param(1, (0, typeorm_1.InjectRepository)(novel_entity_1.Novel)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        ai_service_1.AiService])
 ], ChapterService);
 //# sourceMappingURL=chapter.service.js.map

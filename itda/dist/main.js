@@ -12,7 +12,11 @@ async function bootstrap() {
         credentials: true,
     });
     app.use(cookieParser());
-    app.useGlobalPipes(new common_1.ValidationPipe());
+    app.useGlobalPipes(new common_1.ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+    }));
     const config = new swagger_1.DocumentBuilder()
         .setTitle("회원가입 API")
         .setDescription("회원가입 관련 API 문서")

@@ -46,6 +46,10 @@ let ChapterController = class ChapterController {
             hasParticipated: await this.chapterService.hasUserParticipatedInNovel(novelId, userId),
         };
     }
+    async getIsPaidChapter(novelId, chapterId) {
+        const isPaid = await this.chapterService.checkIsPaid(novelId, chapterId);
+        return { isPaid };
+    }
 };
 exports.ChapterController = ChapterController;
 __decorate([
@@ -112,6 +116,15 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], ChapterController.prototype, "hasUserParticipated", null);
+__decorate([
+    (0, common_1.Get)(":novelId/popcorn"),
+    (0, swagger_1.ApiOperation)({ summary: "챕터 유료 여부 조회" }),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Query)("chapterId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], ChapterController.prototype, "getIsPaidChapter", null);
 exports.ChapterController = ChapterController = __decorate([
     (0, swagger_1.ApiTags)("Chapters"),
     (0, common_1.Controller)("chapters"),

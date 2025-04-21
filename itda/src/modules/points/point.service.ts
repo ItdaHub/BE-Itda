@@ -1,4 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Point, PointType } from "./point.entity";
@@ -8,23 +12,49 @@ import { User } from "../users/user.entity";
 export class PointService {
   constructor(
     @InjectRepository(Point)
-    private pointRepository: Repository<Point>
+    private pointRepository: Repository<Point>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
+  // ✅ 유저 총 팝콘 조회 (적립 - 사용)
   async getUserTotalPoints(userId: number): Promise<number> {
-    console.log("요청받은 userId:", userId);
-
     const result = await this.pointRepository
       .createQueryBuilder("point")
       .select("SUM(point.amount)", "total")
       .where("point.user.id = :userId", { userId })
       .getRawOne();
 
-    console.log("SUM 쿼리 결과:", result);
-
     return Number(result.total) || 0;
   }
 
+  // ✅ 팝콘 사용 (단일 메서드로 통합)
+  async spendPoints(dto: {
+    userId: number;
+    amount: number;
+    description?: string;
+    novelId?: number;
+    chapterId?: number;
+  }): Promise<Point> {
+    const { userId, amount, description } = dto;
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException("User not found");
+
+    const total = await this.getUserTotalPoints(userId);
+    if (total < amount) throw new BadRequestException("Not enough popcorn");
+
+    const point = this.pointRepository.create({
+      user,
+      amount: -amount,
+      type: PointType.SPEND,
+      description: description || "팝콘 사용",
+    });
+
+    return await this.pointRepository.save(point);
+  }
+
+  // ✅ 팝콘 적립
   async addPoint(
     user: User,
     amount: number,
@@ -40,7 +70,7 @@ export class PointService {
     return await this.pointRepository.save(point);
   }
 
-  // point.service.ts
+  // ✅ 팝콘 사용/적립 내역 조회
   async getUserHistory(
     userId: number,
     type: PointType

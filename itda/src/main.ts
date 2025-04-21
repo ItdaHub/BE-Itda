@@ -13,7 +13,13 @@ async function bootstrap() {
   });
 
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    })
+  );
 
   const config = new DocumentBuilder()
     .setTitle("회원가입 API")

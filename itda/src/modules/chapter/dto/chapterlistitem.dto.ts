@@ -15,4 +15,7 @@ export class ChapterListItemDto {
     description: "챕터 생성 날짜",
   })
   createdAt: Date;
+
+  @ApiProperty()
+  isPublished: boolean;
 }

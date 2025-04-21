@@ -17,6 +17,7 @@ class CreateNovelDto {
     title;
     content;
     type;
+    imageUrl;
 }
 exports.CreateNovelDto = CreateNovelDto;
 __decorate([
@@ -45,4 +46,9 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateNovelDto.prototype, "imageUrl", void 0);
 //# sourceMappingURL=createnovel.dto.js.map

@@ -27,7 +27,7 @@ let PaymentsController = class PaymentsController {
         this.paymentsService = paymentsService;
     }
     async createPayment(dto) {
-        return this.paymentsService.createPayment(dto.userId, dto.amount, dto.method, dto.orderId);
+        return this.paymentsService.createPayment(dto.userId, dto.amount, dto.method, dto.orderId, dto.type, dto.novelId, dto.chapterId);
     }
     async confirmTossPayment(dto) {
         const { paymentKey, orderId, amount } = dto;

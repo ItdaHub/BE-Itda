@@ -16,10 +16,14 @@ exports.PointController = void 0;
 const common_1 = require("@nestjs/common");
 const point_service_1 = require("./point.service");
 const point_entity_1 = require("./point.entity");
+const usepopcorn_dto_1 = require("./dto/usepopcorn.dto");
 let PointController = class PointController {
     pointService;
     constructor(pointService) {
         this.pointService = pointService;
+    }
+    async usePopcorn(usePopcornDto) {
+        return this.pointService.spendPoints(usePopcornDto);
     }
     async getUserPoints(userId) {
         const total = await this.pointService.getUserTotalPoints(userId);
@@ -33,6 +37,13 @@ let PointController = class PointController {
     }
 };
 exports.PointController = PointController;
+__decorate([
+    (0, common_1.Post)("use"),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [usepopcorn_dto_1.UsePopcornDto]),
+    __metadata("design:returntype", Promise)
+], PointController.prototype, "usePopcorn", null);
 __decorate([
     (0, common_1.Get)(":userId"),
     __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),

@@ -18,4 +18,7 @@ export declare class Payment {
     method: string;
     status: PaymentStatus;
     created_at: Date;
+    novelId: number;
+    chapterId: number;
+    type: string;
 }

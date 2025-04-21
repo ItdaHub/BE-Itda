@@ -30,16 +30,59 @@ let PaymentsService = class PaymentsService {
         this.userRepo = userRepo;
         this.pointService = pointService;
     }
-    async createPayment(userId, amount, method, orderId) {
+    async createPayment(userId, amount, method, orderId, type, novelId, chapterId) {
+        console.log("Received create payment request:", {
+            userId,
+            amount,
+            method,
+            orderId,
+            type,
+            novelId,
+            chapterId,
+        });
         const user = await this.userRepo.findOneByOrFail({ id: userId });
+        console.log("User found:", user);
+        const userPoints = await this.pointService.getUserTotalPoints(userId);
+        if (type === "read" && novelId && chapterId) {
+            if (userPoints < amount) {
+                console.log("팝콘이 부족하여 결제 요청");
+                const payment = this.paymentRepo.create({
+                    user,
+                    amount,
+                    method,
+                    status: payment_entity_1.PaymentStatus.PENDING,
+                    orderId,
+                    type,
+                    novelId,
+                    chapterId,
+                });
+                const savedPayment = await this.paymentRepo.save(payment);
+                console.log("결제 생성 완료:", savedPayment);
+                return savedPayment;
+            }
+            else {
+                await this.pointService.spendPoints({
+                    userId,
+                    novelId,
+                    chapterId,
+                    amount,
+                });
+                console.log("포인트 차감 완료.");
+            }
+        }
         const payment = this.paymentRepo.create({
             user,
             amount,
             method,
             status: payment_entity_1.PaymentStatus.PENDING,
             orderId,
+            type,
+            novelId,
+            chapterId,
         });
-        return await this.paymentRepo.save(payment);
+        const savedPayment = await this.paymentRepo.save(payment);
+        console.log("Payment saved:", savedPayment);
+        return savedPayment;
     }
     async confirmTossPayment(data) {
         const { paymentKey, orderId, amount } = data;

@@ -29,12 +29,23 @@ let AiController = class AiController {
     async generateWithAI(body, req) {
         const { prompt, genre } = body;
         const userId = req.user.id;
-        const content = await this.aiService.generateNovel(prompt);
+        const content = await this.aiService.generateText(prompt);
         return {
             content,
             genre,
             userId,
         };
+    }
+    async summarize(content) {
+        return this.aiService.summarizeText(content);
+    }
+    async generateSummaryWithImageAndSave(body, req) {
+        const { content, categoryId, peopleNum, type } = body;
+        return this.aiService.createNovelWithAi(content, req.user.id, categoryId, peopleNum, type);
+    }
+    async saveUserWrittenNovelWithAiData(body, req) {
+        const { content, categoryId, peopleNum, type } = body;
+        return this.aiService.createNovelWithAi(content, req.user.id, categoryId, peopleNum, type);
     }
 };
 exports.AiController = AiController;
@@ -49,6 +60,35 @@ __decorate([
     __metadata("design:paramtypes", [create_ai_dto_1.CreateAiDto, Object]),
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "generateWithAI", null);
+__decorate([
+    (0, common_1.Post)("summarize"),
+    __param(0, (0, common_1.Body)("content")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AiController.prototype, "summarize", null);
+__decorate([
+    (0, common_1.Post)("summary-image-save"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: "AI로 요약 + 이미지 생성 후 소설 저장" }),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AiController.prototype, "generateSummaryWithImageAndSave", null);
+__decorate([
+    (0, common_1.Post)("user-write-save"),
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: "유저가 쓴 소설 저장 (요약+이미지 생성 포함)" }),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AiController.prototype, "saveUserWrittenNovelWithAiData", null);
 exports.AiController = AiController = __decorate([
     (0, swagger_1.ApiTags)("AI"),
     (0, common_1.Controller)("ai"),

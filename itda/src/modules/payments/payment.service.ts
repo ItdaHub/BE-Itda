@@ -3,8 +3,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Payment, PaymentStatus, PaymentMethod } from "./payment.entity";
 import { User } from "../users/user.entity";
-import { PointService } from "../points/point.service"; // ✅ 포인트 서비스 import
-import { PointType } from "../points/point.entity"; // ✅ 포인트 타입 import
+import { PointService } from "../points/point.service";
+import { PointType } from "../points/point.entity";
+import { Point } from "../points/point.entity";
 import axios from "axios";
 
 @Injectable()
@@ -14,16 +15,69 @@ export class PaymentsService {
     private readonly paymentRepo: Repository<Payment>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-    private readonly pointService: PointService // ✅ 포인트 서비스 주입
+    private readonly pointService: PointService
   ) {}
 
   async createPayment(
     userId: number,
     amount: number,
     method: PaymentMethod,
-    orderId: string
+    orderId: string,
+    type?: string,
+    novelId?: number,
+    chapterId?: number
   ): Promise<Payment> {
+    console.log("Received create payment request:", {
+      userId,
+      amount,
+      method,
+      orderId,
+      type,
+      novelId,
+      chapterId,
+    });
+
     const user = await this.userRepo.findOneByOrFail({ id: userId });
+    console.log("User found:", user);
+
+    // 사용자 보유 포인트 확인
+    const userPoints = await this.pointService.getUserTotalPoints(userId);
+
+    if (type === "read" && novelId && chapterId) {
+      // 팝콘(포인트)가 부족하면 결제 처리
+      if (userPoints < amount) {
+        // 팝콘이 부족한 경우 결제 생성
+        console.log("팝콘이 부족하여 결제 요청");
+
+        const payment = this.paymentRepo.create({
+          user,
+          amount,
+          method,
+          status: PaymentStatus.PENDING,
+          orderId,
+          type,
+          novelId,
+          chapterId,
+        });
+
+        const savedPayment = await this.paymentRepo.save(payment);
+
+        console.log("결제 생성 완료:", savedPayment);
+
+        // 결제 요청 후 리턴
+        return savedPayment;
+      } else {
+        // 팝콘이 충분하면 포인트 차감
+        await this.pointService.spendPoints({
+          userId,
+          novelId,
+          chapterId,
+          amount,
+        });
+
+        console.log("포인트 차감 완료.");
+      }
+    }
 
     const payment = this.paymentRepo.create({
       user,
@@ -31,9 +85,16 @@ export class PaymentsService {
       method,
       status: PaymentStatus.PENDING,
       orderId,
+      type,
+      novelId,
+      chapterId,
     });
 
-    return await this.paymentRepo.save(payment);
+    const savedPayment = await this.paymentRepo.save(payment);
+
+    console.log("Payment saved:", savedPayment);
+
+    return savedPayment;
   }
 
   async confirmTossPayment(data: {

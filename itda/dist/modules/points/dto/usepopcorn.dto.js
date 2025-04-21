@@ -9,52 +9,38 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreatePaymentDto = void 0;
+exports.UsePopcornDto = void 0;
 const class_validator_1 = require("class-validator");
-const payment_entity_1 = require("../payment.entity");
-class CreatePaymentDto {
+class UsePopcornDto {
     userId;
     amount;
-    method;
-    orderId;
-    type;
+    description;
     novelId;
     chapterId;
 }
-exports.CreatePaymentDto = CreatePaymentDto;
+exports.UsePopcornDto = UsePopcornDto;
 __decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsInt)({ message: "userId는 정수여야 합니다." }),
     __metadata("design:type", Number)
-], CreatePaymentDto.prototype, "userId", void 0);
+], UsePopcornDto.prototype, "userId", void 0);
 __decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsInt)({ message: "amount는 정수여야 합니다." }),
+    (0, class_validator_1.IsPositive)({ message: "amount는 0보다 커야 합니다." }),
     __metadata("design:type", Number)
-], CreatePaymentDto.prototype, "amount", void 0);
+], UsePopcornDto.prototype, "amount", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(payment_entity_1.PaymentMethod),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreatePaymentDto.prototype, "method", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreatePaymentDto.prototype, "orderId", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ message: "description은 문자열이어야 합니다." }),
     __metadata("design:type", String)
-], CreatePaymentDto.prototype, "type", void 0);
+], UsePopcornDto.prototype, "description", void 0);
 __decorate([
-    (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
-], CreatePaymentDto.prototype, "novelId", void 0);
+], UsePopcornDto.prototype, "novelId", void 0);
 __decorate([
-    (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
-], CreatePaymentDto.prototype, "chapterId", void 0);
-//# sourceMappingURL=createpayment.dto.js.map
+], UsePopcornDto.prototype, "chapterId", void 0);
+//# sourceMappingURL=usepopcorn.dto.js.map

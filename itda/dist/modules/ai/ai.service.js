@@ -13,13 +13,17 @@ exports.AiService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const node_fetch_1 = require("node-fetch");
+const axios_1 = require("axios");
+const novel_service_1 = require("../novels/novel.service");
 let AiService = class AiService {
     configService;
+    novelService;
     apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-    constructor(configService) {
+    constructor(configService, novelService) {
         this.configService = configService;
+        this.novelService = novelService;
     }
-    async generateNovel(prompt) {
+    async generateText(prompt) {
         const apiKey = this.configService.get("GOOGLE_GEMINI_KEY");
         const response = await (0, node_fetch_1.default)(`${this.apiUrl}?key=${apiKey}`, {
             method: "POST",
@@ -40,10 +44,39 @@ let AiService = class AiService {
         const contentOnly = lines.slice(1).join("\n").trim();
         return contentOnly;
     }
+    async summarizeText(content) {
+        const prompt = `다음 글을 한 문장으로 요약해줘:\n\n${content}`;
+        return this.generateText(prompt);
+    }
+    async getImageFromUnsplash(summary) {
+        const query = summary.split(" ").slice(0, 3).join(" ");
+        const res = await axios_1.default.get("https://api.unsplash.com/photos/random", {
+            params: {
+                query,
+                client_id: process.env.UNSPLASH_ACCESS_KEY,
+            },
+        });
+        return res.data.urls?.regular ?? "https://source.unsplash.com/random";
+    }
+    async createNovelWithAi(content, userId, categoryId, peopleNum, type) {
+        const summary = await this.summarizeText(content);
+        const imageUrl = await this.getImageFromUnsplash(summary);
+        const saved = await this.novelService.create({
+            title: summary,
+            content,
+            imageUrl,
+            userId,
+            categoryId,
+            peopleNum,
+            type,
+        });
+        return saved;
+    }
 };
 exports.AiService = AiService;
 exports.AiService = AiService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [config_1.ConfigService])
+    __metadata("design:paramtypes", [config_1.ConfigService,
+        novel_service_1.NovelService])
 ], AiService);
 //# sourceMappingURL=ai.service.js.map

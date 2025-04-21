@@ -62,7 +62,7 @@ export class AnnouncementService {
   ): Promise<AnnouncementWithAdminDto> {
     const announcement = await this.announcementRepo.findOne({
       where: { id },
-      relations: ["admin"], // admin도 필요
+      relations: ["admin"],
     });
     if (!announcement) {
       throw new NotFoundException(`Announcement with ID "${id}" not found`);

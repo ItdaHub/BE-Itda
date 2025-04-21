@@ -13,12 +13,13 @@ const chapter_entity_1 = require("./chapter.entity");
 const chapter_service_1 = require("./chapter.service");
 const chapter_controller_1 = require("./chapter.controller");
 const novel_entity_1 = require("../novels/novel.entity");
+const ai_module_1 = require("../ai/ai.module");
 let ChapterModule = class ChapterModule {
 };
 exports.ChapterModule = ChapterModule;
 exports.ChapterModule = ChapterModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([chapter_entity_1.Chapter, novel_entity_1.Novel])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([chapter_entity_1.Chapter, novel_entity_1.Novel]), ai_module_1.AiModule],
         providers: [chapter_service_1.ChapterService],
         controllers: [chapter_controller_1.ChapterController],
     })

@@ -17,20 +17,37 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const point_entity_1 = require("./point.entity");
+const user_entity_1 = require("../users/user.entity");
 let PointService = class PointService {
     pointRepository;
-    constructor(pointRepository) {
+    userRepository;
+    constructor(pointRepository, userRepository) {
         this.pointRepository = pointRepository;
+        this.userRepository = userRepository;
     }
     async getUserTotalPoints(userId) {
-        console.log("요청받은 userId:", userId);
         const result = await this.pointRepository
             .createQueryBuilder("point")
             .select("SUM(point.amount)", "total")
             .where("point.user.id = :userId", { userId })
             .getRawOne();
-        console.log("SUM 쿼리 결과:", result);
         return Number(result.total) || 0;
+    }
+    async spendPoints(dto) {
+        const { userId, amount, description } = dto;
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (!user)
+            throw new common_1.NotFoundException("User not found");
+        const total = await this.getUserTotalPoints(userId);
+        if (total < amount)
+            throw new common_1.BadRequestException("Not enough popcorn");
+        const point = this.pointRepository.create({
+            user,
+            amount: -amount,
+            type: point_entity_1.PointType.SPEND,
+            description: description || "팝콘 사용",
+        });
+        return await this.pointRepository.save(point);
     }
     async addPoint(user, amount, type, description) {
         const point = this.pointRepository.create({
@@ -68,6 +85,8 @@ exports.PointService = PointService;
 exports.PointService = PointService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(point_entity_1.Point)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], PointService);
 //# sourceMappingURL=point.service.js.map

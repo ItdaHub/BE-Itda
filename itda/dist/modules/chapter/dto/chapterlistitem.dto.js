@@ -16,6 +16,7 @@ class ChapterListItemDto {
     novelId;
     chapterNumber;
     createdAt;
+    isPublished;
 }
 exports.ChapterListItemDto = ChapterListItemDto;
 __decorate([
@@ -37,4 +38,8 @@ __decorate([
     }),
     __metadata("design:type", Date)
 ], ChapterListItemDto.prototype, "createdAt", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", Boolean)
+], ChapterListItemDto.prototype, "isPublished", void 0);
 //# sourceMappingURL=chapterlistitem.dto.js.map

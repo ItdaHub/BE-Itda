@@ -3,4 +3,5 @@ export declare class ChapterListItemDto {
     novelId: number;
     chapterNumber: number;
     createdAt: Date;
+    isPublished: boolean;
 }

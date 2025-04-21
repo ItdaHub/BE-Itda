@@ -12,6 +12,8 @@ export enum PointType {
   SPEND = "spend",
 }
 
+// read
+
 @Entity("points")
 export class Point {
   @PrimaryGeneratedColumn()

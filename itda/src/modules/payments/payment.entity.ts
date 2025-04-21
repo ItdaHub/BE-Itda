@@ -45,4 +45,13 @@ export class Payment {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ nullable: true })
+  novelId: number;
+
+  @Column({ nullable: true })
+  chapterId: number;
+
+  @Column({ type: "varchar", length: 10, default: "read" })
+  type: string;
 }

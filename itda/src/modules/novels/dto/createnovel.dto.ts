@@ -2,6 +2,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsOptional, // 추가
   IsString,
   MaxLength,
   MinLength,
@@ -29,6 +30,7 @@ export class CreateNovelDto {
   })
   type: "new" | "relay";
 
-  // @IsInt()
-  // userId: number;
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }

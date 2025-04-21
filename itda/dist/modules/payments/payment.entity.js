@@ -33,6 +33,9 @@ let Payment = class Payment {
     method;
     status;
     created_at;
+    novelId;
+    chapterId;
+    type;
 };
 exports.Payment = Payment;
 __decorate([
@@ -66,6 +69,18 @@ __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Payment.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], Payment.prototype, "novelId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], Payment.prototype, "chapterId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 10, default: "read" }),
+    __metadata("design:type", String)
+], Payment.prototype, "type", void 0);
 exports.Payment = Payment = __decorate([
     (0, typeorm_1.Entity)()
 ], Payment);

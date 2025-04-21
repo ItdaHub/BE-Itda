@@ -18,7 +18,7 @@ import { PointModule } from "../points/point.module";
       inject: [],
     }),
     ConfigModule,
-    PointModule, // ✅ PointModule 추가
+    PointModule,
   ],
   providers: [UserService],
   controllers: [UserController],
