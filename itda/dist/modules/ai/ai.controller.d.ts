@@ -11,13 +11,8 @@ export declare class AiController {
         userId: any;
     }>;
     summarize(content: string): Promise<string>;
-    generateSummaryWithImageAndSave(body: {
-        content: string;
-        categoryId: number;
-        peopleNum: 5 | 7 | 9;
-        type: "new" | "relay";
-    }, req: any): Promise<any>;
     saveUserWrittenNovelWithAiData(body: {
+        title: string;
         content: string;
         categoryId: number;
         peopleNum: 5 | 7 | 9;

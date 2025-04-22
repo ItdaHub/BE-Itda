@@ -7,6 +7,6 @@ export declare class AiService {
     constructor(configService: ConfigService, novelService: NovelService);
     generateText(prompt: string): Promise<string>;
     summarizeText(content: string): Promise<string>;
-    private getImageFromUnsplash;
-    createNovelWithAi(content: string, userId: number, categoryId: number, peopleNum: 5 | 7 | 9, type: "new" | "relay"): Promise<any>;
+    getImageFromUnsplash(summary: string): Promise<string>;
+    createNovelWithAi(content: string, userId: number, categoryId: number, peopleNum: 5 | 7 | 9, type: "new" | "relay", title: string): Promise<any>;
 }

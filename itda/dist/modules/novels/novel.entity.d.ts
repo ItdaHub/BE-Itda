@@ -27,7 +27,7 @@ export declare class Novel {
     author: User;
     max_participants: MaxParticipants;
     status: NovelStatus;
-    cover_image: string;
+    imageUrl: string;
     type: NovelType;
     created_at: Date;
     genre: Genre;

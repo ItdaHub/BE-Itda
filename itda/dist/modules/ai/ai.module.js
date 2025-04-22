@@ -16,7 +16,7 @@ let AiModule = class AiModule {
 exports.AiModule = AiModule;
 exports.AiModule = AiModule = __decorate([
     (0, common_1.Module)({
-        imports: [novel_module_1.NovelModule],
+        imports: [(0, common_1.forwardRef)(() => novel_module_1.NovelModule)],
         controllers: [ai_controller_1.AiController],
         providers: [ai_service_1.AiService],
         exports: [ai_service_1.AiService],

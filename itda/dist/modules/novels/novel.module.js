@@ -18,6 +18,7 @@ const user_entity_1 = require("../users/user.entity");
 const user_module_1 = require("../users/user.module");
 const participant_entity_1 = require("./participant.entity");
 const notification_module_1 = require("../notifications/notification.module");
+const ai_service_1 = require("../ai/ai.service");
 let NovelModule = class NovelModule {
 };
 exports.NovelModule = NovelModule;
@@ -29,7 +30,7 @@ exports.NovelModule = NovelModule = __decorate([
             notification_module_1.NotificationModule,
         ],
         controllers: [novel_controller_1.NovelController],
-        providers: [novel_service_1.NovelService],
+        providers: [novel_service_1.NovelService, ai_service_1.AiService],
         exports: [novel_service_1.NovelService],
     })
 ], NovelModule);

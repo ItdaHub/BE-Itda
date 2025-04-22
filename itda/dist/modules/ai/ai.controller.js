@@ -39,13 +39,9 @@ let AiController = class AiController {
     async summarize(content) {
         return this.aiService.summarizeText(content);
     }
-    async generateSummaryWithImageAndSave(body, req) {
-        const { content, categoryId, peopleNum, type } = body;
-        return this.aiService.createNovelWithAi(content, req.user.id, categoryId, peopleNum, type);
-    }
     async saveUserWrittenNovelWithAiData(body, req) {
-        const { content, categoryId, peopleNum, type } = body;
-        return this.aiService.createNovelWithAi(content, req.user.id, categoryId, peopleNum, type);
+        const { title, content, categoryId, peopleNum, type } = body;
+        return this.aiService.createNovelWithAi(content, req.user.id, categoryId, peopleNum, type, title);
     }
 };
 exports.AiController = AiController;
@@ -67,17 +63,6 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "summarize", null);
-__decorate([
-    (0, common_1.Post)("summary-image-save"),
-    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: "AI로 요약 + 이미지 생성 후 소설 저장" }),
-    __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], AiController.prototype, "generateSummaryWithImageAndSave", null);
 __decorate([
     (0, common_1.Post)("user-write-save"),
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),

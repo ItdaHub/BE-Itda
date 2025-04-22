@@ -25,6 +25,7 @@ let AiService = class AiService {
     }
     async generateText(prompt) {
         const apiKey = this.configService.get("GOOGLE_GEMINI_KEY");
+        console.log("🔑 Gemini API Key:", apiKey);
         const response = await (0, node_fetch_1.default)(`${this.apiUrl}?key=${apiKey}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -40,29 +41,43 @@ let AiService = class AiService {
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
         if (!text)
             return "";
-        const lines = text.split("\n");
-        const contentOnly = lines.slice(1).join("\n").trim();
-        return contentOnly;
+        return text ?? "";
     }
     async summarizeText(content) {
-        const prompt = `다음 글을 한 문장으로 요약해줘:\n\n${content}`;
+        const trimmed = content.slice(0, 300);
+        const prompt = `다음 글의 핵심 키워드 5개를 콤마로 구분해서 추출해줘. 다른 말은 하지 말고, 키워드만 출력해:\n\n${trimmed}`;
         return this.generateText(prompt);
     }
     async getImageFromUnsplash(summary) {
-        const query = summary.split(" ").slice(0, 3).join(" ");
+        const keywords = summary
+            .split(",")
+            .map((k) => k.trim())
+            .filter(Boolean);
+        const query = keywords.slice(0, 3).join(" ");
+        console.log("🔍 이미지 검색 쿼리:", query);
+        const accessKey = this.configService.get("UNSPLASH_ACCESS_KEY");
+        console.log("🔐 Unsplash Access Key:", accessKey);
         const res = await axios_1.default.get("https://api.unsplash.com/photos/random", {
             params: {
                 query,
-                client_id: process.env.UNSPLASH_ACCESS_KEY,
+            },
+            headers: {
+                Authorization: `Client-ID ${accessKey}`,
             },
         });
+        console.log("Unsplash 응답:", res.data);
         return res.data.urls?.regular ?? "https://source.unsplash.com/random";
     }
-    async createNovelWithAi(content, userId, categoryId, peopleNum, type) {
+    async createNovelWithAi(content, userId, categoryId, peopleNum, type, title) {
         const summary = await this.summarizeText(content);
+        console.log("📄 요약 결과 (이미지 검색용):", summary);
         const imageUrl = await this.getImageFromUnsplash(summary);
-        const saved = await this.novelService.create({
-            title: summary,
+        if (!imageUrl) {
+            throw new Error("이미지 URL을 가져오지 못했습니다.");
+        }
+        console.log("📷 가져온 이미지 URL:", imageUrl);
+        console.log("💾 저장할 소설 정보:", {
+            title,
             content,
             imageUrl,
             userId,
@@ -70,7 +85,23 @@ let AiService = class AiService {
             peopleNum,
             type,
         });
-        return saved;
+        try {
+            const saved = await this.novelService.create({
+                title,
+                content,
+                imageUrl,
+                userId,
+                categoryId,
+                peopleNum,
+                type,
+            });
+            console.log("📚 DB 저장 결과:", saved);
+            return saved;
+        }
+        catch (error) {
+            console.error("DB 저장 중 오류 발생:", error);
+            throw new Error("소설 저장에 실패했습니다.");
+        }
     }
 };
 exports.AiService = AiService;

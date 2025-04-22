@@ -24,6 +24,7 @@ const chapter_entity_1 = require("../chapter/chapter.entity");
 const participant_entity_1 = require("./participant.entity");
 const novel_entity_2 = require("./novel.entity");
 const notification_service_1 = require("../notifications/notification.service");
+const ai_service_1 = require("../ai/ai.service");
 let NovelService = class NovelService {
     novelRepo;
     genreRepo;
@@ -31,13 +32,15 @@ let NovelService = class NovelService {
     chapterRepo;
     participantRepo;
     notificationService;
-    constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo, notificationService) {
+    aiService;
+    constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo, notificationService, aiService) {
         this.novelRepo = novelRepo;
         this.genreRepo = genreRepo;
         this.userRepo = userRepo;
         this.chapterRepo = chapterRepo;
         this.participantRepo = participantRepo;
         this.notificationService = notificationService;
+        this.aiService = aiService;
     }
     async getAllNovels() {
         return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
@@ -62,13 +65,15 @@ let NovelService = class NovelService {
         };
     }
     async create(dto) {
-        const { title, categoryId, peopleNum, content, userId, type } = dto;
+        const { content, categoryId, peopleNum, userId, type, title } = dto;
         const user = await this.userRepo.findOneBy({ id: userId });
         if (!user)
             throw new common_1.NotFoundException("작성자 유저를 찾을 수 없습니다.");
         const genre = await this.genreRepo.findOneBy({ id: categoryId });
         if (!genre)
             throw new common_1.NotFoundException("해당 장르가 존재하지 않습니다.");
+        const summary = await this.aiService.summarizeText(content);
+        const imageUrl = await this.aiService["getImageFromUnsplash"](summary);
         const novel = this.novelRepo.create({
             title,
             creator: user,
@@ -76,6 +81,7 @@ let NovelService = class NovelService {
             max_participants: peopleNum,
             status: novel_entity_2.NovelStatus.ONGOING,
             type,
+            imageUrl,
         });
         await this.novelRepo.save(novel);
         const chapter = this.chapterRepo.create({
@@ -223,7 +229,7 @@ let NovelService = class NovelService {
             id: novel.id,
             title: novel.title,
             genre: novel.genre?.name ?? null,
-            imageUrl: novel.cover_image,
+            imageUrl: novel.imageUrl,
             likes: novel.likeCount ?? novel.likes?.length ?? 0,
             views: novel.viewCount ?? 0,
             created_at: novel.created_at,
@@ -276,7 +282,7 @@ let NovelService = class NovelService {
                 .join(", "),
             likeCount,
             isLiked,
-            image: novel.cover_image,
+            image: novel.imageUrl,
             type: novel.type,
             createdAt: novel.created_at.toISOString(),
             peopleNum: novel.max_participants,
@@ -430,11 +436,13 @@ exports.NovelService = NovelService = __decorate([
     __param(2, (0, typeorm_2.InjectRepository)(user_entity_1.User)),
     __param(3, (0, typeorm_2.InjectRepository)(chapter_entity_1.Chapter)),
     __param(4, (0, typeorm_2.InjectRepository)(participant_entity_1.Participant)),
+    __param(6, (0, common_1.Inject)((0, common_1.forwardRef)(() => ai_service_1.AiService))),
     __metadata("design:paramtypes", [typeorm_3.Repository,
         typeorm_3.Repository,
         typeorm_3.Repository,
         typeorm_3.Repository,
         typeorm_3.Repository,
-        notification_service_1.NotificationService])
+        notification_service_1.NotificationService,
+        ai_service_1.AiService])
 ], NovelService);
 //# sourceMappingURL=novel.service.js.map

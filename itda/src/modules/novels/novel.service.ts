@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { Like, In, Not, IsNull } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -15,6 +17,7 @@ import { Chapter } from "../chapter/chapter.entity";
 import { Participant } from "./participant.entity";
 import { NovelStatus } from "./novel.entity";
 import { NotificationService } from "../notifications/notification.service";
+import { AiService } from "../ai/ai.service";
 
 type CreateNovelInput = CreateNovelDto & { userId: number };
 
@@ -28,7 +31,9 @@ export class NovelService {
     private readonly chapterRepo: Repository<Chapter>,
     @InjectRepository(Participant)
     private readonly participantRepo: Repository<Participant>,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    @Inject(forwardRef(() => AiService))
+    private readonly aiService: AiService
   ) {}
 
   async getAllNovels(): Promise<Novel[]> {
@@ -58,14 +63,21 @@ export class NovelService {
   }
 
   async create(dto: CreateNovelInput): Promise<Novel> {
-    const { title, categoryId, peopleNum, content, userId, type } = dto;
+    const { content, categoryId, peopleNum, userId, type, title } = dto;
 
+    // 사용자 정보 확인
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new NotFoundException("작성자 유저를 찾을 수 없습니다.");
 
+    // 장르 정보 확인
     const genre = await this.genreRepo.findOneBy({ id: categoryId });
     if (!genre) throw new NotFoundException("해당 장르가 존재하지 않습니다.");
 
+    // ✅ AI를 사용하여 요약 및 이미지 생성
+    const summary = await this.aiService.summarizeText(content); // AI 요약
+    const imageUrl = await this.aiService["getImageFromUnsplash"](summary); // 이미지 생성 (private이라면 메서드 래핑 추천)
+
+    // 소설 정보 저장
     const novel = this.novelRepo.create({
       title,
       creator: user,
@@ -73,10 +85,12 @@ export class NovelService {
       max_participants: peopleNum as 5 | 7 | 9,
       status: NovelStatus.ONGOING,
       type,
+      imageUrl, // AI로 생성한 이미지 URL 사용
     } as Partial<Novel>);
 
     await this.novelRepo.save(novel);
 
+    // 첫 번째 챕터 저장
     const chapter = this.chapterRepo.create({
       novel,
       author: user,
@@ -85,6 +99,7 @@ export class NovelService {
     });
     await this.chapterRepo.save(chapter);
 
+    // 첫 번째 참가자 저장
     const participant = this.participantRepo.create({
       novel,
       user,
@@ -261,7 +276,7 @@ export class NovelService {
       id: novel.id,
       title: novel.title,
       genre: novel.genre?.name ?? null,
-      imageUrl: novel.cover_image,
+      imageUrl: novel.imageUrl,
       likes: novel.likeCount ?? novel.likes?.length ?? 0,
       views: novel.viewCount ?? 0,
       created_at: novel.created_at,
@@ -328,7 +343,7 @@ export class NovelService {
         .join(", "),
       likeCount,
       isLiked,
-      image: novel.cover_image,
+      image: novel.imageUrl,
       type: novel.type,
       createdAt: novel.created_at.toISOString(),
       peopleNum: novel.max_participants,

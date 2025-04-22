@@ -36,32 +36,7 @@ export class AiController {
     return this.aiService.summarizeText(content);
   }
 
-  // ✅ 요약 + 이미지 생성 + 저장
-  @Post("summary-image-save")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "AI로 요약 + 이미지 생성 후 소설 저장" })
-  async generateSummaryWithImageAndSave(
-    @Body()
-    body: {
-      content: string;
-      categoryId: number;
-      peopleNum: 5 | 7 | 9;
-      type: "new" | "relay";
-    },
-    @Req() req
-  ): Promise<any> {
-    const { content, categoryId, peopleNum, type } = body;
-    return this.aiService.createNovelWithAi(
-      content,
-      req.user.id,
-      categoryId,
-      peopleNum,
-      type
-    );
-  }
-
-  // ✅ 유저가 직접 쓴 챕터 저장 요청 (사실상 동일 로직)
+  // ✅ 유저가 직접 쓴 챕터 저장 요청
   @Post("user-write-save")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -69,6 +44,7 @@ export class AiController {
   async saveUserWrittenNovelWithAiData(
     @Body()
     body: {
+      title: string;
       content: string;
       categoryId: number;
       peopleNum: 5 | 7 | 9;
@@ -76,13 +52,14 @@ export class AiController {
     },
     @Req() req
   ): Promise<any> {
-    const { content, categoryId, peopleNum, type } = body;
+    const { title, content, categoryId, peopleNum, type } = body;
     return this.aiService.createNovelWithAi(
       content,
       req.user.id,
       categoryId,
       peopleNum,
-      type
+      type,
+      title
     );
   }
 }

@@ -64,8 +64,8 @@ export class Novel {
   })
   status: NovelStatus;
 
-  @Column({ length: 255, nullable: true })
-  cover_image: string;
+  @Column({ nullable: true })
+  imageUrl: string;
 
   @Column({ type: "enum", enum: NovelType, nullable: true })
   type: NovelType;

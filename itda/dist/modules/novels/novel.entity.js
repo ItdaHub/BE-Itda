@@ -43,7 +43,7 @@ let Novel = class Novel {
     author;
     max_participants;
     status;
-    cover_image;
+    imageUrl;
     type;
     created_at;
     genre;
@@ -94,9 +94,9 @@ __decorate([
     __metadata("design:type", String)
 ], Novel.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 255, nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Novel.prototype, "cover_image", void 0);
+], Novel.prototype, "imageUrl", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "enum", enum: NovelType, nullable: true }),
     __metadata("design:type", String)

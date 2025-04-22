@@ -115,8 +115,8 @@ let ChapterService = class ChapterService {
             newChapterNumber = chapterCount + 1;
         }
         if (newChapterNumber === 1) {
-            const { summary, imageUrl } = await this.aiService.createNovelWithAi(content, user.id, novel.genre.id, novel.max_participants, novel.type);
-            novel.cover_image = imageUrl;
+            const { summary, imageUrl } = await this.aiService.createNovelWithAi(content, user.id, novel.genre.id, novel.max_participants, novel.type, novel.title);
+            novel.imageUrl = imageUrl;
             await this.novelRepository.save(novel);
         }
         const newChapter = this.chapterRepository.create({

@@ -149,10 +149,11 @@ export class ChapterService {
         user.id,
         novel.genre.id,
         novel.max_participants,
-        novel.type
+        novel.type,
+        novel.title
       );
 
-      novel.cover_image = imageUrl;
+      novel.imageUrl = imageUrl;
       await this.novelRepository.save(novel);
     }
 

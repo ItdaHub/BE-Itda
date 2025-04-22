@@ -9,6 +9,7 @@ import { User } from "../users/user.entity";
 import { UserModule } from "../users/user.module";
 import { Participant } from "./participant.entity";
 import { NotificationModule } from "../notifications/notification.module";
+import { AiService } from "../ai/ai.service";
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { NotificationModule } from "../notifications/notification.module";
     NotificationModule,
   ],
   controllers: [NovelController],
-  providers: [NovelService],
+  providers: [NovelService, AiService],
   exports: [NovelService],
 })
 export class NovelModule {}
