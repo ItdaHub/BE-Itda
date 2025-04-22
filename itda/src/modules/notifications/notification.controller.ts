@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UseGuards,
+  Body,
+} from "@nestjs/common";
 import { NotificationService } from "./notification.service";
 import { Notification } from "./notification.entity";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
@@ -20,8 +28,12 @@ export class NotificationController {
   // ✅ 알림 읽음 처리
   @Patch(":notificationId/read")
   async markNotificationAsRead(
-    @Param("notificationId") notificationId: number
+    @Param("notificationId") notificationId: number,
+    @Body("userId") userId: number
   ): Promise<Notification> {
-    return this.notificationService.markNotificationAsRead(notificationId);
+    return this.notificationService.markNotificationAsRead(
+      notificationId,
+      userId
+    );
   }
 }

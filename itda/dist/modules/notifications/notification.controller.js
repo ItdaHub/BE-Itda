@@ -25,8 +25,8 @@ let NotificationController = class NotificationController {
         const user = req.user;
         return this.notificationService.getUserNotifications(user.id);
     }
-    async markNotificationAsRead(notificationId) {
-        return this.notificationService.markNotificationAsRead(notificationId);
+    async markNotificationAsRead(notificationId, userId) {
+        return this.notificationService.markNotificationAsRead(notificationId, userId);
     }
 };
 exports.NotificationController = NotificationController;
@@ -41,8 +41,9 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(":notificationId/read"),
     __param(0, (0, common_1.Param)("notificationId")),
+    __param(1, (0, common_1.Body)("userId")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "markNotificationAsRead", null);
 exports.NotificationController = NotificationController = __decorate([

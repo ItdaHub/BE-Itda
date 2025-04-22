@@ -13,12 +13,16 @@ const announcement_entity_1 = require("./announcement.entity");
 const announcement_service_1 = require("./announcement.service");
 const announcement_controller_1 = require("./announcement.controller");
 const announcementread_entity_1 = require("./announcementread.entity");
+const user_module_1 = require("../users/user.module");
 let AnnouncementModule = class AnnouncementModule {
 };
 exports.AnnouncementModule = AnnouncementModule;
 exports.AnnouncementModule = AnnouncementModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([announcement_entity_1.Announcement, announcementread_entity_1.AnnouncementRead])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([announcement_entity_1.Announcement, announcementread_entity_1.AnnouncementRead]),
+            user_module_1.UserModule,
+        ],
         providers: [announcement_service_1.AnnouncementService],
         controllers: [announcement_controller_1.AnnouncementController],
     })

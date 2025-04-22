@@ -12,7 +12,9 @@ export class AnnouncementService {
     @InjectRepository(Announcement)
     private readonly announcementRepo: Repository<Announcement>,
     @InjectRepository(AnnouncementRead)
-    private readonly readRepo: Repository<AnnouncementRead>
+    private readonly readRepo: Repository<AnnouncementRead>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>
   ) {}
 
   async createAnnouncement(
@@ -108,21 +110,41 @@ export class AnnouncementService {
   }
 
   async markAsRead(announcementId: number, userId: number) {
+    console.log("📥 markAsRead 호출됨:", { announcementId, userId });
+
     const announcement = await this.announcementRepo.findOne({
       where: { id: announcementId },
     });
-    if (!announcement) throw new NotFoundException("공지사항이 없습니다.");
+    if (!announcement) {
+      console.log("❌ 공지사항 없음");
+      throw new NotFoundException("공지사항이 없습니다.");
+    }
+    console.log("✅ 공지사항 찾음:", announcement);
+
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) {
+      console.log("❌ 사용자 없음");
+      throw new NotFoundException("사용자를 찾을 수 없습니다.");
+    }
+    console.log("✅ 사용자 찾음:", user);
 
     const alreadyRead = await this.readRepo.findOne({
-      where: { announcement: { id: announcementId }, user: { id: userId } },
+      where: {
+        announcement: { id: announcementId },
+        user: { id: userId },
+      },
     });
 
-    if (!alreadyRead) {
+    if (alreadyRead) {
+      console.log("🔁 이미 읽음 처리됨");
+    } else {
+      console.log("🆕 읽음 기록 없음, 저장 시도");
       const read = this.readRepo.create({
         announcement,
-        user: { id: userId },
+        user,
       });
       await this.readRepo.save(read);
+      console.log("💾 읽음 처리 저장 완료");
     }
 
     return { message: "읽음 처리 완료" };

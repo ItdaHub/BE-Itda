@@ -47,15 +47,22 @@ let NotificationService = class NotificationService {
         });
         return await this.notificationRepository.save(notification);
     }
-    async markNotificationAsRead(notificationId) {
+    async markNotificationAsRead(notificationId, userId) {
         const notification = await this.notificationRepository.findOne({
-            where: { id: notificationId },
+            where: {
+                id: notificationId,
+                user: { id: userId },
+            },
+            relations: ["user"],
         });
         if (!notification) {
-            throw new Error("알림을 찾을 수 없습니다.");
+            console.log(`❌ 알림 ${notificationId} (user: ${userId}) 찾을 수 없음`);
+            throw new Error("해당 유저의 알림을 찾을 수 없습니다.");
         }
         notification.is_read = true;
-        return await this.notificationRepository.save(notification);
+        const saved = await this.notificationRepository.save(notification);
+        console.log(`✅ 알림 ${notificationId} 읽음 처리 완료 (user: ${userId})`);
+        return saved;
     }
 };
 exports.NotificationService = NotificationService;

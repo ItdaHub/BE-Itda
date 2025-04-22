@@ -6,7 +6,8 @@ import { AnnouncementRead } from "./announcementread.entity";
 export declare class AnnouncementService {
     private readonly announcementRepo;
     private readonly readRepo;
-    constructor(announcementRepo: Repository<Announcement>, readRepo: Repository<AnnouncementRead>);
+    private readonly userRepo;
+    constructor(announcementRepo: Repository<Announcement>, readRepo: Repository<AnnouncementRead>, userRepo: Repository<User>);
     createAnnouncement(title: string, content: string, admin: User, priority?: "urgent" | "normal"): Promise<AnnouncementWithAdminDto>;
     deleteAnnouncement(id: number): Promise<{
         message: string;
