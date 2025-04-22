@@ -20,6 +20,7 @@ class AnnouncementWithAdminDto {
     created_at;
     updated_at;
     admin;
+    isRead;
 }
 exports.AnnouncementWithAdminDto = AnnouncementWithAdminDto;
 __decorate([
@@ -60,4 +61,8 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], AnnouncementWithAdminDto.prototype, "admin", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "해당 사용자가 읽었는지 여부", type: Boolean }),
+    __metadata("design:type", Boolean)
+], AnnouncementWithAdminDto.prototype, "isRead", void 0);
 //# sourceMappingURL=announcement.dto.js.map

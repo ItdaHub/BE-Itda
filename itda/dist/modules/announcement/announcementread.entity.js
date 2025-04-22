@@ -17,6 +17,7 @@ let AnnouncementRead = class AnnouncementRead {
     id;
     user;
     announcement;
+    isRead;
     readAt;
 };
 exports.AnnouncementRead = AnnouncementRead;
@@ -36,6 +37,10 @@ __decorate([
     }),
     __metadata("design:type", announcement_entity_1.Announcement)
 ], AnnouncementRead.prototype, "announcement", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], AnnouncementRead.prototype, "isRead", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

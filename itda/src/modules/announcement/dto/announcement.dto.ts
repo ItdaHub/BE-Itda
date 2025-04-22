@@ -34,4 +34,7 @@ export class AnnouncementWithAdminDto {
     email: string;
     nickname: string;
   };
+
+  @ApiProperty({ description: "해당 사용자가 읽었는지 여부", type: Boolean })
+  isRead: boolean;
 }

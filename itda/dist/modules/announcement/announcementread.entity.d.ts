@@ -4,5 +4,6 @@ export declare class AnnouncementRead {
     id: number;
     user: User;
     announcement: Announcement;
+    isRead: boolean;
     readAt: Date;
 }

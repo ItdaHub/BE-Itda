@@ -12,12 +12,11 @@ export declare class AnnouncementService {
     deleteAnnouncement(id: number): Promise<{
         message: string;
     }>;
-    getAllAnnouncements(): Promise<AnnouncementWithAdminDto[]>;
+    getAllAnnouncements(userId?: number): Promise<AnnouncementWithAdminDto[]>;
     getAnnouncementById(id: number): Promise<AnnouncementWithAdminDto>;
     updateAnnouncement(id: number, title: string, content: string, priority?: "urgent" | "normal"): Promise<AnnouncementWithAdminDto>;
-    private toDto;
     markAsRead(announcementId: number, userId: number): Promise<{
         message: string;
     }>;
-    getUnreadAnnouncements(userId: number): Promise<AnnouncementWithAdminDto[]>;
+    private toDto;
 }

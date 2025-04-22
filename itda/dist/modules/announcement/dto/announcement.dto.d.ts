@@ -11,4 +11,5 @@ export declare class AnnouncementWithAdminDto {
         email: string;
         nickname: string;
     };
+    isRead: boolean;
 }

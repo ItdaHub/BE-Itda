@@ -45,12 +45,20 @@ let AnnouncementService = class AnnouncementService {
         await this.announcementRepo.remove(found);
         return { message: "삭제되었습니다." };
     }
-    async getAllAnnouncements() {
+    async getAllAnnouncements(userId) {
         const announcements = await this.announcementRepo.find({
             relations: ["admin"],
             order: { start_date: "DESC" },
         });
-        return announcements.map((a) => this.toDto(a));
+        let readIds = new Set();
+        if (userId) {
+            const readAnnouncements = await this.readRepo.find({
+                where: { user: { id: userId } },
+                relations: ["announcement"],
+            });
+            readIds = new Set(readAnnouncements.map((read) => read.announcement.id));
+        }
+        return announcements.map((a) => this.toDto(a, readIds.has(a.id)));
     }
     async getAnnouncementById(id) {
         const announcement = await this.announcementRepo.findOne({
@@ -76,7 +84,29 @@ let AnnouncementService = class AnnouncementService {
         const updated = await this.announcementRepo.save(announcement);
         return this.toDto(updated);
     }
-    toDto(entity) {
+    async markAsRead(announcementId, userId) {
+        const announcement = await this.announcementRepo.findOne({
+            where: { id: announcementId },
+        });
+        if (!announcement)
+            throw new common_1.NotFoundException("공지사항이 없습니다.");
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user)
+            throw new common_1.NotFoundException("사용자를 찾을 수 없습니다.");
+        const alreadyRead = await this.readRepo.findOne({
+            where: { announcement: { id: announcementId }, user: { id: userId } },
+        });
+        console.log(`공지사항 읽음 여부 확인: announcementId=${announcementId}, userId=${userId}`);
+        if (alreadyRead) {
+            console.log("이미 읽음 처리됨");
+            return { message: "이미 읽음 처리됨" };
+        }
+        const read = this.readRepo.create({ announcement, user, isRead: true });
+        await this.readRepo.save(read);
+        console.log("읽음 처리 완료: announcementId=", announcementId);
+        return { message: "읽음 처리 완료" };
+    }
+    toDto(entity, isRead = false) {
         const { id, title, content, priority, start_date, created_at, updated_at, admin, } = entity;
         return {
             id,
@@ -91,56 +121,8 @@ let AnnouncementService = class AnnouncementService {
                 email: admin.email,
                 nickname: admin.nickname,
             },
+            isRead,
         };
-    }
-    async markAsRead(announcementId, userId) {
-        console.log("📥 markAsRead 호출됨:", { announcementId, userId });
-        const announcement = await this.announcementRepo.findOne({
-            where: { id: announcementId },
-        });
-        if (!announcement) {
-            console.log("❌ 공지사항 없음");
-            throw new common_1.NotFoundException("공지사항이 없습니다.");
-        }
-        console.log("✅ 공지사항 찾음:", announcement);
-        const user = await this.userRepo.findOne({ where: { id: userId } });
-        if (!user) {
-            console.log("❌ 사용자 없음");
-            throw new common_1.NotFoundException("사용자를 찾을 수 없습니다.");
-        }
-        console.log("✅ 사용자 찾음:", user);
-        const alreadyRead = await this.readRepo.findOne({
-            where: {
-                announcement: { id: announcementId },
-                user: { id: userId },
-            },
-        });
-        if (alreadyRead) {
-            console.log("🔁 이미 읽음 처리됨");
-        }
-        else {
-            console.log("🆕 읽음 기록 없음, 저장 시도");
-            const read = this.readRepo.create({
-                announcement,
-                user,
-            });
-            await this.readRepo.save(read);
-            console.log("💾 읽음 처리 저장 완료");
-        }
-        return { message: "읽음 처리 완료" };
-    }
-    async getUnreadAnnouncements(userId) {
-        const allAnnouncements = await this.announcementRepo.find({
-            relations: ["admin"],
-            order: { start_date: "DESC" },
-        });
-        const readAnnouncements = await this.readRepo.find({
-            where: { user: { id: userId } },
-            relations: ["announcement"],
-        });
-        const readIds = new Set(readAnnouncements.map((read) => read.announcement.id));
-        const unread = allAnnouncements.filter((a) => !readIds.has(a.id));
-        return unread.map((a) => this.toDto(a));
     }
 };
 exports.AnnouncementService = AnnouncementService;
