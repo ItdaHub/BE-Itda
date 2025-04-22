@@ -88,7 +88,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AnnouncementController.prototype, "deleteAnnouncement", null);
 __decorate([
-    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: "모든 공지사항 조회 (관리자용)" }),
     (0, swagger_1.ApiBearerAuth)(),

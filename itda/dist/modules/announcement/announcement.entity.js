@@ -22,7 +22,6 @@ let Announcement = class Announcement {
     start_date;
     created_at;
     updated_at;
-    isRead;
     reads;
 };
 exports.Announcement = Announcement;
@@ -58,10 +57,6 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], Announcement.prototype, "updated_at", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ default: false }),
-    __metadata("design:type", Boolean)
-], Announcement.prototype, "isRead", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => announcementread_entity_1.AnnouncementRead, (read) => read.announcement),
     __metadata("design:type", Array)

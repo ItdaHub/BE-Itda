@@ -58,7 +58,10 @@ let AnnouncementService = class AnnouncementService {
             });
             readIds = new Set(readAnnouncements.map((read) => read.announcement.id));
         }
-        return announcements.map((a) => this.toDto(a, readIds.has(a.id)));
+        return announcements.map((a) => {
+            const isRead = userId ? readIds.has(a.id) : false;
+            return this.toDto(a, isRead);
+        });
     }
     async getAnnouncementById(id) {
         const announcement = await this.announcementRepo.findOne({

@@ -69,7 +69,7 @@ export class AnnouncementController {
     return this.announcementService.deleteAnnouncement(Number(id));
   }
 
-  @UseGuards(JwtAuthGuard)
+  // 로그인 안 해도 접근 가능하도록 수정
   @Get()
   @ApiOperation({ summary: "모든 공지사항 조회 (관리자용)" })
   @ApiBearerAuth()
@@ -77,6 +77,7 @@ export class AnnouncementController {
     return this.announcementService.getAllAnnouncements();
   }
 
+  // 로그인 안 해도 접근 가능하도록 수정
   @Get(":id")
   @ApiOperation({ summary: "공지사항 단건 조회 (사용자용)" })
   @ApiParam({ name: "id", description: "조회할 공지사항 ID" })

@@ -61,7 +61,10 @@ export class AnnouncementService {
       readIds = new Set(readAnnouncements.map((read) => read.announcement.id));
     }
 
-    return announcements.map((a) => this.toDto(a, readIds.has(a.id)));
+    return announcements.map((a) => {
+      const isRead = userId ? readIds.has(a.id) : false; // 로그인한 경우만 읽음 여부 체크
+      return this.toDto(a, isRead);
+    });
   }
 
   async getAnnouncementById(id: number): Promise<AnnouncementWithAdminDto> {

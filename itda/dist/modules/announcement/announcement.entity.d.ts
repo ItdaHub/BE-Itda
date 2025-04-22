@@ -9,6 +9,5 @@ export declare class Announcement {
     start_date: Date;
     created_at: Date;
     updated_at: Date;
-    isRead: boolean;
     reads: AnnouncementRead[];
 }
