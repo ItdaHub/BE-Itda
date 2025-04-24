@@ -17,6 +17,7 @@ import { Report } from "../reports/report.entity";
 import { Notification } from "../notifications/notification.entity";
 import { Point } from "../points/point.entity";
 import { AnnouncementRead } from "../announcement/announcementread.entity";
+import { Purchase } from "../points/purchases.entity";
 
 export enum LoginType {
   LOCAL = "local",
@@ -133,4 +134,7 @@ export class User {
 
   @OneToMany(() => AnnouncementRead, (read) => read.user)
   announcementReads: AnnouncementRead[];
+
+  @OneToMany(() => Purchase, (purchase) => purchase.user)
+  purchases: Purchase[];
 }

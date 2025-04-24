@@ -3,7 +3,7 @@ import { UsePopcornDto } from "./dto/usepopcorn.dto";
 export declare class PointController {
     private readonly pointService;
     constructor(pointService: PointService);
-    usePopcorn(usePopcornDto: UsePopcornDto): Promise<import("./point.entity").Point>;
+    usePopcorn(usePopcornDto: UsePopcornDto): Promise<any>;
     getUserPoints(userId: number): Promise<{
         total: number;
     }>;
@@ -17,4 +17,5 @@ export declare class PointController {
         amount: number;
         date: string;
     }[]>;
+    getPurchasedChapters(userId: number, novelId: number): Promise<import("./purchases.entity").Purchase[]>;
 }

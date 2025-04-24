@@ -31,7 +31,6 @@ import { AiModule } from "./modules/ai/ai.module";
 import { GenreModule } from "./modules/genre/genre.module";
 import { ChapterModule } from "./modules/chapter/chapter.module";
 import { CommentsModule } from "./modules/comments/comment.module";
-import { WritersModule } from "./modules/writers/writers.module";
 import { MailerModule } from "@nestjs-modules/mailer";
 import { MailService } from "./modules/mail/mail.service";
 import { PointModule } from "./modules/points/point.module";
@@ -43,6 +42,7 @@ import { AdminModule } from "./modules/admin/admin.modules";
 import { AnnouncementModule } from "./modules/announcement/announcement.module";
 import { BannerModule } from "./modules/banner/banner.module";
 import { Banner } from "./modules/banner/banner.entity";
+import { Purchase } from "./modules/points/purchases.entity";
 
 @Module({
   imports: [
@@ -74,6 +74,7 @@ import { Banner } from "./modules/banner/banner.entity";
         Announcement,
         AnnouncementRead,
         Banner,
+        Purchase,
       ],
 
       synchronize: true,
@@ -94,7 +95,6 @@ import { Banner } from "./modules/banner/banner.entity";
     GenreModule,
     ChapterModule,
     CommentsModule,
-    WritersModule,
     PointModule,
     AdminModule,
     AnnouncementModule,

@@ -5,6 +5,8 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Query,
+  BadRequestException,
 } from "@nestjs/common";
 import { PointService } from "./point.service";
 import { PointType } from "./point.entity";
@@ -37,5 +39,13 @@ export class PointController {
   @Get("use/:userId")
   async getUseHistory(@Param("userId", ParseIntPipe) userId: number) {
     return this.pointService.getUserHistory(userId, PointType.SPEND);
+  }
+
+  @Get("purchases/:userId")
+  async getPurchasedChapters(
+    @Param("userId", ParseIntPipe) userId: number,
+    @Query("novelId", ParseIntPipe) novelId: number
+  ) {
+    return this.pointService.getPurchasedChapters(userId, novelId);
   }
 }

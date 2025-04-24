@@ -35,6 +35,9 @@ let PointController = class PointController {
     async getUseHistory(userId) {
         return this.pointService.getUserHistory(userId, point_entity_1.PointType.SPEND);
     }
+    async getPurchasedChapters(userId, novelId) {
+        return this.pointService.getPurchasedChapters(userId, novelId);
+    }
 };
 exports.PointController = PointController;
 __decorate([
@@ -65,6 +68,14 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], PointController.prototype, "getUseHistory", null);
+__decorate([
+    (0, common_1.Get)("purchases/:userId"),
+    __param(0, (0, common_1.Param)("userId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Query)("novelId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], PointController.prototype, "getPurchasedChapters", null);
 exports.PointController = PointController = __decorate([
     (0, common_1.Controller)("popcorn"),
     __metadata("design:paramtypes", [point_service_1.PointService])

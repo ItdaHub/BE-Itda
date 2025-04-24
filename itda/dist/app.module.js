@@ -40,7 +40,6 @@ const ai_module_1 = require("./modules/ai/ai.module");
 const genre_module_1 = require("./modules/genre/genre.module");
 const chapter_module_1 = require("./modules/chapter/chapter.module");
 const comment_module_1 = require("./modules/comments/comment.module");
-const writers_module_1 = require("./modules/writers/writers.module");
 const mailer_1 = require("@nestjs-modules/mailer");
 const mail_service_1 = require("./modules/mail/mail.service");
 const point_module_1 = require("./modules/points/point.module");
@@ -52,6 +51,7 @@ const admin_modules_1 = require("./modules/admin/admin.modules");
 const announcement_module_1 = require("./modules/announcement/announcement.module");
 const banner_module_1 = require("./modules/banner/banner.module");
 const banner_entity_1 = require("./modules/banner/banner.entity");
+const purchases_entity_1 = require("./modules/points/purchases.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -86,6 +86,7 @@ exports.AppModule = AppModule = __decorate([
                     announcement_entity_1.Announcement,
                     announcementread_entity_1.AnnouncementRead,
                     banner_entity_1.Banner,
+                    purchases_entity_1.Purchase,
                 ],
                 synchronize: true,
             }),
@@ -104,7 +105,6 @@ exports.AppModule = AppModule = __decorate([
             genre_module_1.GenreModule,
             chapter_module_1.ChapterModule,
             comment_module_1.CommentsModule,
-            writers_module_1.WritersModule,
             point_module_1.PointModule,
             admin_modules_1.AdminModule,
             announcement_module_1.AnnouncementModule,

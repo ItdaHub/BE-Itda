@@ -18,11 +18,14 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const point_entity_1 = require("./point.entity");
 const user_entity_1 = require("../users/user.entity");
+const purchases_entity_1 = require("./purchases.entity");
 let PointService = class PointService {
     pointRepository;
+    purchaseRepository;
     userRepository;
-    constructor(pointRepository, userRepository) {
+    constructor(pointRepository, purchaseRepository, userRepository) {
         this.pointRepository = pointRepository;
+        this.purchaseRepository = purchaseRepository;
         this.userRepository = userRepository;
     }
     async getUserTotalPoints(userId) {
@@ -33,21 +36,46 @@ let PointService = class PointService {
             .getRawOne();
         return Number(result.total) || 0;
     }
-    async spendPoints(dto) {
-        const { userId, amount, description } = dto;
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-        if (!user)
-            throw new common_1.NotFoundException("User not found");
-        const total = await this.getUserTotalPoints(userId);
-        if (total < amount)
-            throw new common_1.BadRequestException("Not enough popcorn");
-        const point = this.pointRepository.create({
+    async spendPoints(usePopcornDto) {
+        const { userId, novelId, chapterId, amount, description } = usePopcornDto;
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+        });
+        if (!user) {
+            throw new common_1.NotFoundException("유저를 찾을 수 없습니다");
+        }
+        await this.pointRepository.save({
             user,
             amount: -amount,
             type: point_entity_1.PointType.SPEND,
-            description: description || "팝콘 사용",
+            description,
         });
-        return await this.pointRepository.save(point);
+        if (novelId && chapterId) {
+            const existing = await this.purchaseRepository.findOne({
+                where: {
+                    user: { id: userId },
+                    novelId,
+                    chapterId,
+                },
+            });
+            if (!existing) {
+                await this.purchaseRepository.save({
+                    user: { id: userId },
+                    novelId,
+                    chapterId,
+                });
+            }
+        }
+        return { success: true };
+    }
+    async hasPurchased(userId, novelId, chapterId) {
+        const existing = await this.purchaseRepository
+            .createQueryBuilder("purchase")
+            .where("purchase.userId = :userId", { userId })
+            .andWhere("purchase.novelId = :novelId", { novelId })
+            .andWhere("purchase.chapterId = :chapterId", { chapterId })
+            .getOne();
+        return !!existing;
     }
     async addPoint(user, amount, type, description) {
         const point = this.pointRepository.create({
@@ -80,13 +108,24 @@ let PointService = class PointService {
             date: entry.created_at.toISOString().slice(0, 19).replace("T", " "),
         }));
     }
+    async getPurchasedChapters(userId, novelId) {
+        return this.purchaseRepository.find({
+            where: {
+                user: { id: userId },
+                novelId,
+            },
+            select: ["chapterId"],
+        });
+    }
 };
 exports.PointService = PointService;
 exports.PointService = PointService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(point_entity_1.Point)),
-    __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(1, (0, typeorm_1.InjectRepository)(purchases_entity_1.Purchase)),
+    __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], PointService);
 //# sourceMappingURL=point.service.js.map

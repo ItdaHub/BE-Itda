@@ -22,6 +22,7 @@ const report_entity_1 = require("../reports/report.entity");
 const notification_entity_1 = require("../notifications/notification.entity");
 const point_entity_1 = require("../points/point.entity");
 const announcementread_entity_1 = require("../announcement/announcementread.entity");
+const purchases_entity_1 = require("../points/purchases.entity");
 var LoginType;
 (function (LoginType) {
     LoginType["LOCAL"] = "local";
@@ -72,6 +73,7 @@ let User = class User {
     points;
     age_group;
     announcementReads;
+    purchases;
 };
 exports.User = User;
 __decorate([
@@ -186,6 +188,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => announcementread_entity_1.AnnouncementRead, (read) => read.user),
     __metadata("design:type", Array)
 ], User.prototype, "announcementReads", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => purchases_entity_1.Purchase, (purchase) => purchase.user),
+    __metadata("design:type", Array)
+], User.prototype, "purchases", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)("users"),
     (0, typeorm_1.Unique)(["email", "type"])
