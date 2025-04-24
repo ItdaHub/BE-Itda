@@ -258,18 +258,10 @@ let NovelService = class NovelService {
         const isLiked = userId
             ? novel.likes.some((like) => like.user.id === userId)
             : false;
-        const sortedChapters = [...novel.chapters].sort((a, b) => a.chapter_number - b.chapter_number);
-        const totalChapters = sortedChapters.length;
-        const paidChapterCount = Math.floor((totalChapters * 2) / 3);
+        const sortedChapters = novel.chapters.sort((a, b) => a.chapter_number - b.chapter_number);
         sortedChapters.forEach((chapter, index) => {
-            if (index >= paidChapterCount) {
-                chapter.isPaid = true;
-                console.log(`Chapter ${chapter.chapter_number} is set to paid: ${chapter.isPaid}`);
-            }
-            else {
-                chapter.isPaid = false;
-                console.log(`Chapter ${chapter.chapter_number} is set to free: ${chapter.isPaid}`);
-            }
+            chapter.isPaid = index !== 0;
+            console.log(`Chapter ${chapter.chapter_number} → isPaid: ${chapter.isPaid}`);
         });
         return {
             id: novel.id,

@@ -23,6 +23,7 @@ export class ChapterService {
       created_at: Date;
       nickname: string;
       comments: any[];
+      isPaid: boolean;
       isPublished: boolean;
     }[]
   > {
@@ -46,6 +47,7 @@ export class ChapterService {
       created_at: chapter.created_at,
       nickname: chapter.author?.nickname || "알 수 없음",
       comments: chapter.comments,
+      isPaid: chapter.isPaid ?? false,
       isPublished: novel.isPublished,
     }));
   }
@@ -203,36 +205,25 @@ export class ChapterService {
   }
 
   async updatePaidStatus(novelId: number): Promise<void> {
-    console.log("Executing updatePaidStatus for novelId:", novelId);
-
     const chapters = await this.chapterRepository.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
     });
 
-    if (!chapters || chapters.length === 0) {
-      console.log("No chapters found for novelId:", novelId);
-      return;
-    }
+    if (!chapters.length) return;
 
-    console.log("Found chapters:", chapters);
-
-    const totalChapters = chapters.length;
-    const paidCount = Math.floor(totalChapters * (2 / 3)); // 2/3만큼 유료
-    const paidStartIndex = totalChapters - paidCount; // 유료 시작 인덱스
-
-    console.log(`Paid chapters start from index: ${paidStartIndex}`);
-
-    // 2/3 이후부터 유료로 설정
     for (let i = 0; i < chapters.length; i++) {
       const chapter = chapters[i];
-      const isPaid = i >= paidStartIndex; // 뒤에서부터 유료 설정
+      // 첫 번째 챕터(i === 0)만 무료, 나머지는 모두 유료
+      const shouldBePaid = i !== 0;
 
-      if (chapter.isPaid !== isPaid) {
-        chapter.isPaid = isPaid;
+      if (chapter.isPaid !== shouldBePaid) {
+        chapter.isPaid = shouldBePaid;
         await this.chapterRepository.save(chapter);
         console.log(
-          `✅ Chapter ${chapter.chapter_number} is set to ${isPaid ? "paid" : "free"}`
+          `✅ Chapter ${chapter.chapter_number} is now ${
+            shouldBePaid ? "paid" : "free"
+          }`
         );
       }
     }

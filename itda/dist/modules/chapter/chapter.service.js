@@ -47,6 +47,7 @@ let ChapterService = class ChapterService {
             created_at: chapter.created_at,
             nickname: chapter.author?.nickname || "알 수 없음",
             comments: chapter.comments,
+            isPaid: chapter.isPaid ?? false,
             isPublished: novel.isPublished,
         }));
     }
@@ -152,27 +153,19 @@ let ChapterService = class ChapterService {
         return chapter.isPaid ?? false;
     }
     async updatePaidStatus(novelId) {
-        console.log("Executing updatePaidStatus for novelId:", novelId);
         const chapters = await this.chapterRepository.find({
             where: { novel: { id: novelId } },
             order: { chapter_number: "ASC" },
         });
-        if (!chapters || chapters.length === 0) {
-            console.log("No chapters found for novelId:", novelId);
+        if (!chapters.length)
             return;
-        }
-        console.log("Found chapters:", chapters);
-        const totalChapters = chapters.length;
-        const paidCount = Math.floor(totalChapters * (2 / 3));
-        const paidStartIndex = totalChapters - paidCount;
-        console.log(`Paid chapters start from index: ${paidStartIndex}`);
         for (let i = 0; i < chapters.length; i++) {
             const chapter = chapters[i];
-            const isPaid = i >= paidStartIndex;
-            if (chapter.isPaid !== isPaid) {
-                chapter.isPaid = isPaid;
+            const shouldBePaid = i !== 0;
+            if (chapter.isPaid !== shouldBePaid) {
+                chapter.isPaid = shouldBePaid;
                 await this.chapterRepository.save(chapter);
-                console.log(`✅ Chapter ${chapter.chapter_number} is set to ${isPaid ? "paid" : "free"}`);
+                console.log(`✅ Chapter ${chapter.chapter_number} is now ${shouldBePaid ? "paid" : "free"}`);
             }
         }
     }

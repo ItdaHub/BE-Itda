@@ -14,6 +14,7 @@ export declare class ChapterService {
         created_at: Date;
         nickname: string;
         comments: any[];
+        isPaid: boolean;
         isPublished: boolean;
     }[]>;
     getChapterContent(novelId: number, chapterId: number): Promise<{

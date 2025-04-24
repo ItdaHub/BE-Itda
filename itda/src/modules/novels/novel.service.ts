@@ -298,7 +298,6 @@ export class NovelService {
         "chapters.reports",
       ],
     });
-
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
 
     novel.viewCount += 1;
@@ -309,27 +308,16 @@ export class NovelService {
       ? novel.likes.some((like) => like.user.id === userId)
       : false;
 
-    const sortedChapters = [...novel.chapters].sort(
+    const sortedChapters = novel.chapters.sort(
       (a, b) => a.chapter_number - b.chapter_number
     );
 
-    // 전체 챕터 수의 2/3을 계산
-    const totalChapters = sortedChapters.length;
-    const paidChapterCount = Math.floor((totalChapters * 2) / 3);
-
-    // 2/3 이후 부분을 유료로 설정
+    // 첫 화만 무료, 그 외는 전부 유료
     sortedChapters.forEach((chapter, index) => {
-      if (index >= paidChapterCount) {
-        chapter.isPaid = true; // 유료
-        console.log(
-          `Chapter ${chapter.chapter_number} is set to paid: ${chapter.isPaid}`
-        );
-      } else {
-        chapter.isPaid = false; // 무료
-        console.log(
-          `Chapter ${chapter.chapter_number} is set to free: ${chapter.isPaid}`
-        );
-      }
+      chapter.isPaid = index !== 0;
+      console.log(
+        `Chapter ${chapter.chapter_number} → isPaid: ${chapter.isPaid}`
+      );
     });
 
     return {
