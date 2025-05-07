@@ -1,3 +1,8 @@
+declare class AdminInfoDto {
+    id: number;
+    email: string;
+    nickname: string;
+}
 export declare class AnnouncementWithAdminDto {
     id: number;
     title: string;
@@ -6,10 +11,7 @@ export declare class AnnouncementWithAdminDto {
     start_date: Date;
     created_at: Date;
     updated_at: Date;
-    admin: {
-        id: number;
-        email: string;
-        nickname: string;
-    };
+    admin: AdminInfoDto;
     isRead: boolean;
 }
+export {};

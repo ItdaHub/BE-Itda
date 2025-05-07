@@ -18,6 +18,7 @@ const platform_express_1 = require("@nestjs/platform-express");
 const banner_service_1 = require("./banner.service");
 const multer_1 = require("multer");
 const path_1 = require("path");
+const swagger_1 = require("@nestjs/swagger");
 let BannerController = class BannerController {
     bannerService;
     constructor(bannerService) {
@@ -39,10 +40,7 @@ let BannerController = class BannerController {
         }
     }
     async registerBanner(file, body) {
-        console.log("파일 정보:", file);
-        console.log("본문 데이터:", body);
         const imagePath = `/uploads/banners/${file.filename}`;
-        console.log("이미지 경로:", imagePath);
         const banner = await this.bannerService.create(body.title, imagePath);
         return banner;
     }
@@ -59,12 +57,18 @@ let BannerController = class BannerController {
 exports.BannerController = BannerController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: "배너 목록 조회" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "배너 목록 반환 성공" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], BannerController.prototype, "getBanners", null);
 __decorate([
     (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "특정 배너 조회" }),
+    (0, swagger_1.ApiParam)({ name: "id", type: Number, description: "배너 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "배너 상세 조회 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "배너를 찾을 수 없음" }),
     __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -72,6 +76,23 @@ __decorate([
 ], BannerController.prototype, "getBanner", null);
 __decorate([
     (0, common_1.Post)("register"),
+    (0, swagger_1.ApiOperation)({ summary: "배너 등록" }),
+    (0, swagger_1.ApiConsumes)("multipart/form-data"),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                title: { type: "string", description: "배너 제목" },
+                image: {
+                    type: "string",
+                    format: "binary",
+                    description: "배너 이미지 파일",
+                },
+            },
+            required: ["title", "image"],
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "배너 등록 성공" }),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("image", {
         storage: (0, multer_1.diskStorage)({
             destination: "./uploads/banners",
@@ -90,12 +111,17 @@ __decorate([
 ], BannerController.prototype, "registerBanner", null);
 __decorate([
     (0, common_1.Delete)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "배너 삭제" }),
+    (0, swagger_1.ApiParam)({ name: "id", type: Number, description: "배너 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "배너 삭제 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "배너 삭제 실패 또는 없음" }),
     __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], BannerController.prototype, "deleteBanner", null);
 exports.BannerController = BannerController = __decorate([
+    (0, swagger_1.ApiTags)("Banner (배너)"),
     (0, common_1.Controller)("banner"),
     __metadata("design:paramtypes", [banner_service_1.BannerService])
 ], BannerController);

@@ -11,16 +11,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateAiDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class CreateAiDto {
     prompt;
     genre;
 }
 exports.CreateAiDto = CreateAiDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: "AI가 생성할 프롬프트 문장",
+        example: "여행을 주제로 한 짧은 소설을 생성해줘.",
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateAiDto.prototype, "prompt", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: "선택적으로 지정할 장르 (예: 로맨스, 스릴러 등)",
+        example: "로맨스",
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

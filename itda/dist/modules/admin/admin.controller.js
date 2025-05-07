@@ -45,7 +45,9 @@ exports.AdminController = AdminController;
 __decorate([
     (0, common_1.Get)("novel/:novelId"),
     (0, swagger_1.ApiOperation)({ summary: "소설 상세 정보 가져오기" }),
-    (0, swagger_1.ApiParam)({ name: "novelId", type: "number", description: "소설 ID" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number, description: "소설 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "소설 상세 정보 반환 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "소설을 찾을 수 없음" }),
     __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -53,13 +55,17 @@ __decorate([
 ], AdminController.prototype, "getNovelDetail", null);
 __decorate([
     (0, common_1.Get)("complete"),
-    (0, swagger_1.ApiOperation)({ summary: "출품 대기 중이거나 출품된 소설 목록" }),
+    (0, swagger_1.ApiOperation)({ summary: "출품 대기 중이거나 출품된 소설 목록 조회" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "소설 목록 반환 성공" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getCompletedNovels", null);
 __decorate([
     (0, common_1.Post)("complete/:novelId"),
+    (0, swagger_1.ApiOperation)({ summary: "소설 완료 처리 (작성자/참여자 완료)" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number, description: "소설 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "소설이 완료 상태로 변경됨" }),
     __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -67,6 +73,9 @@ __decorate([
 ], AdminController.prototype, "submitNovel", null);
 __decorate([
     (0, common_1.Post)("publish/:novelId"),
+    (0, swagger_1.ApiOperation)({ summary: "소설 출품 처리 (관리자)" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number, description: "소설 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "소설이 출품 상태로 변경됨" }),
     __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -74,14 +83,18 @@ __decorate([
 ], AdminController.prototype, "publishNovel", null);
 __decorate([
     (0, common_1.Get)("waiting-novels"),
+    (0, swagger_1.ApiOperation)({ summary: "출품 대기 중인 소설 리스트 조회 (관리자)" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "출품 대기 소설 리스트 반환 성공" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getWaitingNovels", null);
 __decorate([
     (0, common_1.Delete)("delete/:novelId"),
-    (0, swagger_1.ApiOperation)({ summary: "소설 삭제 (관리자 권한)" }),
-    (0, swagger_1.ApiParam)({ name: "novelId", type: "number", description: "소설 ID" }),
+    (0, swagger_1.ApiOperation)({ summary: "소설 삭제 (관리자 전용)" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number, description: "소설 ID" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "소설 삭제 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "소설을 찾을 수 없음" }),
     __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),

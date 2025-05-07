@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsePopcornDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class UsePopcornDto {
     userId;
     amount;
@@ -20,25 +21,45 @@ class UsePopcornDto {
 }
 exports.UsePopcornDto = UsePopcornDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: "유저 ID",
+        example: 1,
+    }),
     (0, class_validator_1.IsInt)({ message: "userId는 정수여야 합니다." }),
     __metadata("design:type", Number)
 ], UsePopcornDto.prototype, "userId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: "사용할 팝콘 개수",
+        example: 10,
+    }),
     (0, class_validator_1.IsInt)({ message: "amount는 정수여야 합니다." }),
     (0, class_validator_1.IsPositive)({ message: "amount는 0보다 커야 합니다." }),
     __metadata("design:type", Number)
 ], UsePopcornDto.prototype, "amount", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: "사용 내역 설명",
+        example: "챕터 열람",
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ message: "description은 문자열이어야 합니다." }),
     __metadata("design:type", String)
 ], UsePopcornDto.prototype, "description", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: "소설 ID (해당되는 경우)",
+        example: 101,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], UsePopcornDto.prototype, "novelId", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: "챕터 ID (해당되는 경우)",
+        example: 5,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)

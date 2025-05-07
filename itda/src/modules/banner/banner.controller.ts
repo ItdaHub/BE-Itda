@@ -12,19 +12,32 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { BannerService } from "./banner.service";
 import { diskStorage } from "multer";
 import { extname } from "path";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiParam,
+  ApiConsumes,
+  ApiBody,
+  ApiResponse,
+} from "@nestjs/swagger";
 
+@ApiTags("Banner (배너)")
 @Controller("banner")
 export class BannerController {
   constructor(private readonly bannerService: BannerService) {}
 
-  // 배너 목록 조회
   @Get()
+  @ApiOperation({ summary: "배너 목록 조회" })
+  @ApiResponse({ status: 200, description: "배너 목록 반환 성공" })
   async getBanners() {
     return this.bannerService.findAll();
   }
 
-  // 특정 배너 조회
   @Get(":id")
+  @ApiOperation({ summary: "특정 배너 조회" })
+  @ApiParam({ name: "id", type: Number, description: "배너 ID" })
+  @ApiResponse({ status: 200, description: "배너 상세 조회 성공" })
+  @ApiResponse({ status: 404, description: "배너를 찾을 수 없음" })
   async getBanner(@Param("id") id: number) {
     try {
       const banner = await this.bannerService.findById(id);
@@ -38,6 +51,23 @@ export class BannerController {
   }
 
   @Post("register")
+  @ApiOperation({ summary: "배너 등록" })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "배너 제목" },
+        image: {
+          type: "string",
+          format: "binary",
+          description: "배너 이미지 파일",
+        },
+      },
+      required: ["title", "image"],
+    },
+  })
+  @ApiResponse({ status: 201, description: "배너 등록 성공" })
   @UseInterceptors(
     FileInterceptor("image", {
       storage: diskStorage({
@@ -55,18 +85,16 @@ export class BannerController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: { title: string }
   ) {
-    console.log("파일 정보:", file);
-    console.log("본문 데이터:", body);
-
     const imagePath = `/uploads/banners/${file.filename}`;
-    console.log("이미지 경로:", imagePath);
-
     const banner = await this.bannerService.create(body.title, imagePath);
     return banner;
   }
 
-  // 배너 삭제
   @Delete(":id")
+  @ApiOperation({ summary: "배너 삭제" })
+  @ApiParam({ name: "id", type: Number, description: "배너 ID" })
+  @ApiResponse({ status: 200, description: "배너 삭제 성공" })
+  @ApiResponse({ status: 404, description: "배너 삭제 실패 또는 없음" })
   async deleteBanner(@Param("id") id: number) {
     try {
       await this.bannerService.remove(id);

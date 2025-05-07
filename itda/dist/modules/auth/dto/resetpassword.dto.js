@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResetPasswordDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class ResetPasswordDto {
     token;
     password;
@@ -18,15 +19,29 @@ class ResetPasswordDto {
 }
 exports.ResetPasswordDto = ResetPasswordDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "a1b2c3d4e5f6",
+        description: "비밀번호 재설정을 위한 인증 토큰",
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], ResetPasswordDto.prototype, "token", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "newStrongPass123!",
+        description: "새 비밀번호 (최소 6자 이상)",
+        minLength: 6,
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
 ], ResetPasswordDto.prototype, "password", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "newStrongPass123!",
+        description: "새 비밀번호 확인 (password와 동일해야 함)",
+        minLength: 6,
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)

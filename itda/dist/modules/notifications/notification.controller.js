@@ -16,6 +16,7 @@ exports.NotificationController = void 0;
 const common_1 = require("@nestjs/common");
 const notification_service_1 = require("./notification.service");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
+const swagger_1 = require("@nestjs/swagger");
 let NotificationController = class NotificationController {
     notificationService;
     constructor(notificationService) {
@@ -33,6 +34,12 @@ exports.NotificationController = NotificationController;
 __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({
+        summary: "유저 알림 목록 조회",
+        description: "로그인한 유저의 알림 리스트를 조회합니다.",
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "알림 목록 반환" }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -40,13 +47,33 @@ __decorate([
 ], NotificationController.prototype, "getUserNotifications", null);
 __decorate([
     (0, common_1.Patch)(":notificationId/read"),
-    __param(0, (0, common_1.Param)("notificationId")),
+    (0, swagger_1.ApiOperation)({
+        summary: "알림 읽음 처리",
+        description: "특정 알림을 읽음 상태로 변경합니다.",
+    }),
+    (0, swagger_1.ApiParam)({
+        name: "notificationId",
+        type: Number,
+        description: "읽음 처리할 알림 ID",
+    }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            required: ["userId"],
+            properties: {
+                userId: { type: "number", example: 1 },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "읽음 처리된 알림 반환" }),
+    __param(0, (0, common_1.Param)("notificationId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)("userId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "markNotificationAsRead", null);
 exports.NotificationController = NotificationController = __decorate([
+    (0, swagger_1.ApiTags)("알림(Notification)"),
     (0, common_1.Controller)("notifications"),
     __metadata("design:paramtypes", [notification_service_1.NotificationService])
 ], NotificationController);

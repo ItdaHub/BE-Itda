@@ -48,8 +48,13 @@ exports.AiController = AiController;
 __decorate([
     (0, common_1.Post)("/generate"),
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
-    (0, swagger_1.ApiOperation)({ summary: "AI로 소설 생성 (저장 X)" }),
     (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({
+        summary: "AI로 소설 생성 (저장되지 않음)",
+        description: "Gemini를 이용해 프롬프트 기반 소설을 생성합니다.",
+    }),
+    (0, swagger_1.ApiBody)({ type: create_ai_dto_1.CreateAiDto }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "소설 본문 문자열 반환" }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -58,6 +63,19 @@ __decorate([
 ], AiController.prototype, "generateWithAI", null);
 __decorate([
     (0, common_1.Post)("summarize"),
+    (0, swagger_1.ApiOperation)({
+        summary: "소설 본문 요약",
+        description: "본문 내용을 요약합니다.",
+    }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                content: { type: "string", example: "긴 소설 본문 내용..." },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "요약된 텍스트 반환" }),
     __param(0, (0, common_1.Body)("content")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -67,7 +85,24 @@ __decorate([
     (0, common_1.Post)("user-write-save"),
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: "유저가 쓴 소설 저장 (요약+이미지 생성 포함)" }),
+    (0, swagger_1.ApiOperation)({
+        summary: "유저 작성 소설 저장 (요약+이미지 생성 포함)",
+        description: "유저가 직접 작성한 소설을 저장하며, AI가 요약과 이미지를 생성합니다.",
+    }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            required: ["title", "content", "categoryId", "peopleNum", "type"],
+            properties: {
+                title: { type: "string", example: "용사의 여정" },
+                content: { type: "string", example: "소설 본문 내용..." },
+                categoryId: { type: "number", example: 1 },
+                peopleNum: { type: "number", enum: [5, 7, 9], example: 5 },
+                type: { type: "string", enum: ["new", "relay"], example: "new" },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "소설 저장 성공 응답" }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),

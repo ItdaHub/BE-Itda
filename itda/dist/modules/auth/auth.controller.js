@@ -181,31 +181,23 @@ let AuthController = class AuthController {
         return { message: "비밀번호 재설정 메일을 전송했습니다." };
     }
     async resetPassword(body) {
-        const { token, newPassword } = body;
         try {
-            if (!process.env.JWT_REFRESH_SECRET) {
-                throw new Error("JWT_REFRESH_SECRET is not defined");
-            }
-            const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+            const payload = jwt.verify(body.token, process.env.JWT_REFRESH_SECRET);
             const user = await this.userService.findByEmail(payload.email);
             if (!user)
                 throw new common_1.NotFoundException("유저를 찾을 수 없습니다.");
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            const hashedPassword = await bcrypt.hash(body.newPassword, 10);
             user.password = hashedPassword;
             await this.userService.save(user);
             return { message: "비밀번호가 성공적으로 변경되었습니다." };
         }
-        catch (err) {
+        catch {
             throw new common_1.BadRequestException("토큰이 유효하지 않거나 만료되었습니다.");
         }
     }
     async updatePasswordPage(token) {
         try {
-            const jwtSecret = process.env.JWT_SECRET;
-            if (!jwtSecret) {
-                throw new Error("JWT_SECRET is not defined");
-            }
-            const payload = jwt.verify(token, jwtSecret);
+            const payload = jwt.verify(token, process.env.JWT_SECRET);
             const user = await this.userService.findByEmail(payload.email);
             if (!user) {
                 throw new common_1.NotFoundException("유저를 찾을 수 없습니다.");
@@ -215,7 +207,7 @@ let AuthController = class AuthController {
                 userId: user.id,
             };
         }
-        catch (error) {
+        catch {
             throw new common_1.BadRequestException("유효하지 않거나 만료된 토큰입니다.");
         }
     }
@@ -405,6 +397,7 @@ __decorate([
         summary: "전화번호로 ID 찾기",
         description: "입력한 전화번호와 일치하는 이메일을 반환합니다.",
     }),
+    (0, swagger_1.ApiQuery)({ name: "phone", type: String }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "ID 반환 성공" }),
     (0, swagger_1.ApiResponse)({ status: 404, description: "유저를 찾을 수 없음" }),
     __param(0, (0, common_1.Query)("phone")),
@@ -418,6 +411,7 @@ __decorate([
         summary: "비밀번호 찾기",
         description: "이메일로 유저가 존재하는지 확인합니다.",
     }),
+    (0, swagger_1.ApiBody)({ schema: { properties: { email: { type: "string" } } } }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -429,6 +423,14 @@ __decorate([
         summary: "비밀번호 변경",
         description: "새 비밀번호로 유저 비밀번호를 변경합니다.",
     }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            properties: {
+                email: { type: "string" },
+                password: { type: "string", format: "password" },
+            },
+        },
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -436,6 +438,12 @@ __decorate([
 ], AuthController.prototype, "updatePassword", null);
 __decorate([
     (0, common_1.Post)("forgot-password"),
+    (0, swagger_1.ApiOperation)({
+        summary: "비밀번호 재설정 메일 전송",
+        description: "입력된 이메일로 비밀번호 재설정 메일을 전송합니다.",
+    }),
+    (0, swagger_1.ApiBody)({ schema: { properties: { email: { type: "string" } } } }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "메일 전송 성공" }),
     __param(0, (0, common_1.Body)("email")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -443,6 +451,20 @@ __decorate([
 ], AuthController.prototype, "forgotPassword", null);
 __decorate([
     (0, common_1.Post)("reset-password"),
+    (0, swagger_1.ApiOperation)({
+        summary: "비밀번호 재설정",
+        description: "토큰을 기반으로 새 비밀번호를 설정합니다.",
+    }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            properties: {
+                token: { type: "string" },
+                newPassword: { type: "string", format: "password" },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "비밀번호 재설정 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: "유효하지 않거나 만료된 토큰" }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -452,8 +474,11 @@ __decorate([
     (0, common_1.Get)("update-password"),
     (0, swagger_1.ApiOperation)({
         summary: "비밀번호 변경 페이지",
-        description: "사용자가 비밀번호를 변경할 수 있도록 페이지를 표시합니다.",
+        description: "사용자가 비밀번호를 변경할 수 있는 페이지입니다.",
     }),
+    (0, swagger_1.ApiQuery)({ name: "token", type: String }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "페이지 접근 성공" }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: "유효하지 않은 토큰" }),
     __param(0, (0, common_1.Query)("token")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -466,8 +491,16 @@ __decorate([
         summary: "관리자 로그인",
         description: "관리자 이메일과 비밀번호를 통한 로그인 처리",
     }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            properties: {
+                email: { type: "string" },
+                password: { type: "string", format: "password" },
+            },
+        },
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "로그인 성공" }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: "인증 실패" }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: "인증 실패 또는 관리자 아님" }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),

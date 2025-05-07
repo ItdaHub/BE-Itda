@@ -12,7 +12,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiQuery,
+} from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./localauth.guard";
 import { AuthGuard } from "@nestjs/passport";
@@ -291,15 +297,14 @@ export class AuthController {
     summary: "전화번호로 ID 찾기",
     description: "입력한 전화번호와 일치하는 이메일을 반환합니다.",
   })
+  @ApiQuery({ name: "phone", type: String })
   @ApiResponse({ status: 200, description: "ID 반환 성공" })
   @ApiResponse({ status: 404, description: "유저를 찾을 수 없음" })
   async findIdByPhone(@Query("phone") phone: string) {
     const user = await this.userService.findByPhone(phone);
-
     if (!user) {
       throw new NotFoundException("일치하는 유저를 찾을 수 없습니다.");
     }
-
     return { id: user.email };
   }
 
@@ -309,6 +314,7 @@ export class AuthController {
     summary: "비밀번호 찾기",
     description: "이메일로 유저가 존재하는지 확인합니다.",
   })
+  @ApiBody({ schema: { properties: { email: { type: "string" } } } })
   async findPassword(@Body() body: { email: string }) {
     const user = await this.userService.findByEmail(body.email);
     if (!user) {
@@ -323,13 +329,20 @@ export class AuthController {
     summary: "비밀번호 변경",
     description: "새 비밀번호로 유저 비밀번호를 변경합니다.",
   })
+  @ApiBody({
+    schema: {
+      properties: {
+        email: { type: "string" },
+        password: { type: "string", format: "password" },
+      },
+    },
+  })
   async updatePassword(@Body() body: { email: string; password: string }) {
     const user = await this.userService.findByEmail(body.email);
     if (!user) {
       return { message: "User not found" };
     }
 
-    // 새 비밀번호 해싱 후 저장
     const hashedPassword = await bcrypt.hash(body.password, 10);
     user.password = hashedPassword;
     await this.userService.save(user);
@@ -337,66 +350,77 @@ export class AuthController {
     return { message: "Password updated successfully" };
   }
 
-  // 비밀번호 메일 전송
+  // ✅ 비밀번호 메일 전송
   @Post("forgot-password")
+  @ApiOperation({
+    summary: "비밀번호 재설정 메일 전송",
+    description: "입력된 이메일로 비밀번호 재설정 메일을 전송합니다.",
+  })
+  @ApiBody({ schema: { properties: { email: { type: "string" } } } })
+  @ApiResponse({ status: 200, description: "메일 전송 성공" })
   async forgotPassword(@Body("email") email: string) {
-    // 1. 유저 존재 확인
     const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new BadRequestException("존재하지 않는 이메일입니다.");
     }
 
-    // 2. 토큰 생성 (10분 유효)
     const token = jwt.sign({ email }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
 
-    // 3. 이메일 발송
     await this.mailService.sendPasswordResetEmail(email, token);
 
     return { message: "비밀번호 재설정 메일을 전송했습니다." };
   }
 
-  // 비밀번호 재설정
+  // ✅ 비밀번호 재설정
   @Post("reset-password")
+  @ApiOperation({
+    summary: "비밀번호 재설정",
+    description: "토큰을 기반으로 새 비밀번호를 설정합니다.",
+  })
+  @ApiBody({
+    schema: {
+      properties: {
+        token: { type: "string" },
+        newPassword: { type: "string", format: "password" },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: "비밀번호 재설정 성공" })
+  @ApiResponse({ status: 400, description: "유효하지 않거나 만료된 토큰" })
   async resetPassword(@Body() body: { token: string; newPassword: string }) {
-    const { token, newPassword } = body;
-
     try {
-      if (!process.env.JWT_REFRESH_SECRET) {
-        throw new Error("JWT_REFRESH_SECRET is not defined");
-      }
-      const payload: any = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+      const payload: any = jwt.verify(
+        body.token,
+        process.env.JWT_REFRESH_SECRET!
+      );
       const user = await this.userService.findByEmail(payload.email);
-
       if (!user) throw new NotFoundException("유저를 찾을 수 없습니다.");
 
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const hashedPassword = await bcrypt.hash(body.newPassword, 10);
       user.password = hashedPassword;
-
       await this.userService.save(user);
 
       return { message: "비밀번호가 성공적으로 변경되었습니다." };
-    } catch (err) {
+    } catch {
       throw new BadRequestException("토큰이 유효하지 않거나 만료되었습니다.");
     }
   }
 
+  // ✅ 비밀번호 재설정 페이지
   @Get("update-password")
   @ApiOperation({
     summary: "비밀번호 변경 페이지",
-    description: "사용자가 비밀번호를 변경할 수 있도록 페이지를 표시합니다.",
+    description: "사용자가 비밀번호를 변경할 수 있는 페이지입니다.",
   })
+  @ApiQuery({ name: "token", type: String })
+  @ApiResponse({ status: 200, description: "페이지 접근 성공" })
+  @ApiResponse({ status: 400, description: "유효하지 않은 토큰" })
   async updatePasswordPage(@Query("token") token: string) {
     try {
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        throw new Error("JWT_SECRET is not defined");
-      }
-
-      const payload: any = jwt.verify(token, jwtSecret); // JWT 토큰을 검증
+      const payload: any = jwt.verify(token, process.env.JWT_SECRET!);
       const user = await this.userService.findByEmail(payload.email);
-
       if (!user) {
         throw new NotFoundException("유저를 찾을 수 없습니다.");
       }
@@ -405,7 +429,7 @@ export class AuthController {
         message: "비밀번호를 변경할 수 있는 페이지입니다.",
         userId: user.id,
       };
-    } catch (error) {
+    } catch {
       throw new BadRequestException("유효하지 않거나 만료된 토큰입니다.");
     }
   }
@@ -417,8 +441,16 @@ export class AuthController {
     summary: "관리자 로그인",
     description: "관리자 이메일과 비밀번호를 통한 로그인 처리",
   })
+  @ApiBody({
+    schema: {
+      properties: {
+        email: { type: "string" },
+        password: { type: "string", format: "password" },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: "로그인 성공" })
-  @ApiResponse({ status: 401, description: "인증 실패" })
+  @ApiResponse({ status: 401, description: "인증 실패 또는 관리자 아님" })
   async adminLogin(@Request() req, @Res() res: Response) {
     const { accessToken, user } = await this.authService.login(req.user);
 

@@ -11,11 +11,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailCheckDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class EmailCheckDto {
     email;
 }
 exports.EmailCheckDto = EmailCheckDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "user@example.com",
+        description: "중복 확인할 이메일 주소",
+    }),
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
