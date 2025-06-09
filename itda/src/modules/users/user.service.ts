@@ -9,7 +9,7 @@ import { User, UserType } from "./user.entity";
 import { Point } from "../points/point.entity";
 import { FindOptionsWhere } from "typeorm";
 import { CreateUserDto } from "./dto/ceateuser.dto";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import { unlink } from "fs/promises";
 import { join } from "path";
 import { Logger } from "@nestjs/common";

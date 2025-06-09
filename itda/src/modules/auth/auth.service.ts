@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { EntityManager } from "typeorm";
 import { User, UserType } from "../users/user.entity"; // UserType 추가
 import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import { LoginType, UserStatus } from "../users/user.entity";
 import { RegisterDto } from "./dto/register.dto";
 import { instanceToPlain } from "class-transformer";

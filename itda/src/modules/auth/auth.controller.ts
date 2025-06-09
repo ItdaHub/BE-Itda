@@ -27,7 +27,7 @@ import { EmailCheckDto } from "./dto/emailchech.dto";
 import { JwtAuthGuard } from "./jwtauth.guard";
 import { Response } from "express";
 import { UserService } from "../users/user.service";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { MailService } from "../mail/mail.service";
 import { UserType } from "../users/user.entity";

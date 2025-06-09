@@ -32,7 +32,7 @@ export declare enum AgeGroup {
 export declare class User {
     id: number;
     email: string;
-    password: string;
+    password: string | null;
     profile_img: string | null;
     phone: string;
     type: LoginType;

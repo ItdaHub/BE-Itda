@@ -86,10 +86,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ select: false, nullable: true }),
+    (0, typeorm_1.Column)({ select: false, nullable: true, type: "varchar" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], User.prototype, "password", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),

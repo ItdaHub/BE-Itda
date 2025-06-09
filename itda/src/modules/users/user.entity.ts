@@ -53,10 +53,10 @@ export class User {
   @IsEmail()
   email: string;
 
-  @Column({ select: false, nullable: true })
+  @Column({ select: false, nullable: true, type: "varchar" })
   @IsOptional()
   @IsString()
-  password: string;
+  password: string | null;
 
   @Column({ type: "varchar", length: 255, nullable: true })
   @IsOptional()
