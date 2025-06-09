@@ -45,7 +45,10 @@ let AiService = class AiService {
     }
     async summarizeText(content) {
         const trimmed = content.slice(0, 300);
-        const prompt = `다음 글의 핵심 키워드 5개를 콤마로 구분해서 추출해줘. 다른 말은 하지 말고, 키워드만 출력해:\n\n${trimmed}`;
+        const prompt = `
+      다음 글의 핵심 키워드 5개를 영어로 추출해서 콤마로 구분해줘.
+      다른 말은 하지 말고 키워드만 출력해:\n\n${trimmed}
+    `.trim();
         return this.generateText(prompt);
     }
     async getImageFromUnsplash(summary) {
