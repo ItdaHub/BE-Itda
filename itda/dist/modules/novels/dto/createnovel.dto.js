@@ -51,13 +51,13 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "이 소설은 새로운 세계를 찾아 떠나는 여행자의 이야기입니다...",
-        description: "소설 소개글 (10~300자)",
+        description: "소설 소개글 (10~1500자)",
         minLength: 10,
         maxLength: 300,
     }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(10),
-    (0, class_validator_1.MaxLength)(300),
+    (0, class_validator_1.MaxLength)(1500),
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "content", void 0);
 __decorate([
