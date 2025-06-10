@@ -15,15 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NovelController = void 0;
 const common_1 = require("@nestjs/common");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
+const optionaljwt_guard_1 = require("../auth/optionaljwt.guard");
 const novel_service_1 = require("./novel.service");
+const recentNovel_service_1 = require("./recentNovel.service");
 const createnovel_dto_1 = require("./dto/createnovel.dto");
 const addchapter_dto_1 = require("./dto/addchapter.dto");
-const optionaljwt_guard_1 = require("../auth/optionaljwt.guard");
+const recentNovel_dto_1 = require("./dto/recentNovel.dto");
 const swagger_1 = require("@nestjs/swagger");
 let NovelController = class NovelController {
     novelService;
-    constructor(novelService) {
+    recentNovelService;
+    constructor(novelService, recentNovelService) {
         this.novelService = novelService;
+        this.recentNovelService = recentNovelService;
     }
     async getAllNovels() {
         return this.novelService.getAllNovels();
@@ -31,7 +35,7 @@ let NovelController = class NovelController {
     async getPublishedNovels() {
         return this.novelService.getPublishedNovels();
     }
-    async getFilteredNovels(type, genre, age, req) {
+    async getFilteredNovels(type, genre, age) {
         return this.novelService.getFilteredNovels(type, genre, age);
     }
     async searchNovelsByTitle(query) {
@@ -63,10 +67,6 @@ let NovelController = class NovelController {
     }
     async addChapter(novelId, dto, req) {
         const userId = req.user.id;
-        console.log("addChapter 호출됨");
-        console.log("소설 ID:", novelId);
-        console.log("받은 데이터:", dto);
-        console.log("요청한 사용자 ID:", userId);
         return this.novelService.addChapter(parseInt(novelId, 10), {
             ...dto,
             userId,
@@ -81,6 +81,14 @@ let NovelController = class NovelController {
     }
     async submitNovel(id) {
         return this.novelService.submitNovelForCompletion(id);
+    }
+    async addRecent(novelId, chapterNumber, req) {
+        return this.recentNovelService.addRecentNovel(req.user, novelId, chapterNumber);
+    }
+    async getRecent(req) {
+        console.log("📌 req.user:", req.user);
+        const recent = await this.recentNovelService.getRecentNovels(req.user);
+        return recent.map((item) => new recentNovel_dto_1.RecentNovelDto(item));
     }
 };
 exports.NovelController = NovelController;
@@ -104,9 +112,8 @@ __decorate([
     __param(0, (0, common_1.Query)("type")),
     __param(1, (0, common_1.Query)("genre")),
     __param(2, (0, common_1.Query)("age")),
-    __param(3, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Number, Object]),
+    __metadata("design:paramtypes", [String, String, Number]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "getFilteredNovels", null);
 __decorate([
@@ -202,9 +209,32 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], NovelController.prototype, "submitNovel", null);
+__decorate([
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)("recent/:novelId/:chapterNumber"),
+    (0, swagger_1.ApiOperation)({ summary: "최근 본 소설 추가" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Param)("chapterNumber", common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], NovelController.prototype, "addRecent", null);
+__decorate([
+    (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)("recent"),
+    (0, swagger_1.ApiOperation)({ summary: "최근 본 소설 목록 조회" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NovelController.prototype, "getRecent", null);
 exports.NovelController = NovelController = __decorate([
     (0, swagger_1.ApiTags)("Novel (소설)"),
     (0, common_1.Controller)("novels"),
-    __metadata("design:paramtypes", [novel_service_1.NovelService])
+    __metadata("design:paramtypes", [novel_service_1.NovelService,
+        recentNovel_service_1.RecentNovelService])
 ], NovelController);
 //# sourceMappingURL=novel.controller.js.map

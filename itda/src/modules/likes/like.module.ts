@@ -10,5 +10,6 @@ import { Comment } from "../comments/entities/comment.entity";
   imports: [TypeOrmModule.forFeature([Like, Novel, Comment])],
   providers: [LikeService],
   controllers: [LikeController],
+  exports: [LikeService],
 })
 export class LikeModule {}

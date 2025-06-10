@@ -22,6 +22,7 @@ exports.LikeModule = LikeModule = __decorate([
         imports: [typeorm_1.TypeOrmModule.forFeature([like_entity_1.Like, novel_entity_1.Novel, comment_entity_1.Comment])],
         providers: [like_service_1.LikeService],
         controllers: [like_controller_1.LikeController],
+        exports: [like_service_1.LikeService],
     })
 ], LikeModule);
 //# sourceMappingURL=like.module.js.map

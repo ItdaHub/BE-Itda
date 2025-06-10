@@ -26,6 +26,7 @@ let RecentNovelController = class RecentNovelController {
         return this.recentNovelService.addRecentNovel(req.user, novelId);
     }
     async getRecent(req) {
+        console.log("req.user in getRecent:", req.user);
         const recent = await this.recentNovelService.getRecentNovels(req.user);
         return recent.map((item) => new recentNovel_dto_1.RecentNovelDto(item));
     }

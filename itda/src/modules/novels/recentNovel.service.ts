@@ -14,24 +14,30 @@ export class RecentNovelService {
     private novelRepo: Repository<Novel>
   ) {}
 
-  async addRecentNovel(user: User, novelId: number): Promise<void> {
+  async addRecentNovel(
+    user: User,
+    novelId: number,
+    chapterNumber: number
+  ): Promise<void> {
     const novel = await this.novelRepo.findOneByOrFail({ id: novelId });
 
     await this.recentNovelRepo.upsert(
       {
         user,
         novel,
+        chapterNumber,
         viewedAt: new Date(),
       },
-      ["user", "novel"]
+      ["user", "novel", "chapterNumber"]
     );
   }
 
   async getRecentNovels(user: User, limit = 20): Promise<RecentNovel[]> {
     return this.recentNovelRepo.find({
-      where: { user },
+      where: { user: { id: user.id } },
       order: { viewedAt: "DESC" },
       take: limit,
+      relations: ["user", "novel"],
     });
   }
 }

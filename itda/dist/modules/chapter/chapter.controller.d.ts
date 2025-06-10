@@ -23,6 +23,8 @@ export declare class ChapterController {
         chapterNumber: number;
         isLastChapter: boolean;
         isPublished: boolean;
+        novelTitle: string;
+        likesCount: number;
     }>;
     createChapter(novelId: number, createChapterDto: CreateChapterDto, req: any): Promise<import("./entities/chapter.entity").Chapter>;
     hasUserParticipated(novelId: number, userId: number): Promise<{

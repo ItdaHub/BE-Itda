@@ -16,6 +16,8 @@ class ChapterContentDto {
     chapterNumber;
     content;
     createdAt;
+    novelTitle;
+    likesCount;
 }
 exports.ChapterContentDto = ChapterContentDto;
 __decorate([
@@ -40,4 +42,12 @@ __decorate([
     }),
     __metadata("design:type", Date)
 ], ChapterContentDto.prototype, "createdAt", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "고요한 밤의 주인공", description: "소설 제목" }),
+    __metadata("design:type", String)
+], ChapterContentDto.prototype, "novelTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 15, description: "이 챕터의 좋아요 수" }),
+    __metadata("design:type", Number)
+], ChapterContentDto.prototype, "likesCount", void 0);
 //# sourceMappingURL=chaptercontent.dto.js.map

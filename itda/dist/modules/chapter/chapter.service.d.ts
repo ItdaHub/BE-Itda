@@ -2,11 +2,13 @@ import { Repository } from "typeorm";
 import { Chapter } from "./entities/chapter.entity";
 import { Novel } from "../novels/entities/novel.entity";
 import { AiService } from "../ai/ai.service";
+import { LikeService } from "../likes/like.service";
 export declare class ChapterService {
     private readonly chapterRepository;
     private readonly novelRepository;
     private readonly aiService;
-    constructor(chapterRepository: Repository<Chapter>, novelRepository: Repository<Novel>, aiService: AiService);
+    private readonly likeService;
+    constructor(chapterRepository: Repository<Chapter>, novelRepository: Repository<Novel>, aiService: AiService, likeService: LikeService);
     getChaptersByNovel(novelId: number): Promise<{
         id: number;
         chapter_number: number;
@@ -27,6 +29,8 @@ export declare class ChapterService {
         chapterNumber: number;
         isLastChapter: boolean;
         isPublished: boolean;
+        novelTitle: string;
+        likesCount: number;
     }>;
     createChapter(novelId: number, content: string, user: any, chapterNumber?: number): Promise<Chapter>;
     hasUserParticipatedInNovel(novelId: number, userId: number): Promise<boolean>;

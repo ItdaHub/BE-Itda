@@ -18,4 +18,10 @@ export class ChapterContentDto {
     description: "챕터 생성 날짜",
   })
   createdAt: Date;
+
+  @ApiProperty({ example: "고요한 밤의 주인공", description: "소설 제목" })
+  novelTitle: string;
+
+  @ApiProperty({ example: 15, description: "이 챕터의 좋아요 수" })
+  likesCount: number;
 }

@@ -11,7 +11,9 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const novel_controller_1 = require("./novel.controller");
 const novel_service_1 = require("./novel.service");
+const recentNovel_service_1 = require("./recentNovel.service");
 const novel_entity_1 = require("./entities/novel.entity");
+const recentNovel_entity_1 = require("./entities/recentNovel.entity");
 const genre_entity_1 = require("../genre/entities/genre.entity");
 const chapter_entity_1 = require("../chapter/entities/chapter.entity");
 const user_entity_1 = require("../users/entities/user.entity");
@@ -25,13 +27,20 @@ exports.NovelModule = NovelModule;
 exports.NovelModule = NovelModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([novel_entity_1.Novel, genre_entity_1.Genre, chapter_entity_1.Chapter, user_entity_1.User, participant_entity_1.Participant]),
+            typeorm_1.TypeOrmModule.forFeature([
+                novel_entity_1.Novel,
+                genre_entity_1.Genre,
+                chapter_entity_1.Chapter,
+                user_entity_1.User,
+                participant_entity_1.Participant,
+                recentNovel_entity_1.RecentNovel,
+            ]),
             user_module_1.UserModule,
             notification_module_1.NotificationModule,
         ],
         controllers: [novel_controller_1.NovelController],
-        providers: [novel_service_1.NovelService, ai_service_1.AiService],
-        exports: [novel_service_1.NovelService],
+        providers: [novel_service_1.NovelService, ai_service_1.AiService, recentNovel_service_1.RecentNovelService],
+        exports: [novel_service_1.NovelService, recentNovel_service_1.RecentNovelService],
     })
 ], NovelModule);
 //# sourceMappingURL=novel.module.js.map

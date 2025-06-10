@@ -17,6 +17,7 @@ let RecentNovel = class RecentNovel {
     id;
     user;
     novel;
+    chapterNumber;
     viewedAt;
 };
 exports.RecentNovel = RecentNovel;
@@ -33,11 +34,15 @@ __decorate([
     __metadata("design:type", novel_entity_1.Novel)
 ], RecentNovel.prototype, "novel", void 0);
 __decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], RecentNovel.prototype, "chapterNumber", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], RecentNovel.prototype, "viewedAt", void 0);
 exports.RecentNovel = RecentNovel = __decorate([
     (0, typeorm_1.Entity)("recent_novels"),
-    (0, typeorm_1.Unique)(["user", "novel"])
+    (0, typeorm_1.Unique)(["user", "novel", "chapterNumber"])
 ], RecentNovel);
 //# sourceMappingURL=recentNovel.entity.js.map

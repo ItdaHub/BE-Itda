@@ -53,7 +53,7 @@ __decorate([
         example: "이 소설은 새로운 세계를 찾아 떠나는 여행자의 이야기입니다...",
         description: "소설 소개글 (10~1500자)",
         minLength: 10,
-        maxLength: 300,
+        maxLength: 1500,
     }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(10),

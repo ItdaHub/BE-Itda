@@ -19,14 +19,17 @@ const typeorm_2 = require("typeorm");
 const chapter_entity_1 = require("./entities/chapter.entity");
 const novel_entity_1 = require("../novels/entities/novel.entity");
 const ai_service_1 = require("../ai/ai.service");
+const like_service_1 = require("../likes/like.service");
 let ChapterService = class ChapterService {
     chapterRepository;
     novelRepository;
     aiService;
-    constructor(chapterRepository, novelRepository, aiService) {
+    likeService;
+    constructor(chapterRepository, novelRepository, aiService, likeService) {
         this.chapterRepository = chapterRepository;
         this.novelRepository = novelRepository;
         this.aiService = aiService;
+        this.likeService = likeService;
     }
     async getChaptersByNovel(novelId) {
         const novel = await this.novelRepository.findOne({
@@ -76,6 +79,7 @@ let ChapterService = class ChapterService {
             text: text.trim(),
         }))
             .filter((slide) => slide.text.length > 0);
+        const likesCount = await this.likeService.countNovelLikes(novelId);
         return {
             slides,
             authorNickname: chapter.author?.nickname || "알 수 없음",
@@ -83,6 +87,8 @@ let ChapterService = class ChapterService {
             chapterNumber: chapter.chapter_number,
             isLastChapter,
             isPublished: novel.isPublished,
+            novelTitle: novel.title,
+            likesCount,
         };
     }
     async createChapter(novelId, content, user, chapterNumber) {
@@ -177,6 +183,7 @@ exports.ChapterService = ChapterService = __decorate([
     __param(1, (0, typeorm_1.InjectRepository)(novel_entity_1.Novel)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
-        ai_service_1.AiService])
+        ai_service_1.AiService,
+        like_service_1.LikeService])
 ], ChapterService);
 //# sourceMappingURL=chapter.service.js.map

@@ -6,6 +6,6 @@ export declare class RecentNovelService {
     private recentNovelRepo;
     private novelRepo;
     constructor(recentNovelRepo: Repository<RecentNovel>, novelRepo: Repository<Novel>);
-    addRecentNovel(user: User, novelId: number): Promise<void>;
+    addRecentNovel(user: User, novelId: number, chapterNumber: number): Promise<void>;
     getRecentNovels(user: User, limit?: number): Promise<RecentNovel[]>;
 }

@@ -3,4 +3,6 @@ export declare class ChapterContentDto {
     chapterNumber: number;
     content: string;
     createdAt: Date;
+    novelTitle: string;
+    likesCount: number;
 }

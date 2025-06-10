@@ -4,5 +4,6 @@ export declare class RecentNovel {
     id: number;
     user: User;
     novel: Novel;
+    chapterNumber: number;
     viewedAt: Date;
 }

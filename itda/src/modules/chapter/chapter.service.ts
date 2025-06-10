@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Chapter } from "./entities/chapter.entity";
 import { Novel } from "../novels/entities/novel.entity";
 import { AiService } from "../ai/ai.service";
+import { LikeService } from "../likes/like.service";
 
 @Injectable()
 export class ChapterService {
@@ -12,7 +13,8 @@ export class ChapterService {
     private readonly chapterRepository: Repository<Chapter>,
     @InjectRepository(Novel)
     private readonly novelRepository: Repository<Novel>,
-    private readonly aiService: AiService
+    private readonly aiService: AiService,
+    private readonly likeService: LikeService
   ) {}
 
   async getChaptersByNovel(novelId: number): Promise<
@@ -62,6 +64,8 @@ export class ChapterService {
     chapterNumber: number;
     isLastChapter: boolean;
     isPublished: boolean;
+    novelTitle: string;
+    likesCount: number; // 소설 좋아요 수
   }> {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
@@ -94,6 +98,9 @@ export class ChapterService {
       }))
       .filter((slide) => slide.text.length > 0);
 
+    // 여기서 소설 좋아요 수를 LikeService에서 조회
+    const likesCount = await this.likeService.countNovelLikes(novelId);
+
     return {
       slides,
       authorNickname: chapter.author?.nickname || "알 수 없음",
@@ -101,6 +108,8 @@ export class ChapterService {
       chapterNumber: chapter.chapter_number,
       isLastChapter,
       isPublished: novel.isPublished,
+      novelTitle: novel.title,
+      likesCount,
     };
   }
 
