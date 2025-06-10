@@ -8,14 +8,14 @@ import {
 import { Like, In, Not, IsNull } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Novel } from "./novel.entity";
+import { Novel } from "./entities/novel.entity";
 import { CreateNovelDto } from "./dto/createnovel.dto";
 import { AddChapterDto } from "./dto/addchapter.dto";
-import { Genre } from "../genre/genre.entity";
-import { User } from "../users/user.entity";
-import { Chapter } from "../chapter/chapter.entity";
-import { Participant } from "./participant.entity";
-import { NovelStatus } from "./novel.entity";
+import { Genre } from "../genre/entities/genre.entity";
+import { User } from "../users/entities/user.entity";
+import { Chapter } from "../chapter/entities/chapter.entity";
+import { Participant } from "./entities/participant.entity";
+import { NovelStatus } from "./entities/novel.entity";
 import { NotificationService } from "../notifications/notification.service";
 import { AiService } from "../ai/ai.service";
 

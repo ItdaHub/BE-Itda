@@ -6,7 +6,7 @@ import {
   IsOptional,
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { PaymentMethod } from "../payment.entity";
+import { PaymentMethod } from "../entities/payment.entity";
 
 export class CreatePaymentDto {
   @ApiProperty({

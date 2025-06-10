@@ -1,6 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import { GenreService } from "./genre.service";
-import { Genre } from "./genre.entity";
+import { Genre } from "./entities/genre.entity";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 // 📚 장르(카테고리) 관련 API 컨트롤러

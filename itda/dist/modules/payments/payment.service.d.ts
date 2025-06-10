@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
-import { Payment, PaymentStatus, PaymentMethod } from "./payment.entity";
-import { User } from "../users/user.entity";
+import { Payment, PaymentStatus, PaymentMethod } from "./entities/payment.entity";
+import { User } from "../users/entities/user.entity";
 import { PointService } from "../points/point.service";
 export declare class PaymentsService {
     private readonly paymentRepo;

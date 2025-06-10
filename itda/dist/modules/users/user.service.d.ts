@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
-import { User } from "./user.entity";
-import { Point } from "../points/point.entity";
+import { User } from "./entities/user.entity";
+import { Point } from "../points/entities/point.entity";
 import { CreateUserDto } from "./dto/ceateuser.dto";
 export declare class UserService {
     private userRepository;

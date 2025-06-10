@@ -7,6 +7,6 @@ declare const NaverStrategy_base: new (...args: [options: import("passport-naver
 export declare class NaverStrategy extends NaverStrategy_base {
     private readonly authService;
     constructor(authService: AuthService, configService: ConfigService);
-    validate(accessToken: string, refreshToken: string, profile: any): Promise<import("../users/user.entity").User>;
+    validate(accessToken: string, refreshToken: string, profile: any): Promise<import("../users/entities/user.entity").User>;
 }
 export {};

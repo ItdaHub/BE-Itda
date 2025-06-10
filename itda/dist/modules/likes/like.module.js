@@ -9,11 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LikeModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const like_entity_1 = require("./like.entity");
+const like_entity_1 = require("./entities/like.entity");
 const like_service_1 = require("./like.service");
 const like_controller_1 = require("./like.controller");
-const novel_entity_1 = require("../novels/novel.entity");
-const comment_entity_1 = require("../comments/comment.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
+const comment_entity_1 = require("../comments/entities/comment.entity");
 let LikeModule = class LikeModule {
 };
 exports.LikeModule = LikeModule;

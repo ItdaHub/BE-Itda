@@ -5,7 +5,7 @@ import { ReportCommentDto } from "./dto/reportcomment.dto";
 export declare class CommentsController {
     private readonly commentsService;
     constructor(commentsService: CommentsService);
-    create(createCommentDto: CreateCommentDto): Promise<import("./comment.entity").Comment>;
+    create(createCommentDto: CreateCommentDto): Promise<import("./entities/comment.entity").Comment>;
     getNovelComments(req: any, novelId: number): Promise<{
         id: number;
         writer: string;
@@ -33,5 +33,5 @@ export declare class CommentsController {
     reportComment(commentId: number, dto: ReportCommentDto): Promise<{
         message: string;
     }>;
-    getMyComments(req: any): Promise<import("./comment.entity").Comment[]>;
+    getMyComments(req: any): Promise<import("./entities/comment.entity").Comment[]>;
 }

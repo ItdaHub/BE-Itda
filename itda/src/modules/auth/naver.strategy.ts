@@ -27,7 +27,6 @@ export class NaverStrategy extends PassportStrategy(Strategy, "naver") {
     const nickname = profile.nickname || email?.split("@")[0];
     const phone = profile.mobile || profile._json?.mobile;
 
-    // ✅ 네이버는 birthyear 대신 age 사용!
     const ageStr = profile._json?.age;
     const age_group = convertNaverAgeToGroup(ageStr) ?? undefined;
     console.log("✅ 변환된 age_group:", age_group);

@@ -1,8 +1,8 @@
 import { Repository } from "typeorm";
-import { Announcement } from "./announcement.entity";
-import { User } from "../users/user.entity";
+import { Announcement } from "./entities/announcement.entity";
+import { User } from "../users/entities/user.entity";
 import { AnnouncementWithAdminDto } from "./dto/announcement.dto";
-import { AnnouncementRead } from "./announcementread.entity";
+import { AnnouncementRead } from "./entities/announcementread.entity";
 export declare class AnnouncementService {
     private readonly announcementRepo;
     private readonly readRepo;

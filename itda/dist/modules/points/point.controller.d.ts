@@ -17,5 +17,5 @@ export declare class PointController {
         amount: number;
         date: string;
     }[]>;
-    getPurchasedChapters(userId: number, novelId: number): Promise<import("./purchases.entity").Purchase[]>;
+    getPurchasedChapters(userId: number, novelId: number): Promise<import("./entities/purchases.entity").Purchase[]>;
 }

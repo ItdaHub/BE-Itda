@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreatePaymentDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
-const payment_entity_1 = require("../payment.entity");
+const payment_entity_1 = require("../entities/payment.entity");
 class CreatePaymentDto {
     userId;
     amount;

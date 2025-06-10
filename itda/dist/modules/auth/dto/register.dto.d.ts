@@ -1,4 +1,4 @@
-import { LoginType } from "../../users/user.entity";
+import { LoginType } from "../../users/entities/user.entity";
 export declare class RegisterDto {
     email: string;
     name?: string;

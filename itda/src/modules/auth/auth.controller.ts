@@ -30,9 +30,8 @@ import { UserService } from "../users/user.service";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { MailService } from "../mail/mail.service";
-import { UserType } from "../users/user.entity";
+import { UserType } from "../users/entities/user.entity";
 
-// 🔐 Auth 관련 API 컨트롤러
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
@@ -42,7 +41,6 @@ export class AuthController {
     private readonly mailService: MailService
   ) {}
 
-  // ✅ 로그인된 유저 정보 가져오기
   @Get("login")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
@@ -51,7 +49,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: "유저 정보 반환 성공" })
   async getProfile(@Req() req) {
-    const user = await this.userService.findById(req.user.id); // 전체 정보 가져오기
+    const user = await this.userService.findById(req.user.id);
     return { user };
   }
 
@@ -127,7 +125,6 @@ export class AuthController {
   async checkNicknameForEdit(@Req() req, @Body("nickName") nickName: string) {
     const user = await this.userService.findById(req.user.id);
 
-    // 현재 닉네임과 같은 경우 => 사용 가능
     if (!user) {
       throw new NotFoundException("사용자를 찾을 수 없습니다.");
     }
@@ -163,7 +160,6 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // 프론트에서 유저 정보를 사용할 수 있도록 user는 응답에 포함
     res.json({ user });
   }
 
@@ -176,7 +172,6 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: "로그아웃 성공" })
   logout(@Res() res: Response) {
-    // accessToken 쿠키 삭제
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -213,7 +208,6 @@ export class AuthController {
   async kakaoCallback(@Req() req, @Res() res: Response) {
     const { accessToken, user } = await this.authService.login(req.user);
 
-    // JWT 토큰을 쿠키로 저장
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

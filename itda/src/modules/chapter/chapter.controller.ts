@@ -75,7 +75,6 @@ export class ChapterController {
     const user = req.user;
     const { content, chapterNumber } = createChapterDto;
 
-    // 로그 추가
     console.log("createChapter 호출됨");
     console.log("소설 ID:", novelId);
     console.log("받은 데이터:", createChapterDto);

@@ -1,15 +1,12 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { EntityManager } from "typeorm";
-import { User, UserType } from "../users/user.entity"; // UserType 추가
+import { User, UserType } from "../users/entities/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
-import { LoginType, UserStatus } from "../users/user.entity";
+import { LoginType, UserStatus } from "../users/entities/user.entity";
 import { RegisterDto } from "./dto/register.dto";
 import { instanceToPlain } from "class-transformer";
-import {
-  convertBirthYearToAgeGroup,
-  convertNaverAgeToGroup,
-} from "./utils/agegroup.util";
+import { convertBirthYearToAgeGroup } from "./utils/agegroup.util";
 import { MailService } from "../mail/mail.service";
 import { BadRequestException } from "@nestjs/common";
 
@@ -99,7 +96,7 @@ export class AuthService {
       );
     }
 
-    const isPasswordValid = await bcrypt.compare(password, admin.password); // 👈 여기를 admin.password로 수정
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
     if (!isPasswordValid) {
       console.log("❌ 관리자 비밀번호 틀림:", email);
       throw new UnauthorizedException("관리자 비밀번호가 틀렸습니다.");
@@ -140,7 +137,7 @@ export class AuthService {
           birthYear,
           type: LoginType.KAKAO,
           password: "",
-          age_group, // 👈 추가
+          age_group,
         })
       ).user;
     }
@@ -162,7 +159,7 @@ export class AuthService {
     nickname?: string;
     birthYear?: string;
     phone?: string;
-    age_group?: number; // ✅ 숫자로 수정
+    age_group?: number;
   }) {
     console.log("🟡 네이버 로그인 요청 데이터:", {
       email,
@@ -191,7 +188,7 @@ export class AuthService {
           name: name || finalNickname,
           birthYear,
           phone,
-          age_group, // ✅ 숫자 그대로 전달
+          age_group,
           type: LoginType.NAVER,
           password: "",
         })
@@ -233,7 +230,7 @@ export class AuthService {
           birthYear,
           type: LoginType.GOOGLE,
           password: "",
-          age_group, // 👈 추가
+          age_group,
         })
       ).user;
     }
@@ -241,7 +238,7 @@ export class AuthService {
     return user;
   }
 
-  // ✅ 로컬 로그인 (타입 지정)
+  // ✅ 로컬 로그인
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.entityManager.findOne(User, {
       where: { email },

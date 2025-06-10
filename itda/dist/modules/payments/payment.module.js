@@ -11,8 +11,8 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const payment_service_1 = require("./payment.service");
 const payment_controller_1 = require("./payment.controller");
-const payment_entity_1 = require("./payment.entity");
-const user_entity_1 = require("../users/user.entity");
+const payment_entity_1 = require("./entities/payment.entity");
+const user_entity_1 = require("../users/entities/user.entity");
 const point_module_1 = require("../points/point.module");
 let PaymentsModule = class PaymentsModule {
 };

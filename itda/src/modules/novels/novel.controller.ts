@@ -15,7 +15,7 @@ import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import { NovelService } from "./novel.service";
 import { CreateNovelDto } from "./dto/createnovel.dto";
 import { AddChapterDto } from "./dto/addchapter.dto";
-import { Novel } from "./novel.entity";
+import { Novel } from "./entities/novel.entity";
 import { OptionalJwtAuthGuard } from "../auth/optionaljwt.guard";
 import {
   ApiTags,

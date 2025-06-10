@@ -9,10 +9,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChapterModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const chapter_entity_1 = require("./chapter.entity");
+const chapter_entity_1 = require("./entities/chapter.entity");
 const chapter_service_1 = require("./chapter.service");
 const chapter_controller_1 = require("./chapter.controller");
-const novel_entity_1 = require("../novels/novel.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
 const ai_module_1 = require("../ai/ai.module");
 let ChapterModule = class ChapterModule {
 };

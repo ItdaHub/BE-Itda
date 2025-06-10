@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
-import { Point, PointType } from "./point.entity";
-import { User } from "../users/user.entity";
-import { Purchase } from "./purchases.entity";
+import { Point, PointType } from "./entities/point.entity";
+import { User } from "../users/entities/user.entity";
+import { Purchase } from "./entities/purchases.entity";
 import { UsePopcornDto } from "./dto/usepopcorn.dto";
 export declare class PointService {
     private pointRepository;

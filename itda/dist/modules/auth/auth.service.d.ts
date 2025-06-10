@@ -1,5 +1,5 @@
 import { EntityManager } from "typeorm";
-import { User } from "../users/user.entity";
+import { User } from "../users/entities/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import { RegisterDto } from "./dto/register.dto";
 import { MailService } from "../mail/mail.service";

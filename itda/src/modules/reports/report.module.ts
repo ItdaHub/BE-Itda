@@ -1,13 +1,13 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Report } from "./report.entity";
+import { Report } from "./entities/report.entity";
 import { ReportController } from "./report.controller";
 import { ReportService } from "./report.service";
 
-import { Comment } from "../comments/comment.entity";
-import { Chapter } from "../chapter/chapter.entity";
-import { User } from "../users/user.entity";
-import { Notification } from "../notifications/notification.entity";
+import { Comment } from "../comments/entities/comment.entity";
+import { Chapter } from "../chapter/entities/chapter.entity";
+import { User } from "../users/entities/user.entity";
+import { Notification } from "../notifications/entities/notification.entity";
 
 import { UserModule } from "../users/user.module";
 import { CommentsModule } from "..//comments/comment.module";

@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Notification } from "./notification.entity";
-import { User } from "../users/user.entity";
-import { Novel } from "../novels/novel.entity";
-import { Report } from "../reports/report.entity";
+import { Notification } from "./entities/notification.entity";
+import { User } from "../users/entities/user.entity";
+import { Novel } from "../novels/entities/novel.entity";
+import { Report } from "../reports/entities/report.entity";
 import { SendNotificationDto } from "./dto/notification.dto";
 
 @Injectable()

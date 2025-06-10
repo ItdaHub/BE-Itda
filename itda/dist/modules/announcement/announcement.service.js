@@ -16,9 +16,9 @@ exports.AnnouncementService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const announcement_entity_1 = require("./announcement.entity");
-const user_entity_1 = require("../users/user.entity");
-const announcementread_entity_1 = require("./announcementread.entity");
+const announcement_entity_1 = require("./entities/announcement.entity");
+const user_entity_1 = require("../users/entities/user.entity");
+const announcementread_entity_1 = require("./entities/announcementread.entity");
 let AnnouncementService = class AnnouncementService {
     announcementRepo;
     readRepo;

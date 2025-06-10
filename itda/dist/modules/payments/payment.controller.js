@@ -20,7 +20,7 @@ const swagger_1 = require("@nestjs/swagger");
 const createpayment_dto_1 = require("./dto/createpayment.dto");
 const confrimtosspayment_dto_1 = require("./dto/confrimtosspayment.dto");
 const manualconfrimpayment_dto_1 = require("./dto/manualconfrimpayment.dto");
-const payment_entity_1 = require("./payment.entity");
+const payment_entity_1 = require("./entities/payment.entity");
 let PaymentsController = class PaymentsController {
     paymentsService;
     constructor(paymentsService) {

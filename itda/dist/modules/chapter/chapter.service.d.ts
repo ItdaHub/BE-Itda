@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
-import { Chapter } from "./chapter.entity";
-import { Novel } from "../novels/novel.entity";
+import { Chapter } from "./entities/chapter.entity";
+import { Novel } from "../novels/entities/novel.entity";
 import { AiService } from "../ai/ai.service";
 export declare class ChapterService {
     private readonly chapterRepository;

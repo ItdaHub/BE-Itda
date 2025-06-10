@@ -16,7 +16,7 @@ import {
   Logger, // ✅ Logger 임포트
 } from "@nestjs/common";
 import { UserService } from "./user.service";
-import { User } from "./user.entity";
+import { User } from "./entities/user.entity";
 import { ApiTags, ApiOperation, ApiParam, ApiBody } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import { FileInterceptor } from "@nestjs/platform-express";

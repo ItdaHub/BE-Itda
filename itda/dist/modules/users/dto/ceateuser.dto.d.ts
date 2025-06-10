@@ -1,4 +1,4 @@
-import { LoginType, UserStatus, UserType } from "../user.entity";
+import { LoginType, UserStatus, UserType } from "../entities/user.entity";
 export declare class CreateUserDto {
     email: string;
     name?: string;

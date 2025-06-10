@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LikeService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("typeorm");
-const like_entity_1 = require("./like.entity");
-const user_entity_1 = require("../users/user.entity");
-const novel_entity_1 = require("../novels/novel.entity");
-const comment_entity_1 = require("../comments/comment.entity");
+const like_entity_1 = require("./entities/like.entity");
+const user_entity_1 = require("../users/entities/user.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
+const comment_entity_1 = require("../comments/entities/comment.entity");
 let LikeService = class LikeService {
     entityManager;
     constructor(entityManager) {

@@ -16,11 +16,11 @@ exports.CommentsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const comment_entity_1 = require("./comment.entity");
-const user_entity_1 = require("../users/user.entity");
-const novel_entity_1 = require("../novels/novel.entity");
-const chapter_entity_1 = require("../chapter/chapter.entity");
-const report_entity_1 = require("../reports/report.entity");
+const comment_entity_1 = require("./entities/comment.entity");
+const user_entity_1 = require("../users/entities/user.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
+const chapter_entity_1 = require("../chapter/entities/chapter.entity");
+const report_entity_1 = require("../reports/entities/report.entity");
 let CommentsService = class CommentsService {
     commentRepo;
     userRepo;

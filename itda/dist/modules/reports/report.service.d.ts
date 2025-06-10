@@ -1,8 +1,8 @@
 import { Repository } from "typeorm";
-import { Report } from "./report.entity";
-import { Comment } from "../comments/comment.entity";
-import { Chapter } from "../chapter/chapter.entity";
-import { User } from "../users/user.entity";
+import { Report } from "./entities/report.entity";
+import { Comment } from "../comments/entities/comment.entity";
+import { Chapter } from "../chapter/entities/chapter.entity";
+import { User } from "../users/entities/user.entity";
 import { UserService } from "../users/user.service";
 import { NotificationService } from "../notifications/notification.service";
 export declare class ReportService {

@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportController = void 0;
 const common_1 = require("@nestjs/common");
 const report_service_1 = require("./report.service");
-const report_entity_1 = require("./report.entity");
+const report_entity_1 = require("./entities/report.entity");
 const swagger_1 = require("@nestjs/swagger");
 const jwtauth_guard_1 = require("../auth/jwtauth.guard");
 let ReportController = class ReportController {

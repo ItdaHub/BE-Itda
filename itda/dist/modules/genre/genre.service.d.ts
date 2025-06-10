@@ -1,4 +1,4 @@
-import { Genre } from "./genre.entity";
+import { Genre } from "./entities/genre.entity";
 import { Repository } from "typeorm";
 export declare class GenreService {
     private readonly genreRepo;

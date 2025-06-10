@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Announcement } from "./announcement.entity";
-import { User } from "../users/user.entity";
+import { Announcement } from "./entities/announcement.entity";
+import { User } from "../users/entities/user.entity";
 import { AnnouncementWithAdminDto } from "./dto/announcement.dto";
-import { AnnouncementRead } from "./announcementread.entity";
+import { AnnouncementRead } from "./entities/announcementread.entity";
 
 @Injectable()
 export class AnnouncementService {
@@ -128,7 +128,6 @@ export class AnnouncementService {
     return { message: "읽음 처리 완료" };
   }
 
-  // ✅ DTO 변환 함수: isRead 여부 반영
   private toDto(
     entity: Announcement,
     isRead: boolean = false

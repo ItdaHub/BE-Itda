@@ -18,7 +18,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
       scope: [
         "email",
         "profile",
-        "https://www.googleapis.com/auth/user.birthday.read", // 생일 읽기 권한
+        "https://www.googleapis.com/auth/user.birthday.read",
       ],
     });
 
@@ -69,7 +69,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
       console.error("❌ 생일 정보 가져오기 실패:", err.response?.data || err);
     }
 
-    // ✅ authService로 이메일, 닉네임, 생일 전달
     const user = await this.authService.validateGoogleUser({
       email,
       nickname,

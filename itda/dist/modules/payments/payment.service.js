@@ -16,10 +16,10 @@ exports.PaymentsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const payment_entity_1 = require("./payment.entity");
-const user_entity_1 = require("../users/user.entity");
+const payment_entity_1 = require("./entities/payment.entity");
+const user_entity_1 = require("../users/entities/user.entity");
 const point_service_1 = require("../points/point.service");
-const point_entity_1 = require("../points/point.entity");
+const point_entity_1 = require("../points/entities/point.entity");
 const axios_1 = require("axios");
 let PaymentsService = class PaymentsService {
     paymentRepo;

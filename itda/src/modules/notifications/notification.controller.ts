@@ -9,10 +9,10 @@ import {
   ParseIntPipe,
 } from "@nestjs/common";
 import { NotificationService } from "./notification.service";
-import { Notification } from "./notification.entity";
+import { Notification } from "./entities/notification.entity";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import { Request } from "express";
-import { User } from "../users/user.entity";
+import { User } from "../users/entities/user.entity";
 import {
   ApiTags,
   ApiBearerAuth,

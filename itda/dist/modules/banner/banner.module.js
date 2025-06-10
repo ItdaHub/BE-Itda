@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BannerModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const banner_entity_1 = require("./banner.entity");
+const banner_entity_1 = require("./entities/banner.entity");
 const banner_service_1 = require("./banner.service");
 const banner_controller_1 = require("./banner.controller");
 let BannerModule = class BannerModule {

@@ -19,7 +19,7 @@ import {
 import { CreatePaymentDto } from "./dto/createpayment.dto";
 import { ConfirmTossPaymentDto } from "./dto/confrimtosspayment.dto";
 import { ManualConfirmPaymentDto } from "./dto/manualconfrimpayment.dto";
-import { PaymentStatus } from "./payment.entity";
+import { PaymentStatus } from "./entities/payment.entity";
 
 @ApiTags("Payments")
 @Controller("payments")

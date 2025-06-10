@@ -8,16 +8,16 @@ export declare class AdminController {
         title: string;
         writer: string;
         date: string;
-        status: import("../novels/novel.entity").NovelStatus;
+        status: import("../novels/entities/novel.entity").NovelStatus;
     }[]>;
-    submitNovel(novelId: number): Promise<import("../novels/novel.entity").Novel>;
-    publishNovel(novelId: number): Promise<import("../novels/novel.entity").Novel>;
+    submitNovel(novelId: number): Promise<import("../novels/entities/novel.entity").Novel>;
+    publishNovel(novelId: number): Promise<import("../novels/entities/novel.entity").Novel>;
     getWaitingNovels(): Promise<{
         id: number;
         title: string;
         writer: string;
         date: string;
-        status: import("../novels/novel.entity").NovelStatus;
+        status: import("../novels/entities/novel.entity").NovelStatus;
     }[]>;
-    deleteNovel(novelId: number): Promise<import("../novels/novel.entity").Novel>;
+    deleteNovel(novelId: number): Promise<import("../novels/entities/novel.entity").Novel>;
 }

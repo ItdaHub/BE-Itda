@@ -19,10 +19,10 @@ import {
 import { AnnouncementService } from "./announcement.service";
 import { JwtAuthGuard } from "../auth/jwtauth.guard";
 import { Request } from "express";
-import { Announcement } from "./announcement.entity";
-import { User } from "../users/user.entity";
+import { Announcement } from "./entities/announcement.entity";
+import { User } from "../users/entities/user.entity";
 
-@ApiTags("공지사항") // 🔖 Swagger 그룹 이름
+@ApiTags("공지사항")
 @Controller("announcement")
 export class AnnouncementController {
   constructor(private readonly announcementService: AnnouncementService) {}
@@ -69,7 +69,6 @@ export class AnnouncementController {
     return this.announcementService.deleteAnnouncement(Number(id));
   }
 
-  // 로그인 안 해도 접근 가능하도록 수정
   @Get()
   @ApiOperation({ summary: "모든 공지사항 조회 (관리자용)" })
   @ApiBearerAuth()
@@ -77,7 +76,6 @@ export class AnnouncementController {
     return this.announcementService.getAllAnnouncements();
   }
 
-  // 로그인 안 해도 접근 가능하도록 수정
   @Get(":id")
   @ApiOperation({ summary: "공지사항 단건 조회 (사용자용)" })
   @ApiParam({ name: "id", description: "조회할 공지사항 ID" })

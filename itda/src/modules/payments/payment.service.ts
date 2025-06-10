@@ -1,11 +1,14 @@
 import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Payment, PaymentStatus, PaymentMethod } from "./payment.entity";
-import { User } from "../users/user.entity";
+import {
+  Payment,
+  PaymentStatus,
+  PaymentMethod,
+} from "./entities/payment.entity";
+import { User } from "../users/entities/user.entity";
 import { PointService } from "../points/point.service";
-import { PointType } from "../points/point.entity";
-import { Point } from "../points/point.entity";
+import { PointType } from "../points/entities/point.entity";
 import axios from "axios";
 
 @Injectable()

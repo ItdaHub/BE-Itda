@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PointController = void 0;
 const common_1 = require("@nestjs/common");
 const point_service_1 = require("./point.service");
-const point_entity_1 = require("./point.entity");
+const point_entity_1 = require("./entities/point.entity");
 const usepopcorn_dto_1 = require("./dto/usepopcorn.dto");
 const swagger_1 = require("@nestjs/swagger");
 let PointController = class PointController {

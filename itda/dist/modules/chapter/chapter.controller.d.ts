@@ -24,7 +24,7 @@ export declare class ChapterController {
         isLastChapter: boolean;
         isPublished: boolean;
     }>;
-    createChapter(novelId: number, createChapterDto: CreateChapterDto, req: any): Promise<import("./chapter.entity").Chapter>;
+    createChapter(novelId: number, createChapterDto: CreateChapterDto, req: any): Promise<import("./entities/chapter.entity").Chapter>;
     hasUserParticipated(novelId: number, userId: number): Promise<{
         hasParticipated: boolean;
     }>;

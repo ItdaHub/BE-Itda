@@ -8,7 +8,7 @@ import {
   Max,
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { LoginType } from "../../users/user.entity";
+import { LoginType } from "../../users/entities/user.entity";
 
 export class RegisterDto {
   @ApiProperty({

@@ -8,7 +8,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { PointService } from "./point.service";
-import { PointType } from "./point.entity";
+import { PointType } from "./entities/point.entity";
 import { UsePopcornDto } from "./dto/usepopcorn.dto";
 import {
   ApiTags,

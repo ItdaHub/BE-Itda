@@ -1,4 +1,4 @@
-import { LoginType, UserType, UserStatus } from "../user.entity";
+import { LoginType, UserType, UserStatus } from "../entities/user.entity";
 export declare class UpdateUserDto {
     email?: string;
     password?: string;

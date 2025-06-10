@@ -10,10 +10,10 @@ export declare class AuthController {
     private readonly mailService;
     constructor(authService: AuthService, userService: UserService, mailService: MailService);
     getProfile(req: any): Promise<{
-        user: import("../users/user.entity").User | null;
+        user: import("../users/entities/user.entity").User | null;
     }>;
     register(registerDto: RegisterDto): Promise<{
-        user: import("../users/user.entity").User;
+        user: import("../users/entities/user.entity").User;
     }>;
     checkEmail(emailCheckDto: EmailCheckDto): Promise<{
         success: boolean;

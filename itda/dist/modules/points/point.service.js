@@ -16,9 +16,9 @@ exports.PointService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const point_entity_1 = require("./point.entity");
-const user_entity_1 = require("../users/user.entity");
-const purchases_entity_1 = require("./purchases.entity");
+const point_entity_1 = require("./entities/point.entity");
+const user_entity_1 = require("../users/entities/user.entity");
+const purchases_entity_1 = require("./entities/purchases.entity");
 let PointService = class PointService {
     pointRepository;
     purchaseRepository;

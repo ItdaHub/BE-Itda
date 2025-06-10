@@ -4,10 +4,10 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { EntityManager, Not, IsNull } from "typeorm";
-import { Like } from "./like.entity";
-import { User } from "../users/user.entity";
-import { Novel } from "../novels/novel.entity";
-import { Comment } from "../comments/comment.entity";
+import { Like } from "./entities/like.entity";
+import { User } from "../users/entities/user.entity";
+import { Novel } from "../novels/entities/novel.entity";
+import { Comment } from "../comments/entities/comment.entity";
 
 @Injectable()
 export class LikeService {

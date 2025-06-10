@@ -1,5 +1,5 @@
 import { ReportService } from "./report.service";
-import { Report } from "./report.entity";
+import { Report } from "./entities/report.entity";
 export declare class ReportController {
     private readonly reportService;
     constructor(reportService: ReportService);

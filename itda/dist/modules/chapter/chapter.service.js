@@ -16,8 +16,8 @@ exports.ChapterService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const chapter_entity_1 = require("./chapter.entity");
-const novel_entity_1 = require("../novels/novel.entity");
+const chapter_entity_1 = require("./entities/chapter.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
 const ai_service_1 = require("../ai/ai.service");
 let ChapterService = class ChapterService {
     chapterRepository;

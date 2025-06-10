@@ -2,12 +2,12 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { NovelController } from "./novel.controller";
 import { NovelService } from "./novel.service";
-import { Novel } from "./novel.entity";
-import { Genre } from "../genre/genre.entity";
-import { Chapter } from "../chapter/chapter.entity";
-import { User } from "../users/user.entity";
+import { Novel } from "./entities/novel.entity";
+import { Genre } from "../genre/entities/genre.entity";
+import { Chapter } from "../chapter/entities/chapter.entity";
+import { User } from "../users/entities/user.entity";
 import { UserModule } from "../users/user.module";
-import { Participant } from "./participant.entity";
+import { Participant } from "./entities/participant.entity";
 import { NotificationModule } from "../notifications/notification.module";
 import { AiService } from "../ai/ai.service";
 

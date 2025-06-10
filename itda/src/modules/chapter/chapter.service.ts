@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Chapter } from "./chapter.entity";
-import { Novel } from "../novels/novel.entity";
+import { Chapter } from "./entities/chapter.entity";
+import { Novel } from "../novels/entities/novel.entity";
 import { AiService } from "../ai/ai.service";
 
 @Injectable()
@@ -169,7 +169,7 @@ export class ChapterService {
     await this.chapterRepository.save(newChapter);
 
     console.log("Calling updatePaidStatus for novelId:", novelId);
-    // 챕터 저장 후에 유료 상태를 업데이트
+
     await this.updatePaidStatus(novelId);
 
     return newChapter;
@@ -201,7 +201,7 @@ export class ChapterService {
       throw new NotFoundException("해당 챕터를 찾을 수 없습니다.");
     }
 
-    return chapter.isPaid ?? false; // isPaid 필드 있는지 확인!
+    return chapter.isPaid ?? false;
   }
 
   async updatePaidStatus(novelId: number): Promise<void> {

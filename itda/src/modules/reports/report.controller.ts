@@ -13,7 +13,7 @@ import {
   Patch,
 } from "@nestjs/common";
 import { ReportService } from "./report.service";
-import { Report, TargetType } from "./report.entity";
+import { Report, TargetType } from "./entities/report.entity";
 import {
   ApiTags,
   ApiOperation,

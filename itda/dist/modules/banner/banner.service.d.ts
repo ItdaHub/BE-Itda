@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { Banner } from "./banner.entity";
+import { Banner } from "./entities/banner.entity";
 export declare class BannerService {
     private readonly bannerRepo;
     constructor(bannerRepo: Repository<Banner>);

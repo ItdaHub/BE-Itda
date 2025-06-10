@@ -9,10 +9,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnnouncementModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const announcement_entity_1 = require("./announcement.entity");
+const announcement_entity_1 = require("./entities/announcement.entity");
 const announcement_service_1 = require("./announcement.service");
 const announcement_controller_1 = require("./announcement.controller");
-const announcementread_entity_1 = require("./announcementread.entity");
+const announcementread_entity_1 = require("./entities/announcementread.entity");
 const user_module_1 = require("../users/user.module");
 let AnnouncementModule = class AnnouncementModule {
 };

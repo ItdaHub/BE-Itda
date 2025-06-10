@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, IsNull } from "typeorm";
-import { Comment } from "./comment.entity";
-import { User } from "../users/user.entity";
-import { Novel } from "../novels/novel.entity";
-import { Chapter } from "../chapter/chapter.entity";
-import { Report, TargetType } from "../reports/report.entity";
+import { Comment } from "./entities/comment.entity";
+import { User } from "../users/entities/user.entity";
+import { Novel } from "../novels/entities/novel.entity";
+import { Chapter } from "../chapter/entities/chapter.entity";
+import { Report, TargetType } from "../reports/entities/report.entity";
 
 @Injectable()
 export class CommentsService {

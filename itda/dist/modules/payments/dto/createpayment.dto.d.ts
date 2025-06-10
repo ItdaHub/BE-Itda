@@ -1,4 +1,4 @@
-import { PaymentMethod } from "../payment.entity";
+import { PaymentMethod } from "../entities/payment.entity";
 export declare class CreatePaymentDto {
     userId: number;
     amount: number;

@@ -9,12 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const notification_entity_1 = require("./notification.entity");
+const notification_entity_1 = require("./entities/notification.entity");
 const notification_service_1 = require("./notification.service");
 const notification_controller_1 = require("./notification.controller");
-const user_entity_1 = require("../users/user.entity");
-const novel_entity_1 = require("../novels/novel.entity");
-const report_entity_1 = require("../reports/report.entity");
+const user_entity_1 = require("../users/entities/user.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
+const report_entity_1 = require("../reports/entities/report.entity");
 let NotificationModule = class NotificationModule {
 };
 exports.NotificationModule = NotificationModule;
