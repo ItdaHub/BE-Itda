@@ -19,6 +19,7 @@ const chapter_entity_1 = require("../chapter/entities/chapter.entity");
 const user_entity_1 = require("../users/entities/user.entity");
 const user_module_1 = require("../users/user.module");
 const participant_entity_1 = require("./entities/participant.entity");
+const tag_entity_1 = require("./entities/tag.entity");
 const notification_module_1 = require("../notifications/notification.module");
 const ai_service_1 = require("../ai/ai.service");
 let NovelModule = class NovelModule {
@@ -34,6 +35,7 @@ exports.NovelModule = NovelModule = __decorate([
                 user_entity_1.User,
                 participant_entity_1.Participant,
                 recentNovel_entity_1.RecentNovel,
+                tag_entity_1.Tag,
             ]),
             user_module_1.UserModule,
             notification_module_1.NotificationModule,

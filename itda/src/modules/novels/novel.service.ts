@@ -18,6 +18,7 @@ import { Participant } from "./entities/participant.entity";
 import { NovelStatus } from "./entities/novel.entity";
 import { NotificationService } from "../notifications/notification.service";
 import { AiService } from "../ai/ai.service";
+import { Tag } from "./entities/tag.entity";
 
 type CreateNovelInput = CreateNovelDto & { userId: number };
 
@@ -32,6 +33,8 @@ export class NovelService {
     @InjectRepository(Participant)
     private readonly participantRepo: Repository<Participant>,
     private readonly notificationService: NotificationService,
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
     @Inject(forwardRef(() => AiService))
     private readonly aiService: AiService
   ) {}
@@ -63,7 +66,7 @@ export class NovelService {
   }
 
   async create(dto: CreateNovelInput): Promise<Novel> {
-    const { content, categoryId, peopleNum, userId, type, title } = dto;
+    const { content, categoryId, peopleNum, userId, type, title, tags } = dto;
 
     // 사용자 정보 확인
     const user = await this.userRepo.findOneBy({ id: userId });
@@ -72,6 +75,22 @@ export class NovelService {
     // 장르 정보 확인
     const genre = await this.genreRepo.findOneBy({ id: categoryId });
     if (!genre) throw new NotFoundException("해당 장르가 존재하지 않습니다.");
+
+    // ✅ 태그 처리
+    let tagEntities: Tag[] = [];
+    if (tags && tags.length > 0) {
+      tagEntities = await Promise.all(
+        tags.map(async (tagName) => {
+          const existing = await this.tagRepository.findOne({
+            where: { name: tagName },
+          });
+          if (existing) return existing;
+          return this.tagRepository.save(
+            this.tagRepository.create({ name: tagName })
+          );
+        })
+      );
+    }
 
     // ✅ AI를 사용하여 요약 및 이미지 생성
     const summary = await this.aiService.summarizeText(content); // AI 요약
@@ -85,7 +104,8 @@ export class NovelService {
       max_participants: peopleNum as 5 | 7 | 9,
       status: NovelStatus.ONGOING,
       type,
-      imageUrl, // AI로 생성한 이미지 URL 사용
+      imageUrl,
+      tags: tagEntities,
     } as Partial<Novel>);
 
     await this.novelRepo.save(novel);
@@ -204,17 +224,24 @@ export class NovelService {
     }
   }
 
-  async getChapters(novelId: number): Promise<any[]> {
+  async getChapters(novelId: number, userId?: number): Promise<any[]> {
+    const novel = await this.novelRepo.findOne({
+      where: { id: novelId },
+      select: ["id", "status"],
+    });
+
     const chapters = await this.chapterRepo.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
       relations: ["author"],
     });
 
+    const isFree = novel?.status !== NovelStatus.SUBMITTED;
+
     return chapters.map((chapter) => ({
       id: chapter.id,
       chapterNumber: chapter.chapter_number,
-      content: chapter.content,
+      content: isFree ? chapter.content : null,
       createdAt: chapter.created_at,
       authorId: chapter.author?.id,
       authorNickname: chapter.author?.nickname ?? null,
@@ -296,6 +323,7 @@ export class NovelService {
         "chapters",
         "chapters.author",
         "chapters.reports",
+        "tags",
       ],
     });
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
@@ -312,9 +340,10 @@ export class NovelService {
       (a, b) => a.chapter_number - b.chapter_number
     );
 
-    // 첫 화만 무료, 그 외는 전부 유료
+    // 소설 1/3만 무료로 설정
+    const freeCount = Math.floor(sortedChapters.length / 3);
     sortedChapters.forEach((chapter, index) => {
-      chapter.isPaid = index !== 0;
+      chapter.isPaid = index >= freeCount; // 인덱스가 무료 범위 넘으면 유료
       console.log(
         `Chapter ${chapter.chapter_number} → isPaid: ${chapter.isPaid}`
       );
@@ -335,6 +364,7 @@ export class NovelService {
       type: novel.type,
       createdAt: novel.created_at.toISOString(),
       peopleNum: novel.max_participants,
+      tags: novel.tags?.map((tag) => tag.name) ?? [],
       chapters: sortedChapters.map((chapter) => ({
         id: chapter.id,
         content: chapter.content,

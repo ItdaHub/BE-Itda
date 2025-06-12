@@ -19,6 +19,7 @@ class CreateNovelDto {
     content;
     type;
     imageUrl;
+    tags;
 }
 exports.CreateNovelDto = CreateNovelDto;
 __decorate([
@@ -80,4 +81,17 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateNovelDto.prototype, "imageUrl", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        example: ["판타지", "로맨스"],
+        description: "소설에 달 태그 목록 (문자열 배열)",
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayNotEmpty)(),
+    (0, class_validator_1.ArrayMaxSize)(5, { message: "태그는 최대 5개까지 입력할 수 있습니다." }),
+    (0, class_validator_1.ArrayUnique)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateNovelDto.prototype, "tags", void 0);
 //# sourceMappingURL=createnovel.dto.js.map

@@ -19,6 +19,7 @@ const ai_image_entity_1 = require("./ai_image.entity");
 const like_entity_1 = require("../../likes/entities/like.entity");
 const comment_entity_1 = require("../../comments/entities/comment.entity");
 const notification_entity_1 = require("../../notifications/entities/notification.entity");
+const tag_entity_1 = require("./tag.entity");
 var MaxParticipants;
 (function (MaxParticipants) {
     MaxParticipants[MaxParticipants["FIVE"] = 5] = "FIVE";
@@ -57,6 +58,7 @@ let Novel = class Novel {
     notifications;
     age_group;
     viewCount;
+    tags;
 };
 exports.Novel = Novel;
 __decorate([
@@ -152,6 +154,14 @@ __decorate([
     (0, typeorm_1.Column)({ default: 0 }),
     __metadata("design:type", Number)
 ], Novel.prototype, "viewCount", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => tag_entity_1.Tag, (tag) => tag.novels, {
+        cascade: true,
+        eager: false,
+    }),
+    (0, typeorm_1.JoinTable)(),
+    __metadata("design:type", Array)
+], Novel.prototype, "tags", void 0);
 exports.Novel = Novel = __decorate([
     (0, typeorm_1.Entity)("novels")
 ], Novel);

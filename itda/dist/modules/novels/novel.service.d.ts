@@ -9,6 +9,7 @@ import { Participant } from "./entities/participant.entity";
 import { NovelStatus } from "./entities/novel.entity";
 import { NotificationService } from "../notifications/notification.service";
 import { AiService } from "../ai/ai.service";
+import { Tag } from "./entities/tag.entity";
 type CreateNovelInput = CreateNovelDto & {
     userId: number;
 };
@@ -19,15 +20,16 @@ export declare class NovelService {
     private readonly chapterRepo;
     private readonly participantRepo;
     private readonly notificationService;
+    private readonly tagRepository;
     private readonly aiService;
-    constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>, notificationService: NotificationService, aiService: AiService);
+    constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>, notificationService: NotificationService, tagRepository: Repository<Tag>, aiService: AiService);
     getAllNovels(): Promise<Novel[]>;
     getPublishedNovels(): Promise<Novel[]>;
     getNovelById(id: number): Promise<any>;
     create(dto: CreateNovelInput): Promise<Novel>;
     addChapter(novelId: number, dto: AddChapterDto): Promise<any>;
     checkAndUpdateNovelStatus(novelId: number): Promise<void>;
-    getChapters(novelId: number): Promise<any[]>;
+    getChapters(novelId: number, userId?: number): Promise<any[]>;
     getParticipants(novelId: number): Promise<Participant[]>;
     getFilteredNovels(type?: string, genre?: string | number, age?: number): Promise<{
         id: number;

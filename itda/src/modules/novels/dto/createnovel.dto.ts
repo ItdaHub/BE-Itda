@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -6,6 +7,9 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  ArrayNotEmpty,
+  ArrayMaxSize,
+  ArrayUnique,
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
@@ -62,4 +66,16 @@ export class CreateNovelDto {
   @IsOptional()
   @IsString()
   imageUrl?: string;
+
+  @ApiPropertyOptional({
+    example: ["판타지", "로맨스"],
+    description: "소설에 달 태그 목록 (문자열 배열)",
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayMaxSize(5, { message: "태그는 최대 5개까지 입력할 수 있습니다." })
+  @ArrayUnique()
+  @IsString({ each: true })
+  tags?: string[];
 }

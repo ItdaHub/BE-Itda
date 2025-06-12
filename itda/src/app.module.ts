@@ -24,6 +24,7 @@ import { Like } from "./modules/likes/entities/like.entity";
 import { AIGeneratedImage } from "./modules/novels/entities/ai_image.entity";
 import { Payment } from "./modules/payments/entities/payment.entity";
 import { Point } from "./modules/points/entities/point.entity";
+import { Tag } from "./modules/novels/entities/tag.entity";
 import { AdminNotification } from "./modules/notifications/entities/admin_notification.entity";
 import { Announcement } from "./modules/announcement/entities/announcement.entity";
 import { AnnouncementRead } from "./modules/announcement/entities/announcementread.entity";
@@ -77,6 +78,7 @@ import { Purchase } from "./modules/points/entities/purchases.entity";
         Banner,
         Purchase,
         RecentNovel,
+        Tag,
       ],
 
       synchronize: true,

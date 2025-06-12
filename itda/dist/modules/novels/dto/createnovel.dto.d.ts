@@ -5,4 +5,5 @@ export declare class CreateNovelDto {
     content: string;
     type: "new" | "relay";
     imageUrl?: string;
+    tags?: string[];
 }

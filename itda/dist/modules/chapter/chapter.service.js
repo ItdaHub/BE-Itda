@@ -133,7 +133,6 @@ let ChapterService = class ChapterService {
             author: user,
         });
         await this.chapterRepository.save(newChapter);
-        console.log("Calling updatePaidStatus for novelId:", novelId);
         await this.updatePaidStatus(novelId);
         return newChapter;
     }

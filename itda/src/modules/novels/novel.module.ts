@@ -10,6 +10,7 @@ import { Chapter } from "../chapter/entities/chapter.entity";
 import { User } from "../users/entities/user.entity";
 import { UserModule } from "../users/user.module";
 import { Participant } from "./entities/participant.entity";
+import { Tag } from "./entities/tag.entity";
 import { NotificationModule } from "../notifications/notification.module";
 import { AiService } from "../ai/ai.service";
 
@@ -22,6 +23,7 @@ import { AiService } from "../ai/ai.service";
       User,
       Participant,
       RecentNovel,
+      Tag,
     ]),
     UserModule,
     NotificationModule,

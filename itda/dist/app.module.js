@@ -33,6 +33,7 @@ const like_entity_1 = require("./modules/likes/entities/like.entity");
 const ai_image_entity_1 = require("./modules/novels/entities/ai_image.entity");
 const payment_entity_1 = require("./modules/payments/entities/payment.entity");
 const point_entity_1 = require("./modules/points/entities/point.entity");
+const tag_entity_1 = require("./modules/novels/entities/tag.entity");
 const admin_notification_entity_1 = require("./modules/notifications/entities/admin_notification.entity");
 const announcement_entity_1 = require("./modules/announcement/entities/announcement.entity");
 const announcementread_entity_1 = require("./modules/announcement/entities/announcementread.entity");
@@ -89,6 +90,7 @@ exports.AppModule = AppModule = __decorate([
                     banner_entity_1.Banner,
                     purchases_entity_1.Purchase,
                     recentNovel_entity_1.RecentNovel,
+                    tag_entity_1.Tag,
                 ],
                 synchronize: true,
             }),

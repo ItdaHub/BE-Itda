@@ -25,6 +25,7 @@ const participant_entity_1 = require("./entities/participant.entity");
 const novel_entity_2 = require("./entities/novel.entity");
 const notification_service_1 = require("../notifications/notification.service");
 const ai_service_1 = require("../ai/ai.service");
+const tag_entity_1 = require("./entities/tag.entity");
 let NovelService = class NovelService {
     novelRepo;
     genreRepo;
@@ -32,14 +33,16 @@ let NovelService = class NovelService {
     chapterRepo;
     participantRepo;
     notificationService;
+    tagRepository;
     aiService;
-    constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo, notificationService, aiService) {
+    constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo, notificationService, tagRepository, aiService) {
         this.novelRepo = novelRepo;
         this.genreRepo = genreRepo;
         this.userRepo = userRepo;
         this.chapterRepo = chapterRepo;
         this.participantRepo = participantRepo;
         this.notificationService = notificationService;
+        this.tagRepository = tagRepository;
         this.aiService = aiService;
     }
     async getAllNovels() {
@@ -65,13 +68,24 @@ let NovelService = class NovelService {
         };
     }
     async create(dto) {
-        const { content, categoryId, peopleNum, userId, type, title } = dto;
+        const { content, categoryId, peopleNum, userId, type, title, tags } = dto;
         const user = await this.userRepo.findOneBy({ id: userId });
         if (!user)
             throw new common_1.NotFoundException("작성자 유저를 찾을 수 없습니다.");
         const genre = await this.genreRepo.findOneBy({ id: categoryId });
         if (!genre)
             throw new common_1.NotFoundException("해당 장르가 존재하지 않습니다.");
+        let tagEntities = [];
+        if (tags && tags.length > 0) {
+            tagEntities = await Promise.all(tags.map(async (tagName) => {
+                const existing = await this.tagRepository.findOne({
+                    where: { name: tagName },
+                });
+                if (existing)
+                    return existing;
+                return this.tagRepository.save(this.tagRepository.create({ name: tagName }));
+            }));
+        }
         const summary = await this.aiService.summarizeText(content);
         const imageUrl = await this.aiService["getImageFromUnsplash"](summary);
         const novel = this.novelRepo.create({
@@ -82,6 +96,7 @@ let NovelService = class NovelService {
             status: novel_entity_2.NovelStatus.ONGOING,
             type,
             imageUrl,
+            tags: tagEntities,
         });
         await this.novelRepo.save(novel);
         const chapter = this.chapterRepo.create({
@@ -166,16 +181,21 @@ let NovelService = class NovelService {
             await this.novelRepo.save(novel);
         }
     }
-    async getChapters(novelId) {
+    async getChapters(novelId, userId) {
+        const novel = await this.novelRepo.findOne({
+            where: { id: novelId },
+            select: ["id", "status"],
+        });
         const chapters = await this.chapterRepo.find({
             where: { novel: { id: novelId } },
             order: { chapter_number: "ASC" },
             relations: ["author"],
         });
+        const isFree = novel?.status !== novel_entity_2.NovelStatus.SUBMITTED;
         return chapters.map((chapter) => ({
             id: chapter.id,
             chapterNumber: chapter.chapter_number,
-            content: chapter.content,
+            content: isFree ? chapter.content : null,
             createdAt: chapter.created_at,
             authorId: chapter.author?.id,
             authorNickname: chapter.author?.nickname ?? null,
@@ -248,6 +268,7 @@ let NovelService = class NovelService {
                 "chapters",
                 "chapters.author",
                 "chapters.reports",
+                "tags",
             ],
         });
         if (!novel)
@@ -259,8 +280,9 @@ let NovelService = class NovelService {
             ? novel.likes.some((like) => like.user.id === userId)
             : false;
         const sortedChapters = novel.chapters.sort((a, b) => a.chapter_number - b.chapter_number);
+        const freeCount = Math.floor(sortedChapters.length / 3);
         sortedChapters.forEach((chapter, index) => {
-            chapter.isPaid = index !== 0;
+            chapter.isPaid = index >= freeCount;
             console.log(`Chapter ${chapter.chapter_number} → isPaid: ${chapter.isPaid}`);
         });
         return {
@@ -278,6 +300,7 @@ let NovelService = class NovelService {
             type: novel.type,
             createdAt: novel.created_at.toISOString(),
             peopleNum: novel.max_participants,
+            tags: novel.tags?.map((tag) => tag.name) ?? [],
             chapters: sortedChapters.map((chapter) => ({
                 id: chapter.id,
                 content: chapter.content,
@@ -428,13 +451,15 @@ exports.NovelService = NovelService = __decorate([
     __param(2, (0, typeorm_2.InjectRepository)(user_entity_1.User)),
     __param(3, (0, typeorm_2.InjectRepository)(chapter_entity_1.Chapter)),
     __param(4, (0, typeorm_2.InjectRepository)(participant_entity_1.Participant)),
-    __param(6, (0, common_1.Inject)((0, common_1.forwardRef)(() => ai_service_1.AiService))),
+    __param(6, (0, typeorm_2.InjectRepository)(tag_entity_1.Tag)),
+    __param(7, (0, common_1.Inject)((0, common_1.forwardRef)(() => ai_service_1.AiService))),
     __metadata("design:paramtypes", [typeorm_3.Repository,
         typeorm_3.Repository,
         typeorm_3.Repository,
         typeorm_3.Repository,
         typeorm_3.Repository,
         notification_service_1.NotificationService,
+        typeorm_3.Repository,
         ai_service_1.AiService])
 ], NovelService);
 //# sourceMappingURL=novel.service.js.map

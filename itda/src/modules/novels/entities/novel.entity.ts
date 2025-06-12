@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   ManyToOne,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
 import { User } from "../../users/entities/user.entity";
 import { Genre } from "src/modules/genre/entities/genre.entity";
@@ -14,6 +16,7 @@ import { AIGeneratedImage } from "./ai_image.entity";
 import { Like } from "src/modules/likes/entities/like.entity";
 import { Comment } from "../../comments/entities/comment.entity";
 import { Notification } from "../../notifications/entities/notification.entity";
+import { Tag } from "./tag.entity";
 
 export enum MaxParticipants {
   FIVE = 5,
@@ -108,4 +111,11 @@ export class Novel {
 
   @Column({ default: 0 })
   viewCount: number;
+
+  @ManyToMany(() => Tag, (tag) => tag.novels, {
+    cascade: true,
+    eager: false,
+  })
+  @JoinTable()
+  tags: Tag[];
 }

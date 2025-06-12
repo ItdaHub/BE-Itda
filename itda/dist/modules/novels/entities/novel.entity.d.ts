@@ -6,6 +6,7 @@ import { AIGeneratedImage } from "./ai_image.entity";
 import { Like } from "src/modules/likes/entities/like.entity";
 import { Comment } from "../../comments/entities/comment.entity";
 import { Notification } from "../../notifications/entities/notification.entity";
+import { Tag } from "./tag.entity";
 export declare enum MaxParticipants {
     FIVE = 5,
     SEVEN = 7,
@@ -41,4 +42,5 @@ export declare class Novel {
     notifications: Notification[];
     age_group: number;
     viewCount: number;
+    tags: Tag[];
 }
