@@ -28,19 +28,21 @@ let RecentNovelService = class RecentNovelService {
     async addRecentNovel(user, novelId, chapterNumber) {
         const novel = await this.novelRepo.findOneByOrFail({ id: novelId });
         await this.recentNovelRepo.upsert({
-            user,
-            novel,
+            user: { id: user.id },
+            novel: { id: novel.id },
             chapterNumber,
             viewedAt: new Date(),
-        }, ["user", "novel", "chapterNumber"]);
+        }, ["userId", "novelId", "chapterNumber"]);
     }
     async getRecentNovels(user, limit = 20) {
-        return this.recentNovelRepo.find({
+        const recentList = await this.recentNovelRepo.find({
             where: { user: { id: user.id } },
             order: { viewedAt: "DESC" },
             take: limit,
             relations: ["user", "novel"],
         });
+        console.log("recentList:", recentList);
+        return recentList;
     }
 };
 exports.RecentNovelService = RecentNovelService;

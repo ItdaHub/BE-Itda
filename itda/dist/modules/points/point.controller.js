@@ -24,6 +24,7 @@ let PointController = class PointController {
         this.pointService = pointService;
     }
     async usePopcorn(usePopcornDto) {
+        console.log("🔥 [Controller] /points/use 요청 들어옴", usePopcornDto);
         return this.pointService.spendPoints(usePopcornDto);
     }
     async getUserPoints(userId) {

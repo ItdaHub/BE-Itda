@@ -6,10 +6,11 @@ import { PointController } from "./point.controller";
 import { UserModule } from "../users/user.module";
 import { Purchase } from "./entities/purchases.entity";
 import { User } from "../users/entities/user.entity";
+import { Novel } from "../novels/entities/novel.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Point, Purchase, User]),
+    TypeOrmModule.forFeature([Point, Purchase, User, Novel]),
     forwardRef(() => UserModule),
   ],
   providers: [PointService],

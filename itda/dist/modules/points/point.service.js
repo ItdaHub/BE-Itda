@@ -19,14 +19,18 @@ const typeorm_2 = require("typeorm");
 const point_entity_1 = require("./entities/point.entity");
 const user_entity_1 = require("../users/entities/user.entity");
 const purchases_entity_1 = require("./entities/purchases.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
+const novel_entity_2 = require("../novels/entities/novel.entity");
 let PointService = class PointService {
     pointRepository;
     purchaseRepository;
     userRepository;
-    constructor(pointRepository, purchaseRepository, userRepository) {
+    novelRepository;
+    constructor(pointRepository, purchaseRepository, userRepository, novelRepository) {
         this.pointRepository = pointRepository;
         this.purchaseRepository = purchaseRepository;
         this.userRepository = userRepository;
+        this.novelRepository = novelRepository;
     }
     async getUserTotalPoints(userId) {
         const result = await this.pointRepository
@@ -38,11 +42,31 @@ let PointService = class PointService {
     }
     async spendPoints(usePopcornDto) {
         const { userId, novelId, chapterId, amount, description } = usePopcornDto;
+        console.log("🎯 spendPoints 실행됨:", usePopcornDto);
         const user = await this.userRepository.findOne({
             where: { id: userId },
         });
         if (!user) {
             throw new common_1.NotFoundException("유저를 찾을 수 없습니다");
+        }
+        if (novelId && chapterId) {
+            const novel = await this.novelRepository.findOne({
+                where: { id: novelId },
+                relations: ["chapters"],
+            });
+            if (!novel) {
+                throw new common_1.NotFoundException("소설을 찾을 수 없습니다");
+            }
+            console.log("🔍 novel.status:", novel.status);
+            console.log("🆚 expected status:", novel_entity_2.NovelStatus.SUBMITTED);
+            if (novel.status !== novel_entity_2.NovelStatus.SUBMITTED) {
+                throw new common_1.BadRequestException("출품되지 않은 소설은 결제할 수 없습니다");
+            }
+            const totalChapters = novel.max_participants;
+            const freeChapters = Math.floor(totalChapters / 3);
+            if (chapterId <= freeChapters) {
+                throw new common_1.BadRequestException(`${freeChapters}회차까지는 무료입니다`);
+            }
         }
         await this.pointRepository.save({
             user,
@@ -124,7 +148,9 @@ exports.PointService = PointService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(point_entity_1.Point)),
     __param(1, (0, typeorm_1.InjectRepository)(purchases_entity_1.Purchase)),
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(3, (0, typeorm_1.InjectRepository)(novel_entity_1.Novel)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], PointService);

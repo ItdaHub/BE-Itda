@@ -32,7 +32,7 @@ export class NotificationService {
     content,
     novel = null,
     report = null,
-    type = "REPORT", // 기본값 설정
+    type = "REPORT",
   }: SendNotificationDto) {
     const notification = this.notificationRepository.create({
       user,
@@ -47,14 +47,16 @@ export class NotificationService {
 
   async markNotificationAsRead(
     notificationId: number,
-    userId: number
+    userId: number,
+    novelId: number
   ): Promise<Notification> {
     const notification = await this.notificationRepository.findOne({
       where: {
         id: notificationId,
         user: { id: userId },
+        novel: { id: novelId },
       },
-      relations: ["user"],
+      relations: ["user", "novel"],
     });
 
     if (!notification) {

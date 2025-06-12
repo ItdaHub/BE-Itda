@@ -36,6 +36,7 @@ const point_entity_1 = require("./modules/points/entities/point.entity");
 const admin_notification_entity_1 = require("./modules/notifications/entities/admin_notification.entity");
 const announcement_entity_1 = require("./modules/announcement/entities/announcement.entity");
 const announcementread_entity_1 = require("./modules/announcement/entities/announcementread.entity");
+const recentNovel_entity_1 = require("./modules/novels/entities/recentNovel.entity");
 const ai_module_1 = require("./modules/ai/ai.module");
 const genre_module_1 = require("./modules/genre/genre.module");
 const chapter_module_1 = require("./modules/chapter/chapter.module");
@@ -87,6 +88,7 @@ exports.AppModule = AppModule = __decorate([
                     announcementread_entity_1.AnnouncementRead,
                     banner_entity_1.Banner,
                     purchases_entity_1.Purchase,
+                    recentNovel_entity_1.RecentNovel,
                 ],
                 synchronize: true,
             }),

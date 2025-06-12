@@ -3,11 +3,13 @@ import { Point, PointType } from "./entities/point.entity";
 import { User } from "../users/entities/user.entity";
 import { Purchase } from "./entities/purchases.entity";
 import { UsePopcornDto } from "./dto/usepopcorn.dto";
+import { Novel } from "../novels/entities/novel.entity";
 export declare class PointService {
     private pointRepository;
     private purchaseRepository;
     private userRepository;
-    constructor(pointRepository: Repository<Point>, purchaseRepository: Repository<Purchase>, userRepository: Repository<User>);
+    private novelRepository;
+    constructor(pointRepository: Repository<Point>, purchaseRepository: Repository<Purchase>, userRepository: Repository<User>, novelRepository: Repository<Novel>);
     getUserTotalPoints(userId: number): Promise<number>;
     spendPoints(usePopcornDto: UsePopcornDto): Promise<any>;
     hasPurchased(userId: number, novelId: number, chapterId: number): Promise<boolean>;

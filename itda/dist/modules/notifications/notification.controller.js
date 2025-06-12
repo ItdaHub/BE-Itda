@@ -26,8 +26,8 @@ let NotificationController = class NotificationController {
         const user = req.user;
         return this.notificationService.getUserNotifications(user.id);
     }
-    async markNotificationAsRead(notificationId, userId) {
-        return this.notificationService.markNotificationAsRead(notificationId, userId);
+    async markNotificationAsRead(notificationId, userId, novelId) {
+        return this.notificationService.markNotificationAsRead(notificationId, userId, novelId);
     }
 };
 exports.NotificationController = NotificationController;
@@ -59,17 +59,19 @@ __decorate([
     (0, swagger_1.ApiBody)({
         schema: {
             type: "object",
-            required: ["userId"],
+            required: ["userId", "novelId"],
             properties: {
                 userId: { type: "number", example: 1 },
+                novelId: { type: "number", example: 42 },
             },
         },
     }),
     (0, swagger_1.ApiResponse)({ status: 200, description: "읽음 처리된 알림 반환" }),
     __param(0, (0, common_1.Param)("notificationId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)("userId")),
+    __param(2, (0, common_1.Body)("novelId")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:paramtypes", [Number, Number, Number]),
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "markNotificationAsRead", null);
 exports.NotificationController = NotificationController = __decorate([

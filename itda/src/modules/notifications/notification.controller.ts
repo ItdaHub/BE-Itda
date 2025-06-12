@@ -55,20 +55,23 @@ export class NotificationController {
   @ApiBody({
     schema: {
       type: "object",
-      required: ["userId"],
+      required: ["userId", "novelId"],
       properties: {
         userId: { type: "number", example: 1 },
+        novelId: { type: "number", example: 42 },
       },
     },
   })
   @ApiResponse({ status: 200, description: "읽음 처리된 알림 반환" })
   async markNotificationAsRead(
     @Param("notificationId", ParseIntPipe) notificationId: number,
-    @Body("userId") userId: number
+    @Body("userId") userId: number,
+    @Body("novelId") novelId: number
   ): Promise<Notification> {
     return this.notificationService.markNotificationAsRead(
       notificationId,
-      userId
+      userId,
+      novelId
     );
   }
 }

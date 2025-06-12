@@ -32,6 +32,7 @@ export class PointController {
   @ApiBody({ type: UsePopcornDto })
   @ApiResponse({ status: 201, description: "팝콘 사용 성공" })
   async usePopcorn(@Body() usePopcornDto: UsePopcornDto) {
+    console.log("🔥 [Controller] /points/use 요청 들어옴", usePopcornDto);
     return this.pointService.spendPoints(usePopcornDto);
   }
 

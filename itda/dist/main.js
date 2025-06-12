@@ -15,7 +15,7 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe({
         transform: true,
         whitelist: true,
-        forbidNonWhitelisted: true,
+        forbidNonWhitelisted: false,
     }));
     const config = new swagger_1.DocumentBuilder()
         .setTitle("회원가입 API")

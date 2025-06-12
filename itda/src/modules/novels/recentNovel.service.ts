@@ -23,21 +23,23 @@ export class RecentNovelService {
 
     await this.recentNovelRepo.upsert(
       {
-        user,
-        novel,
+        user: { id: user.id }, // user 엔티티가 아니라 id만 넣어도 됨
+        novel: { id: novel.id },
         chapterNumber,
         viewedAt: new Date(),
       },
-      ["user", "novel", "chapterNumber"]
+      ["userId", "novelId", "chapterNumber"] // 실제 DB 컬럼명
     );
   }
 
   async getRecentNovels(user: User, limit = 20): Promise<RecentNovel[]> {
-    return this.recentNovelRepo.find({
+    const recentList = await this.recentNovelRepo.find({
       where: { user: { id: user.id } },
       order: { viewedAt: "DESC" },
       take: limit,
       relations: ["user", "novel"],
     });
+    console.log("recentList:", recentList);
+    return recentList;
   }
 }

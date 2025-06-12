@@ -27,6 +27,7 @@ import { Point } from "./modules/points/entities/point.entity";
 import { AdminNotification } from "./modules/notifications/entities/admin_notification.entity";
 import { Announcement } from "./modules/announcement/entities/announcement.entity";
 import { AnnouncementRead } from "./modules/announcement/entities/announcementread.entity";
+import { RecentNovel } from "./modules/novels/entities/recentNovel.entity";
 import { AiModule } from "./modules/ai/ai.module";
 import { GenreModule } from "./modules/genre/genre.module";
 import { ChapterModule } from "./modules/chapter/chapter.module";
@@ -75,6 +76,7 @@ import { Purchase } from "./modules/points/entities/purchases.entity";
         AnnouncementRead,
         Banner,
         Purchase,
+        RecentNovel,
       ],
 
       synchronize: true,

@@ -15,13 +15,14 @@ const point_controller_1 = require("./point.controller");
 const user_module_1 = require("../users/user.module");
 const purchases_entity_1 = require("./entities/purchases.entity");
 const user_entity_1 = require("../users/entities/user.entity");
+const novel_entity_1 = require("../novels/entities/novel.entity");
 let PointModule = class PointModule {
 };
 exports.PointModule = PointModule;
 exports.PointModule = PointModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([point_entity_1.Point, purchases_entity_1.Purchase, user_entity_1.User]),
+            typeorm_1.TypeOrmModule.forFeature([point_entity_1.Point, purchases_entity_1.Purchase, user_entity_1.User, novel_entity_1.Novel]),
             (0, common_1.forwardRef)(() => user_module_1.UserModule),
         ],
         providers: [point_service_1.PointService],

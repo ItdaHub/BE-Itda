@@ -47,13 +47,14 @@ let NotificationService = class NotificationService {
         });
         return await this.notificationRepository.save(notification);
     }
-    async markNotificationAsRead(notificationId, userId) {
+    async markNotificationAsRead(notificationId, userId, novelId) {
         const notification = await this.notificationRepository.findOne({
             where: {
                 id: notificationId,
                 user: { id: userId },
+                novel: { id: novelId },
             },
-            relations: ["user"],
+            relations: ["user", "novel"],
         });
         if (!notification) {
             console.log(`❌ 알림 ${notificationId} (user: ${userId}) 찾을 수 없음`);
