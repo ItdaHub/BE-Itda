@@ -34,6 +34,7 @@ let NotificationService = class NotificationService {
     async getUserNotifications(userId) {
         return this.notificationRepository.find({
             where: { user: { id: userId } },
+            relations: ["novel"],
             order: { created_at: "DESC" },
         });
     }

@@ -23,6 +23,7 @@ export class NotificationService {
   async getUserNotifications(userId: number): Promise<Notification[]> {
     return this.notificationRepository.find({
       where: { user: { id: userId } },
+      relations: ["novel"],
       order: { created_at: "DESC" },
     });
   }
