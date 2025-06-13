@@ -5,6 +5,7 @@ import { Chapter } from "./entities/chapter.entity";
 import { Novel } from "../novels/entities/novel.entity";
 import { AiService } from "../ai/ai.service";
 import { LikeService } from "../likes/like.service";
+import { NovelStatus } from "../novels/entities/novel.entity";
 
 @Injectable()
 export class ChapterService {
@@ -65,7 +66,7 @@ export class ChapterService {
     isLastChapter: boolean;
     isPublished: boolean;
     novelTitle: string;
-    likesCount: number; // 소설 좋아요 수
+    likesCount: number;
   }> {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
@@ -98,7 +99,6 @@ export class ChapterService {
       }))
       .filter((slide) => slide.text.length > 0);
 
-    // 여기서 소설 좋아요 수를 LikeService에서 조회
     const likesCount = await this.likeService.countNovelLikes(novelId);
 
     return {
@@ -212,6 +212,12 @@ export class ChapterService {
   }
 
   async updatePaidStatus(novelId: number): Promise<void> {
+    const novel = await this.novelRepository.findOne({
+      where: { id: novelId },
+    });
+
+    if (!novel) return;
+
     const chapters = await this.chapterRepository.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
@@ -219,10 +225,23 @@ export class ChapterService {
 
     if (!chapters.length) return;
 
-    for (let i = 0; i < chapters.length; i++) {
+    const totalChapters = chapters.length;
+    const freeLimit = Math.floor(totalChapters / 3);
+
+    console.log("🔍 updatePaidStatus() - novel.status:", novel.status);
+    console.log("🔢 총 챕터 수:", totalChapters, "무료 챕터 수:", freeLimit);
+
+    for (let i = 0; i < totalChapters; i++) {
       const chapter = chapters[i];
-      // 첫 번째 챕터(i === 0)만 무료, 나머지는 모두 유료
-      const shouldBePaid = i !== 0;
+
+      let shouldBePaid = false;
+
+      if (novel.status === NovelStatus.SUBMITTED) {
+        const freeLimit = Math.floor(totalChapters / 3);
+        shouldBePaid = i >= freeLimit;
+      } else {
+        shouldBePaid = false;
+      }
 
       if (chapter.isPaid !== shouldBePaid) {
         chapter.isPaid = shouldBePaid;

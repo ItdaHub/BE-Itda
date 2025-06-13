@@ -283,10 +283,18 @@ let NovelService = class NovelService {
             ? novel.likes.some((like) => like.user.id === userId)
             : false;
         const sortedChapters = novel.chapters.sort((a, b) => a.chapter_number - b.chapter_number);
+        const isSubmitted = novel.status === novel_entity_2.NovelStatus.SUBMITTED;
         const freeCount = Math.floor(sortedChapters.length / 3);
         sortedChapters.forEach((chapter, index) => {
-            chapter.isPaid = index >= freeCount;
-            console.log(`Chapter ${chapter.chapter_number} → isPaid: ${chapter.isPaid}`);
+            chapter.isPaid = isSubmitted ? index >= freeCount : true;
+        });
+        sortedChapters.forEach((chapter, index) => {
+            if (novel.status === novel_entity_2.NovelStatus.SUBMITTED) {
+                chapter.isPaid = index >= freeCount;
+            }
+            else {
+                chapter.isPaid = true;
+            }
         });
         return {
             id: novel.id,

@@ -11,7 +11,7 @@ export class RecentNovelService {
     @InjectRepository(RecentNovel)
     private recentNovelRepository: Repository<RecentNovel>,
     @InjectRepository(Novel)
-    private novelRepo: Repository<Novel>
+    private novelRepository: Repository<Novel>
   ) {}
 
   async addRecentNovel(
@@ -19,16 +19,16 @@ export class RecentNovelService {
     novelId: number,
     chapterNumber: number
   ): Promise<void> {
-    const novel = await this.novelRepo.findOneByOrFail({ id: novelId });
+    const novel = await this.novelRepository.findOneByOrFail({ id: novelId });
 
     await this.recentNovelRepository.upsert(
       {
-        user: { id: user.id }, // user 엔티티가 아니라 id만 넣어도 됨
+        user: { id: user.id },
         novel: { id: novel.id },
         chapterNumber,
         viewedAt: new Date(),
       },
-      ["userId", "novelId", "chapterNumber"] // 실제 DB 컬럼명
+      ["userId", "novelId", "chapterNumber"]
     );
   }
 

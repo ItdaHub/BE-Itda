@@ -20,13 +20,13 @@ const typeorm_2 = require("typeorm");
 const novel_entity_1 = require("./entities/novel.entity");
 let RecentNovelService = class RecentNovelService {
     recentNovelRepository;
-    novelRepo;
-    constructor(recentNovelRepository, novelRepo) {
+    novelRepository;
+    constructor(recentNovelRepository, novelRepository) {
         this.recentNovelRepository = recentNovelRepository;
-        this.novelRepo = novelRepo;
+        this.novelRepository = novelRepository;
     }
     async addRecentNovel(user, novelId, chapterNumber) {
-        const novel = await this.novelRepo.findOneByOrFail({ id: novelId });
+        const novel = await this.novelRepository.findOneByOrFail({ id: novelId });
         await this.recentNovelRepository.upsert({
             user: { id: user.id },
             novel: { id: novel.id },

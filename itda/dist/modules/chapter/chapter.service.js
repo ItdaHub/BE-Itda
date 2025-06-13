@@ -20,6 +20,7 @@ const chapter_entity_1 = require("./entities/chapter.entity");
 const novel_entity_1 = require("../novels/entities/novel.entity");
 const ai_service_1 = require("../ai/ai.service");
 const like_service_1 = require("../likes/like.service");
+const novel_entity_2 = require("../novels/entities/novel.entity");
 let ChapterService = class ChapterService {
     chapterRepository;
     novelRepository;
@@ -158,15 +159,31 @@ let ChapterService = class ChapterService {
         return chapter.isPaid ?? false;
     }
     async updatePaidStatus(novelId) {
+        const novel = await this.novelRepository.findOne({
+            where: { id: novelId },
+        });
+        if (!novel)
+            return;
         const chapters = await this.chapterRepository.find({
             where: { novel: { id: novelId } },
             order: { chapter_number: "ASC" },
         });
         if (!chapters.length)
             return;
-        for (let i = 0; i < chapters.length; i++) {
+        const totalChapters = chapters.length;
+        const freeLimit = Math.floor(totalChapters / 3);
+        console.log("🔍 updatePaidStatus() - novel.status:", novel.status);
+        console.log("🔢 총 챕터 수:", totalChapters, "무료 챕터 수:", freeLimit);
+        for (let i = 0; i < totalChapters; i++) {
             const chapter = chapters[i];
-            const shouldBePaid = i !== 0;
+            let shouldBePaid = false;
+            if (novel.status === novel_entity_2.NovelStatus.SUBMITTED) {
+                const freeLimit = Math.floor(totalChapters / 3);
+                shouldBePaid = i >= freeLimit;
+            }
+            else {
+                shouldBePaid = false;
+            }
             if (chapter.isPaid !== shouldBePaid) {
                 chapter.isPaid = shouldBePaid;
                 await this.chapterRepository.save(chapter);

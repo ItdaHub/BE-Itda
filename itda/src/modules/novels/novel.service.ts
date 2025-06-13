@@ -345,13 +345,20 @@ export class NovelService {
       (a, b) => a.chapter_number - b.chapter_number
     );
 
-    // 소설 1/3만 무료로 설정
+    // 소설 1/3만 무료로 설정 → 출품된 소설에만 적용
+    const isSubmitted = novel.status === NovelStatus.SUBMITTED;
     const freeCount = Math.floor(sortedChapters.length / 3);
+
     sortedChapters.forEach((chapter, index) => {
-      chapter.isPaid = index >= freeCount;
-      console.log(
-        `Chapter ${chapter.chapter_number} → isPaid: ${chapter.isPaid}`
-      );
+      chapter.isPaid = isSubmitted ? index >= freeCount : true;
+    });
+
+    sortedChapters.forEach((chapter, index) => {
+      if (novel.status === NovelStatus.SUBMITTED) {
+        chapter.isPaid = index >= freeCount; // 출품된 소설은 1/3만 무료
+      } else {
+        chapter.isPaid = true; // 출품되지 않은 소설은 전부 유료
+      }
     });
 
     return {
@@ -491,7 +498,7 @@ export class NovelService {
   async adminPublishNovel(novelId: number) {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
-      relations: ["creator", "chapters", "chapters.author"], // author 포함해서 불러오기!
+      relations: ["creator", "chapters", "chapters.author"],
     });
 
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
