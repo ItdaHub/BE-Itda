@@ -29,19 +29,6 @@ import { ParticipationCheckResponseDto } from "./dto/participationcheckresponse.
 export class ChapterController {
   constructor(private readonly chapterService: ChapterService) {}
 
-  @Get(":novelId")
-  @ApiOperation({ summary: "소설의 챕터 목록 조회" })
-  @ApiParam({ name: "novelId", type: Number })
-  @ApiResponse({
-    status: 200,
-    description: "챕터 목록 조회 성공",
-    type: ChapterListItemDto,
-    isArray: true,
-  })
-  async getChaptersByNovel(@Param("novelId", ParseIntPipe) novelId: number) {
-    return this.chapterService.getChaptersByNovel(novelId);
-  }
-
   @Get("content/:novelId/:chapterId")
   @ApiOperation({ summary: "챕터 본문(슬라이드 콘텐츠) 조회" })
   @ApiParam({ name: "novelId", type: Number })
@@ -56,6 +43,19 @@ export class ChapterController {
     @Param("chapterId", ParseIntPipe) chapterId: number
   ) {
     return this.chapterService.getChapterContent(novelId, chapterId);
+  }
+
+  @Get(":novelId")
+  @ApiOperation({ summary: "소설의 챕터 목록 조회" })
+  @ApiParam({ name: "novelId", type: Number })
+  @ApiResponse({
+    status: 200,
+    description: "챕터 목록 조회 성공",
+    type: ChapterListItemDto,
+    isArray: true,
+  })
+  async getChaptersByNovel(@Param("novelId", ParseIntPipe) novelId: number) {
+    return this.chapterService.getChaptersByNovel(novelId);
   }
 
   @UseGuards(JwtAuthGuard)

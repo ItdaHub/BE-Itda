@@ -31,6 +31,8 @@ export declare class ChapterService {
         isPublished: boolean;
         novelTitle: string;
         likesCount: number;
+        prevChapterId: number | null;
+        nextChapterId: number | null;
     }>;
     createChapter(novelId: number, content: string, user: any, chapterNumber?: number): Promise<Chapter>;
     hasUserParticipatedInNovel(novelId: number, userId: number): Promise<boolean>;

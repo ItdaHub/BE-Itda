@@ -81,6 +81,20 @@ let ChapterService = class ChapterService {
         }))
             .filter((slide) => slide.text.length > 0);
         const likesCount = await this.likeService.countNovelLikes(novelId);
+        const prev = await this.chapterRepository.findOne({
+            where: {
+                novel: { id: novelId },
+                chapter_number: chapter.chapter_number - 1,
+            },
+            select: ["id"],
+        });
+        const next = await this.chapterRepository.findOne({
+            where: {
+                novel: { id: novelId },
+                chapter_number: chapter.chapter_number + 1,
+            },
+            select: ["id"],
+        });
         return {
             slides,
             authorNickname: chapter.author?.nickname || "알 수 없음",
@@ -90,6 +104,8 @@ let ChapterService = class ChapterService {
             isPublished: novel.isPublished,
             novelTitle: novel.title,
             likesCount,
+            prevChapterId: prev?.id ?? null,
+            nextChapterId: next?.id ?? null,
         };
     }
     async createChapter(novelId, content, user, chapterNumber) {

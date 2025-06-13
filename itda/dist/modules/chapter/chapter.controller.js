@@ -26,11 +26,11 @@ let ChapterController = class ChapterController {
     constructor(chapterService) {
         this.chapterService = chapterService;
     }
-    async getChaptersByNovel(novelId) {
-        return this.chapterService.getChaptersByNovel(novelId);
-    }
     async getChapterContent(novelId, chapterId) {
         return this.chapterService.getChapterContent(novelId, chapterId);
+    }
+    async getChaptersByNovel(novelId) {
+        return this.chapterService.getChaptersByNovel(novelId);
     }
     async createChapter(novelId, createChapterDto, req) {
         const user = req.user;
@@ -53,21 +53,6 @@ let ChapterController = class ChapterController {
 };
 exports.ChapterController = ChapterController;
 __decorate([
-    (0, common_1.Get)(":novelId"),
-    (0, swagger_1.ApiOperation)({ summary: "소설의 챕터 목록 조회" }),
-    (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: "챕터 목록 조회 성공",
-        type: chapterlistitem_dto_1.ChapterListItemDto,
-        isArray: true,
-    }),
-    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], ChapterController.prototype, "getChaptersByNovel", null);
-__decorate([
     (0, common_1.Get)("content/:novelId/:chapterId"),
     (0, swagger_1.ApiOperation)({ summary: "챕터 본문(슬라이드 콘텐츠) 조회" }),
     (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
@@ -83,6 +68,21 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], ChapterController.prototype, "getChapterContent", null);
+__decorate([
+    (0, common_1.Get)(":novelId"),
+    (0, swagger_1.ApiOperation)({ summary: "소설의 챕터 목록 조회" }),
+    (0, swagger_1.ApiParam)({ name: "novelId", type: Number }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: "챕터 목록 조회 성공",
+        type: chapterlistitem_dto_1.ChapterListItemDto,
+        isArray: true,
+    }),
+    __param(0, (0, common_1.Param)("novelId", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ChapterController.prototype, "getChaptersByNovel", null);
 __decorate([
     (0, common_1.UseGuards)(jwtauth_guard_1.JwtAuthGuard),
     (0, common_1.Post)("write/:novelId"),

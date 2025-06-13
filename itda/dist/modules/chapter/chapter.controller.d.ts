@@ -3,16 +3,6 @@ import { CreateChapterDto } from "./dto/createchapter.dto";
 export declare class ChapterController {
     private readonly chapterService;
     constructor(chapterService: ChapterService);
-    getChaptersByNovel(novelId: number): Promise<{
-        id: number;
-        chapter_number: number;
-        content: string;
-        created_at: Date;
-        nickname: string;
-        comments: any[];
-        isPaid: boolean;
-        isPublished: boolean;
-    }[]>;
     getChapterContent(novelId: number, chapterId: number): Promise<{
         slides: {
             index: number;
@@ -25,7 +15,19 @@ export declare class ChapterController {
         isPublished: boolean;
         novelTitle: string;
         likesCount: number;
+        prevChapterId: number | null;
+        nextChapterId: number | null;
     }>;
+    getChaptersByNovel(novelId: number): Promise<{
+        id: number;
+        chapter_number: number;
+        content: string;
+        created_at: Date;
+        nickname: string;
+        comments: any[];
+        isPaid: boolean;
+        isPublished: boolean;
+    }[]>;
     createChapter(novelId: number, createChapterDto: CreateChapterDto, req: any): Promise<import("./entities/chapter.entity").Chapter>;
     hasUserParticipated(novelId: number, userId: number): Promise<{
         hasParticipated: boolean;

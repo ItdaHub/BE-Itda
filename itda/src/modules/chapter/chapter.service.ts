@@ -67,6 +67,8 @@ export class ChapterService {
     isPublished: boolean;
     novelTitle: string;
     likesCount: number;
+    prevChapterId: number | null;
+    nextChapterId: number | null;
   }> {
     const novel = await this.novelRepository.findOne({
       where: { id: novelId },
@@ -101,6 +103,24 @@ export class ChapterService {
 
     const likesCount = await this.likeService.countNovelLikes(novelId);
 
+    // 이전 챕터 조회
+    const prev = await this.chapterRepository.findOne({
+      where: {
+        novel: { id: novelId },
+        chapter_number: chapter.chapter_number - 1,
+      },
+      select: ["id"],
+    });
+
+    // 다음 챕터 조회
+    const next = await this.chapterRepository.findOne({
+      where: {
+        novel: { id: novelId },
+        chapter_number: chapter.chapter_number + 1,
+      },
+      select: ["id"],
+    });
+
     return {
       slides,
       authorNickname: chapter.author?.nickname || "알 수 없음",
@@ -110,6 +130,8 @@ export class ChapterService {
       isPublished: novel.isPublished,
       novelTitle: novel.title,
       likesCount,
+      prevChapterId: prev?.id ?? null,
+      nextChapterId: next?.id ?? null,
     };
   }
 
