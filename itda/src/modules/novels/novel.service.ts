@@ -232,6 +232,7 @@ export class NovelService {
 
   async getChapters(novelId: number, userId?: number): Promise<any[]> {
     const novel = await this.novelRepository.findOne({
+      where: { id: novelId },
       select: ["id", "status"],
     });
 

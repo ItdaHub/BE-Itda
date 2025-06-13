@@ -187,6 +187,7 @@ let NovelService = class NovelService {
     }
     async getChapters(novelId, userId) {
         const novel = await this.novelRepository.findOne({
+            where: { id: novelId },
             select: ["id", "status"],
         });
         const chapters = await this.chapterRepository.find({
