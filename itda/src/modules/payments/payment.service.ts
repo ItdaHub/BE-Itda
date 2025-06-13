@@ -15,9 +15,9 @@ import axios from "axios";
 export class PaymentsService {
   constructor(
     @InjectRepository(Payment)
-    private readonly paymentRepo: Repository<Payment>,
+    private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    private readonly userRepository: Repository<User>,
     private readonly pointService: PointService
   ) {}
 
@@ -40,7 +40,7 @@ export class PaymentsService {
       chapterId,
     });
 
-    const user = await this.userRepo.findOneByOrFail({ id: userId });
+    const user = await this.userRepository.findOneByOrFail({ id: userId });
     console.log("User found:", user);
 
     // 사용자 보유 포인트 확인
@@ -52,7 +52,7 @@ export class PaymentsService {
         // 팝콘이 부족한 경우 결제 생성
         console.log("팝콘이 부족하여 결제 요청");
 
-        const payment = this.paymentRepo.create({
+        const payment = this.paymentRepository.create({
           user,
           amount,
           method,
@@ -63,7 +63,7 @@ export class PaymentsService {
           chapterId,
         });
 
-        const savedPayment = await this.paymentRepo.save(payment);
+        const savedPayment = await this.paymentRepository.save(payment);
 
         console.log("결제 생성 완료:", savedPayment);
 
@@ -82,7 +82,7 @@ export class PaymentsService {
       }
     }
 
-    const payment = this.paymentRepo.create({
+    const payment = this.paymentRepository.create({
       user,
       amount,
       method,
@@ -93,7 +93,7 @@ export class PaymentsService {
       chapterId,
     });
 
-    const savedPayment = await this.paymentRepo.save(payment);
+    const savedPayment = await this.paymentRepository.save(payment);
 
     console.log("Payment saved:", savedPayment);
 
@@ -136,7 +136,7 @@ export class PaymentsService {
         );
       }
 
-      let payment = await this.paymentRepo.findOne({
+      let payment = await this.paymentRepository.findOne({
         where: { orderId },
         relations: ["user"],
       });
@@ -156,7 +156,7 @@ export class PaymentsService {
       payment.method = tossPaymentData.method;
       payment.amount = tossPaymentData.totalAmount;
 
-      const savedPayment = await this.paymentRepo.save(payment);
+      const savedPayment = await this.paymentRepository.save(payment);
 
       // ✅ 포인트 적립
       await this.pointService.addPoint(
@@ -181,7 +181,7 @@ export class PaymentsService {
       }
 
       if (errorCode === "ALREADY_PROCESSED_PAYMENT") {
-        const existingPayment = await this.paymentRepo.findOne({
+        const existingPayment = await this.paymentRepository.findOne({
           where: { orderId },
           relations: ["user"],
         });
@@ -204,7 +204,7 @@ export class PaymentsService {
     paymentId: number,
     status: PaymentStatus
   ): Promise<Payment> {
-    const payment = await this.paymentRepo.findOne({
+    const payment = await this.paymentRepository.findOne({
       where: { id: paymentId },
     });
 
@@ -217,11 +217,11 @@ export class PaymentsService {
     }
 
     payment.status = status;
-    return await this.paymentRepo.save(payment);
+    return await this.paymentRepository.save(payment);
   }
 
   async getPaymentById(paymentId: number): Promise<Payment> {
-    const payment = await this.paymentRepo.findOne({
+    const payment = await this.paymentRepository.findOne({
       where: { id: paymentId },
       relations: ["user"],
     });
@@ -234,7 +234,7 @@ export class PaymentsService {
   }
 
   async getPaymentsByUser(userId: number): Promise<Payment[]> {
-    return await this.paymentRepo.find({
+    return await this.paymentRepository.find({
       where: { user: { id: userId } },
       order: { created_at: "DESC" },
     });

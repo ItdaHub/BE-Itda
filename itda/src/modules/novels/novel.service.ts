@@ -25,13 +25,15 @@ type CreateNovelInput = CreateNovelDto & { userId: number };
 @Injectable()
 export class NovelService {
   constructor(
-    @InjectRepository(Novel) private readonly novelRepo: Repository<Novel>,
-    @InjectRepository(Genre) private readonly genreRepo: Repository<Genre>,
-    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(Novel)
+    private readonly novelRepository: Repository<Novel>,
+    @InjectRepository(Genre)
+    private readonly genreRepository: Repository<Genre>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Chapter)
-    private readonly chapterRepo: Repository<Chapter>,
+    private readonly chapterRepository: Repository<Chapter>,
     @InjectRepository(Participant)
-    private readonly participantRepo: Repository<Participant>,
+    private readonly participantRepository: Repository<Participant>,
     private readonly notificationService: NotificationService,
     @InjectRepository(Tag)
     private readonly tagRepository: Repository<Tag>,
@@ -40,18 +42,20 @@ export class NovelService {
   ) {}
 
   async getAllNovels(): Promise<Novel[]> {
-    return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
+    return this.novelRepository.find({
+      relations: ["genre", "creator", "chapters"],
+    });
   }
 
   async getPublishedNovels(): Promise<Novel[]> {
-    return this.novelRepo.find({
+    return this.novelRepository.find({
       where: { isPublished: true },
       relations: ["genre", "creator", "chapters"],
     });
   }
 
   async getNovelById(id: number): Promise<any> {
-    const novel = await this.novelRepo.findOne({
+    const novel = await this.novelRepository.findOne({
       where: { id },
       relations: ["chapters", "creator", "genre"],
     });
@@ -69,11 +73,11 @@ export class NovelService {
     const { content, categoryId, peopleNum, userId, type, title, tags } = dto;
 
     // 사용자 정보 확인
-    const user = await this.userRepo.findOneBy({ id: userId });
+    const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) throw new NotFoundException("작성자 유저를 찾을 수 없습니다.");
 
     // 장르 정보 확인
-    const genre = await this.genreRepo.findOneBy({ id: categoryId });
+    const genre = await this.genreRepository.findOneBy({ id: categoryId });
     if (!genre) throw new NotFoundException("해당 장르가 존재하지 않습니다.");
 
     // ✅ 태그 처리
@@ -97,7 +101,7 @@ export class NovelService {
     const imageUrl = await this.aiService["getImageFromUnsplash"](summary); // 이미지 생성 (private이라면 메서드 래핑 추천)
 
     // 소설 정보 저장
-    const novel = this.novelRepo.create({
+    const novel = this.novelRepository.create({
       title,
       creator: user,
       genre,
@@ -108,24 +112,24 @@ export class NovelService {
       tags: tagEntities,
     } as Partial<Novel>);
 
-    await this.novelRepo.save(novel);
+    await this.novelRepository.save(novel);
 
     // 첫 번째 챕터 저장
-    const chapter = this.chapterRepo.create({
+    const chapter = this.chapterRepository.create({
       novel,
       author: user,
       content,
       chapter_number: 1,
     });
-    await this.chapterRepo.save(chapter);
+    await this.chapterRepository.save(chapter);
 
     // 첫 번째 참가자 저장
-    const participant = this.participantRepo.create({
+    const participant = this.participantRepository.create({
       novel,
       user,
       order_number: 1,
     });
-    await this.participantRepo.save(participant);
+    await this.participantRepository.save(participant);
 
     return novel;
   }
@@ -133,13 +137,15 @@ export class NovelService {
   async addChapter(novelId: number, dto: AddChapterDto): Promise<any> {
     const { userId, content } = dto;
 
-    const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+    const novel = await this.novelRepository.findOne({
+      where: { id: novelId },
+    });
     if (!novel) throw new NotFoundException("해당 소설이 존재하지 않습니다.");
 
-    const user = await this.userRepo.findOneBy({ id: userId });
+    const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) throw new NotFoundException("작성자를 찾을 수 없습니다.");
 
-    const existingChapters = await this.chapterRepo.find({
+    const existingChapters = await this.chapterRepository.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
       relations: ["author"],
@@ -159,7 +165,7 @@ export class NovelService {
       throw new BadRequestException("연속으로 작성할 수 없습니다.");
     }
 
-    const participantCount = await this.participantRepo.count({
+    const participantCount = await this.participantRepository.count({
       where: { novel: { id: novelId } },
     });
 
@@ -168,27 +174,27 @@ export class NovelService {
     }
 
     // 참가자 추가
-    const participant = this.participantRepo.create({
+    const participant = this.participantRepository.create({
       novel,
       user,
       order_number: participantCount + 1,
     });
-    await this.participantRepo.save(participant);
+    await this.participantRepository.save(participant);
 
     const chapterNumber =
       existingChapters.length > 0 ? existingChapters.length + 1 : 1;
 
     // 새로운 챕터 추가
-    const chapter = this.chapterRepo.create({
+    const chapter = this.chapterRepository.create({
       novel,
       author: user,
       content,
       chapter_number: chapterNumber,
     });
-    const savedChapter = await this.chapterRepo.save(chapter);
+    const savedChapter = await this.chapterRepository.save(chapter);
 
     // 새로운 참가자 수를 확인
-    const newParticipantCount = await this.participantRepo.count({
+    const newParticipantCount = await this.participantRepository.count({
       where: { novel: { id: novelId } },
     });
 
@@ -204,7 +210,7 @@ export class NovelService {
   }
 
   async checkAndUpdateNovelStatus(novelId: number): Promise<void> {
-    const novel = await this.novelRepo.findOne({
+    const novel = await this.novelRepository.findOne({
       where: { id: novelId },
       relations: ["chapters"],
     });
@@ -220,17 +226,16 @@ export class NovelService {
       novel.status !== NovelStatus.COMPLETED
     ) {
       novel.status = NovelStatus.COMPLETED;
-      await this.novelRepo.save(novel);
+      await this.novelRepository.save(novel);
     }
   }
 
   async getChapters(novelId: number, userId?: number): Promise<any[]> {
-    const novel = await this.novelRepo.findOne({
-      where: { id: novelId },
+    const novel = await this.novelRepository.findOne({
       select: ["id", "status"],
     });
 
-    const chapters = await this.chapterRepo.find({
+    const chapters = await this.chapterRepository.find({
       where: { novel: { id: novelId } },
       order: { chapter_number: "ASC" },
       relations: ["author"],
@@ -249,7 +254,7 @@ export class NovelService {
   }
 
   async getParticipants(novelId: number): Promise<Participant[]> {
-    return this.participantRepo.find({
+    return this.participantRepository.find({
       where: { novel: { id: novelId } },
       relations: ["user"],
       order: { order_number: "ASC" },
@@ -261,7 +266,7 @@ export class NovelService {
     genre?: string | number,
     age?: number
   ) {
-    const query = this.novelRepo
+    const query = this.novelRepository
       .createQueryBuilder("novel")
       .leftJoinAndSelect("novel.creator", "user")
       .leftJoinAndSelect("novel.genre", "genre")
@@ -280,7 +285,7 @@ export class NovelService {
     }
 
     if (typeof genre === "string" && genre !== "all" && genre !== "전체") {
-      const foundGenre = await this.genreRepo.findOne({
+      const foundGenre = await this.genreRepository.findOne({
         where: { value: genre },
       });
       if (foundGenre) {
@@ -311,7 +316,7 @@ export class NovelService {
   }
 
   async getNovelDetail(novelId: number, userId?: number): Promise<any> {
-    const novel = await this.novelRepo.findOne({
+    const novel = await this.novelRepository.findOne({
       where: { id: novelId },
       relations: [
         "creator",
@@ -329,7 +334,7 @@ export class NovelService {
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
 
     novel.viewCount += 1;
-    await this.novelRepo.save(novel);
+    await this.novelRepository.save(novel);
 
     const likeCount = novel.likes.length;
     const isLiked = userId
@@ -343,7 +348,7 @@ export class NovelService {
     // 소설 1/3만 무료로 설정
     const freeCount = Math.floor(sortedChapters.length / 3);
     sortedChapters.forEach((chapter, index) => {
-      chapter.isPaid = index >= freeCount; // 인덱스가 무료 범위 넘으면 유료
+      chapter.isPaid = index >= freeCount;
       console.log(
         `Chapter ${chapter.chapter_number} → isPaid: ${chapter.isPaid}`
       );
@@ -380,7 +385,7 @@ export class NovelService {
   }
 
   async findMyNovels(userId: number) {
-    const chapters = await this.chapterRepo.find({
+    const chapters = await this.chapterRepository.find({
       where: { author: { id: userId } },
       relations: ["novel", "novel.creator", "novel.genre"],
     });
@@ -400,7 +405,7 @@ export class NovelService {
   }
 
   async searchNovelsByTitle(query: string): Promise<Novel[]> {
-    return this.novelRepo.find({
+    return this.novelRepository.find({
       where: { title: Like(`%${query}%`) },
       relations: ["genre", "creator", "chapters"],
       order: { created_at: "DESC" },
@@ -408,7 +413,7 @@ export class NovelService {
   }
 
   async getRankedNovels(): Promise<Novel[]> {
-    const novels = await this.novelRepo.find({
+    const novels = await this.novelRepository.find({
       relations: ["likes", "creator", "genre", "chapters"],
     });
 
@@ -422,7 +427,7 @@ export class NovelService {
   }
 
   async getRankedNovelsByAge(ageGroup: number): Promise<Novel[]> {
-    const novels = await this.novelRepo.find({
+    const novels = await this.novelRepository.find({
       where: { creator: { age_group: ageGroup } },
       relations: ["likes", "creator", "genre", "chapters"],
     });
@@ -439,7 +444,7 @@ export class NovelService {
   async submitNovelForCompletion(novelId: number): Promise<Novel> {
     console.log("소설 완료 요청 ID:", novelId);
 
-    const novel = await this.novelRepo.findOneBy({ id: novelId });
+    const novel = await this.novelRepository.findOneBy({ id: novelId });
     if (!novel) {
       throw new NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
     }
@@ -456,11 +461,11 @@ export class NovelService {
     novel.status = NovelStatus.COMPLETED;
     console.log("소설 상태를 COMPLETED로 변경");
 
-    return await this.novelRepo.save(novel);
+    return await this.novelRepository.save(novel);
   }
 
   async getCompletedNovels() {
-    const novels = await this.novelRepo.find({
+    const novels = await this.novelRepository.find({
       where: { status: In(["submitted", "completed"]) },
       relations: ["creator"],
       order: { created_at: "DESC" },
@@ -476,13 +481,15 @@ export class NovelService {
   }
 
   async adminDeleteNovel(novelId: number) {
-    const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+    const novel = await this.novelRepository.findOne({
+      where: { id: novelId },
+    });
     if (!novel) throw new NotFoundException("소설을 찾을 수 없습니다.");
-    return this.novelRepo.remove(novel);
+    return this.novelRepository.remove(novel);
   }
 
   async adminPublishNovel(novelId: number) {
-    const novel = await this.novelRepo.findOne({
+    const novel = await this.novelRepository.findOne({
       where: { id: novelId },
       relations: ["creator", "chapters", "chapters.author"], // author 포함해서 불러오기!
     });
@@ -493,7 +500,7 @@ export class NovelService {
     novel.status = NovelStatus.SUBMITTED;
     novel.isPublished = true;
 
-    await this.novelRepo.save(novel);
+    await this.novelRepository.save(novel);
 
     // 유료 회차 전환: 뒤쪽 2/3 유료로 설정
     const chapters = novel.chapters.sort(
@@ -507,7 +514,7 @@ export class NovelService {
       chapters[i].isPaid = i >= freeLimit;
     }
 
-    await this.chapterRepo.save(chapters);
+    await this.chapterRepository.save(chapters);
 
     // ✅ 참여자 추출 (중복 제거)
     const participantMap = new Map<number, User>();
@@ -533,7 +540,7 @@ export class NovelService {
   }
 
   async getWaitingNovelsForSubmission() {
-    const novels = await this.novelRepo.find({
+    const novels = await this.novelRepository.find({
       where: { status: NovelStatus.COMPLETED },
       relations: ["creator"],
       order: { created_at: "DESC" },

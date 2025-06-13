@@ -3,10 +3,10 @@ import { Payment, PaymentStatus, PaymentMethod } from "./entities/payment.entity
 import { User } from "../users/entities/user.entity";
 import { PointService } from "../points/point.service";
 export declare class PaymentsService {
-    private readonly paymentRepo;
-    private readonly userRepo;
+    private readonly paymentRepository;
+    private readonly userRepository;
     private readonly pointService;
-    constructor(paymentRepo: Repository<Payment>, userRepo: Repository<User>, pointService: PointService);
+    constructor(paymentRepository: Repository<Payment>, userRepository: Repository<User>, pointService: PointService);
     createPayment(userId: number, amount: number, method: PaymentMethod, orderId: string, type?: string, novelId?: number, chapterId?: number): Promise<Payment>;
     confirmTossPayment(data: {
         paymentKey: string;

@@ -14,15 +14,15 @@ type CreateNovelInput = CreateNovelDto & {
     userId: number;
 };
 export declare class NovelService {
-    private readonly novelRepo;
-    private readonly genreRepo;
-    private readonly userRepo;
-    private readonly chapterRepo;
-    private readonly participantRepo;
+    private readonly novelRepository;
+    private readonly genreRepository;
+    private readonly userRepository;
+    private readonly chapterRepository;
+    private readonly participantRepository;
     private readonly notificationService;
     private readonly tagRepository;
     private readonly aiService;
-    constructor(novelRepo: Repository<Novel>, genreRepo: Repository<Genre>, userRepo: Repository<User>, chapterRepo: Repository<Chapter>, participantRepo: Repository<Participant>, notificationService: NotificationService, tagRepository: Repository<Tag>, aiService: AiService);
+    constructor(novelRepository: Repository<Novel>, genreRepository: Repository<Genre>, userRepository: Repository<User>, chapterRepository: Repository<Chapter>, participantRepository: Repository<Participant>, notificationService: NotificationService, tagRepository: Repository<Tag>, aiService: AiService);
     getAllNovels(): Promise<Novel[]>;
     getPublishedNovels(): Promise<Novel[]>;
     getNovelById(id: number): Promise<any>;

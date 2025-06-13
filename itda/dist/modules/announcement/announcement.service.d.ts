@@ -4,10 +4,10 @@ import { User } from "../users/entities/user.entity";
 import { AnnouncementWithAdminDto } from "./dto/announcement.dto";
 import { AnnouncementRead } from "./entities/announcementread.entity";
 export declare class AnnouncementService {
-    private readonly announcementRepo;
-    private readonly readRepo;
-    private readonly userRepo;
-    constructor(announcementRepo: Repository<Announcement>, readRepo: Repository<AnnouncementRead>, userRepo: Repository<User>);
+    private readonly announcementRepository;
+    private readonly readRepository;
+    private readonly userRepository;
+    constructor(announcementRepository: Repository<Announcement>, readRepository: Repository<AnnouncementRead>, userRepository: Repository<User>);
     createAnnouncement(title: string, content: string, admin: User, priority?: "urgent" | "normal"): Promise<AnnouncementWithAdminDto>;
     deleteAnnouncement(id: number): Promise<{
         message: string;

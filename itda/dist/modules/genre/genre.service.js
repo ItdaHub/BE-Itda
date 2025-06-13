@@ -18,12 +18,12 @@ const typeorm_1 = require("@nestjs/typeorm");
 const genre_entity_1 = require("./entities/genre.entity");
 const typeorm_2 = require("typeorm");
 let GenreService = class GenreService {
-    genreRepo;
-    constructor(genreRepo) {
-        this.genreRepo = genreRepo;
+    genreRepository;
+    constructor(genreRepository) {
+        this.genreRepository = genreRepository;
     }
     async getAllGenres() {
-        return this.genreRepo.find();
+        return this.genreRepository.find();
     }
 };
 exports.GenreService = GenreService;

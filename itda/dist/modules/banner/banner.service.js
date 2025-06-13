@@ -18,31 +18,31 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const banner_entity_1 = require("./entities/banner.entity");
 let BannerService = class BannerService {
-    bannerRepo;
-    constructor(bannerRepo) {
-        this.bannerRepo = bannerRepo;
+    bannerRepository;
+    constructor(bannerRepository) {
+        this.bannerRepository = bannerRepository;
     }
     async findAll() {
-        return this.bannerRepo.find({ order: { created_at: "DESC" } });
+        return this.bannerRepository.find({ order: { created_at: "DESC" } });
     }
     async findById(id) {
-        return this.bannerRepo.findOne({
+        return this.bannerRepository.findOne({
             where: { id },
         });
     }
     async create(title, imagePath) {
-        const banner = this.bannerRepo.create({
+        const banner = this.bannerRepository.create({
             title,
             image_path: imagePath,
         });
-        return this.bannerRepo.save(banner);
+        return this.bannerRepository.save(banner);
     }
     async remove(id) {
-        const banner = await this.bannerRepo.findOne({ where: { id } });
+        const banner = await this.bannerRepository.findOne({ where: { id } });
         if (!banner) {
             throw new Error("배너를 찾을 수 없습니다.");
         }
-        await this.bannerRepo.remove(banner);
+        await this.bannerRepository.remove(banner);
     }
 };
 exports.BannerService = BannerService;

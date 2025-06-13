@@ -22,12 +22,12 @@ const point_service_1 = require("../points/point.service");
 const point_entity_1 = require("../points/entities/point.entity");
 const axios_1 = require("axios");
 let PaymentsService = class PaymentsService {
-    paymentRepo;
-    userRepo;
+    paymentRepository;
+    userRepository;
     pointService;
-    constructor(paymentRepo, userRepo, pointService) {
-        this.paymentRepo = paymentRepo;
-        this.userRepo = userRepo;
+    constructor(paymentRepository, userRepository, pointService) {
+        this.paymentRepository = paymentRepository;
+        this.userRepository = userRepository;
         this.pointService = pointService;
     }
     async createPayment(userId, amount, method, orderId, type, novelId, chapterId) {
@@ -40,13 +40,13 @@ let PaymentsService = class PaymentsService {
             novelId,
             chapterId,
         });
-        const user = await this.userRepo.findOneByOrFail({ id: userId });
+        const user = await this.userRepository.findOneByOrFail({ id: userId });
         console.log("User found:", user);
         const userPoints = await this.pointService.getUserTotalPoints(userId);
         if (type === "read" && novelId && chapterId) {
             if (userPoints < amount) {
                 console.log("팝콘이 부족하여 결제 요청");
-                const payment = this.paymentRepo.create({
+                const payment = this.paymentRepository.create({
                     user,
                     amount,
                     method,
@@ -56,7 +56,7 @@ let PaymentsService = class PaymentsService {
                     novelId,
                     chapterId,
                 });
-                const savedPayment = await this.paymentRepo.save(payment);
+                const savedPayment = await this.paymentRepository.save(payment);
                 console.log("결제 생성 완료:", savedPayment);
                 return savedPayment;
             }
@@ -70,7 +70,7 @@ let PaymentsService = class PaymentsService {
                 console.log("포인트 차감 완료.");
             }
         }
-        const payment = this.paymentRepo.create({
+        const payment = this.paymentRepository.create({
             user,
             amount,
             method,
@@ -80,7 +80,7 @@ let PaymentsService = class PaymentsService {
             novelId,
             chapterId,
         });
-        const savedPayment = await this.paymentRepo.save(payment);
+        const savedPayment = await this.paymentRepository.save(payment);
         console.log("Payment saved:", savedPayment);
         return savedPayment;
     }
@@ -101,7 +101,7 @@ let PaymentsService = class PaymentsService {
             if (!tossPaymentData || tossPaymentData.status !== "DONE") {
                 throw new common_1.HttpException("Toss 결제 승인에 실패했습니다.", common_1.HttpStatus.BAD_REQUEST);
             }
-            let payment = await this.paymentRepo.findOne({
+            let payment = await this.paymentRepository.findOne({
                 where: { orderId },
                 relations: ["user"],
             });
@@ -114,7 +114,7 @@ let PaymentsService = class PaymentsService {
             payment.status = payment_entity_1.PaymentStatus.COMPLETED;
             payment.method = tossPaymentData.method;
             payment.amount = tossPaymentData.totalAmount;
-            const savedPayment = await this.paymentRepo.save(payment);
+            const savedPayment = await this.paymentRepository.save(payment);
             await this.pointService.addPoint(savedPayment.user, savedPayment.amount, point_entity_1.PointType.EARN);
             return savedPayment;
         }
@@ -125,7 +125,7 @@ let PaymentsService = class PaymentsService {
                 throw new common_1.HttpException("Toss 결제 시스템이 일시적으로 처리 중입니다. 잠시 후 다시 시도해주세요.", common_1.HttpStatus.INTERNAL_SERVER_ERROR);
             }
             if (errorCode === "ALREADY_PROCESSED_PAYMENT") {
-                const existingPayment = await this.paymentRepo.findOne({
+                const existingPayment = await this.paymentRepository.findOne({
                     where: { orderId },
                     relations: ["user"],
                 });
@@ -138,7 +138,7 @@ let PaymentsService = class PaymentsService {
         }
     }
     async confirmPayment(paymentId, status) {
-        const payment = await this.paymentRepo.findOne({
+        const payment = await this.paymentRepository.findOne({
             where: { id: paymentId },
         });
         if (!payment) {
@@ -148,10 +148,10 @@ let PaymentsService = class PaymentsService {
             throw new Error("이미 결제가 처리되었습니다.");
         }
         payment.status = status;
-        return await this.paymentRepo.save(payment);
+        return await this.paymentRepository.save(payment);
     }
     async getPaymentById(paymentId) {
-        const payment = await this.paymentRepo.findOne({
+        const payment = await this.paymentRepository.findOne({
             where: { id: paymentId },
             relations: ["user"],
         });
@@ -161,7 +161,7 @@ let PaymentsService = class PaymentsService {
         return payment;
     }
     async getPaymentsByUser(userId) {
-        return await this.paymentRepo.find({
+        return await this.paymentRepository.find({
             where: { user: { id: userId } },
             order: { created_at: "DESC" },
         });

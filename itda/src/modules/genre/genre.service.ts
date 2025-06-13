@@ -7,10 +7,10 @@ import { Repository } from "typeorm";
 export class GenreService {
   constructor(
     @InjectRepository(Genre)
-    private readonly genreRepo: Repository<Genre>
+    private readonly genreRepository: Repository<Genre>
   ) {}
 
   async getAllGenres(): Promise<Genre[]> {
-    return this.genreRepo.find();
+    return this.genreRepository.find();
   }
 }

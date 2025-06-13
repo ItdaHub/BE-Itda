@@ -9,7 +9,7 @@ import { Novel } from "./entities/novel.entity";
 export class RecentNovelService {
   constructor(
     @InjectRepository(RecentNovel)
-    private recentNovelRepo: Repository<RecentNovel>,
+    private recentNovelRepository: Repository<RecentNovel>,
     @InjectRepository(Novel)
     private novelRepo: Repository<Novel>
   ) {}
@@ -21,7 +21,7 @@ export class RecentNovelService {
   ): Promise<void> {
     const novel = await this.novelRepo.findOneByOrFail({ id: novelId });
 
-    await this.recentNovelRepo.upsert(
+    await this.recentNovelRepository.upsert(
       {
         user: { id: user.id }, // user 엔티티가 아니라 id만 넣어도 됨
         novel: { id: novel.id },
@@ -33,7 +33,7 @@ export class RecentNovelService {
   }
 
   async getRecentNovels(user: User, limit = 20): Promise<RecentNovel[]> {
-    const recentList = await this.recentNovelRepo.find({
+    const recentList = await this.recentNovelRepository.find({
       where: { user: { id: user.id } },
       order: { viewedAt: "DESC" },
       take: limit,

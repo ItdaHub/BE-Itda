@@ -5,12 +5,12 @@ import { Novel } from "../novels/entities/novel.entity";
 import { Chapter } from "../chapter/entities/chapter.entity";
 import { Report } from "../reports/entities/report.entity";
 export declare class CommentsService {
-    private readonly commentRepo;
-    private readonly userRepo;
-    private readonly novelRepo;
-    private readonly chapterRepo;
+    private readonly commentRepository;
+    private readonly userRepository;
+    private readonly novelRepository;
+    private readonly chapterRepository;
     private readonly reportRepository;
-    constructor(commentRepo: Repository<Comment>, userRepo: Repository<User>, novelRepo: Repository<Novel>, chapterRepo: Repository<Chapter>, reportRepository: Repository<Report>);
+    constructor(commentRepository: Repository<Comment>, userRepository: Repository<User>, novelRepository: Repository<Novel>, chapterRepository: Repository<Chapter>, reportRepository: Repository<Report>);
     createComment({ userId, content, novelId, chapterId, parentId, }: {
         userId: number;
         content: string;

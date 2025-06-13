@@ -11,13 +11,13 @@ import { Report, TargetType } from "../reports/entities/report.entity";
 export class CommentsService {
   constructor(
     @InjectRepository(Comment)
-    private readonly commentRepo: Repository<Comment>,
+    private readonly commentRepository: Repository<Comment>,
     @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Novel)
-    private readonly novelRepo: Repository<Novel>,
+    private readonly novelRepository: Repository<Novel>,
     @InjectRepository(Chapter)
-    private readonly chapterRepo: Repository<Chapter>,
+    private readonly chapterRepository: Repository<Chapter>,
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>
   ) {}
@@ -35,23 +35,23 @@ export class CommentsService {
     chapterId?: number;
     parentId?: number;
   }) {
-    const user = await this.userRepo.findOneByOrFail({ id: userId });
+    const user = await this.userRepository.findOneByOrFail({ id: userId });
 
     if (!parentId && !novelId && !chapterId) {
       throw new Error("소설 ID 또는 챕터 ID는 필수입니다.");
     }
 
     const novel = novelId
-      ? await this.novelRepo.findOneByOrFail({ id: novelId })
+      ? await this.novelRepository.findOneByOrFail({ id: novelId })
       : null;
     const chapter = chapterId
-      ? await this.chapterRepo.findOneBy({ id: chapterId })
+      ? await this.chapterRepository.findOneBy({ id: chapterId })
       : null;
     const parent = parentId
-      ? await this.commentRepo.findOneBy({ id: parentId })
+      ? await this.commentRepository.findOneBy({ id: parentId })
       : null;
 
-    const newComment = this.commentRepo.create({
+    const newComment = this.commentRepository.create({
       user,
       novel,
       chapter,
@@ -59,7 +59,7 @@ export class CommentsService {
       parent_comment: parent,
     });
 
-    return await this.commentRepo.save(newComment);
+    return await this.commentRepository.save(newComment);
   }
 
   // 댓글 가공
@@ -81,7 +81,7 @@ export class CommentsService {
       whereCondition.chapter = IsNull();
     }
 
-    const rootComments = await this.commentRepo.find({
+    const rootComments = await this.commentRepository.find({
       where: whereCondition,
       relations: [
         "user",
@@ -129,7 +129,7 @@ export class CommentsService {
   }
 
   async deleteComment(id: number) {
-    const comment = await this.commentRepo.findOne({
+    const comment = await this.commentRepository.findOne({
       where: { id },
       relations: ["childComments"],
     });
@@ -139,16 +139,16 @@ export class CommentsService {
     }
 
     if (comment.childComments && comment.childComments.length > 0) {
-      await this.commentRepo.remove(comment.childComments);
+      await this.commentRepository.remove(comment.childComments);
     }
 
-    await this.commentRepo.remove(comment);
+    await this.commentRepository.remove(comment);
 
     return { message: "댓글 및 대댓글이 삭제되었습니다." };
   }
 
   async deleteComments(ids: number[]): Promise<void> {
-    const comments = await this.commentRepo.find({
+    const comments = await this.commentRepository.find({
       where: ids.map((id) => ({ id })),
       relations: ["childComments"],
     });
@@ -162,10 +162,10 @@ export class CommentsService {
       (comment) => comment.childComments
     );
     if (allChildComments.length > 0) {
-      await this.commentRepo.remove(allChildComments);
+      await this.commentRepository.remove(allChildComments);
     }
 
-    await this.commentRepo.remove(comments);
+    await this.commentRepository.remove(comments);
   }
 
   async reportComment(commentId: number, userId: number, reason: string) {
@@ -181,7 +181,7 @@ export class CommentsService {
       throw new Error("이미 신고한 댓글입니다.");
     }
 
-    const reporter = await this.userRepo.findOneByOrFail({ id: userId });
+    const reporter = await this.userRepository.findOneByOrFail({ id: userId });
 
     const report = this.reportRepository.create({
       reporter,
@@ -196,7 +196,7 @@ export class CommentsService {
   }
 
   async findByUser(userId: number): Promise<Comment[]> {
-    return this.commentRepo.find({
+    return this.commentRepository.find({
       where: { user: { id: userId } },
       relations: ["novel", "chapter"],
       order: { created_at: "DESC" },

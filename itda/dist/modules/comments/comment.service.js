@@ -22,40 +22,40 @@ const novel_entity_1 = require("../novels/entities/novel.entity");
 const chapter_entity_1 = require("../chapter/entities/chapter.entity");
 const report_entity_1 = require("../reports/entities/report.entity");
 let CommentsService = class CommentsService {
-    commentRepo;
-    userRepo;
-    novelRepo;
-    chapterRepo;
+    commentRepository;
+    userRepository;
+    novelRepository;
+    chapterRepository;
     reportRepository;
-    constructor(commentRepo, userRepo, novelRepo, chapterRepo, reportRepository) {
-        this.commentRepo = commentRepo;
-        this.userRepo = userRepo;
-        this.novelRepo = novelRepo;
-        this.chapterRepo = chapterRepo;
+    constructor(commentRepository, userRepository, novelRepository, chapterRepository, reportRepository) {
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+        this.novelRepository = novelRepository;
+        this.chapterRepository = chapterRepository;
         this.reportRepository = reportRepository;
     }
     async createComment({ userId, content, novelId, chapterId, parentId, }) {
-        const user = await this.userRepo.findOneByOrFail({ id: userId });
+        const user = await this.userRepository.findOneByOrFail({ id: userId });
         if (!parentId && !novelId && !chapterId) {
             throw new Error("소설 ID 또는 챕터 ID는 필수입니다.");
         }
         const novel = novelId
-            ? await this.novelRepo.findOneByOrFail({ id: novelId })
+            ? await this.novelRepository.findOneByOrFail({ id: novelId })
             : null;
         const chapter = chapterId
-            ? await this.chapterRepo.findOneBy({ id: chapterId })
+            ? await this.chapterRepository.findOneBy({ id: chapterId })
             : null;
         const parent = parentId
-            ? await this.commentRepo.findOneBy({ id: parentId })
+            ? await this.commentRepository.findOneBy({ id: parentId })
             : null;
-        const newComment = this.commentRepo.create({
+        const newComment = this.commentRepository.create({
             user,
             novel,
             chapter,
             content,
             parent_comment: parent,
         });
-        return await this.commentRepo.save(newComment);
+        return await this.commentRepository.save(newComment);
     }
     async getComments(novelId, chapterId, currentUserId) {
         const whereCondition = {
@@ -68,7 +68,7 @@ let CommentsService = class CommentsService {
             whereCondition.novel = { id: novelId };
             whereCondition.chapter = (0, typeorm_2.IsNull)();
         }
-        const rootComments = await this.commentRepo.find({
+        const rootComments = await this.commentRepository.find({
             where: whereCondition,
             relations: [
                 "user",
@@ -109,7 +109,7 @@ let CommentsService = class CommentsService {
         return flatComments;
     }
     async deleteComment(id) {
-        const comment = await this.commentRepo.findOne({
+        const comment = await this.commentRepository.findOne({
             where: { id },
             relations: ["childComments"],
         });
@@ -117,13 +117,13 @@ let CommentsService = class CommentsService {
             throw new Error("댓글을 찾을 수 없습니다.");
         }
         if (comment.childComments && comment.childComments.length > 0) {
-            await this.commentRepo.remove(comment.childComments);
+            await this.commentRepository.remove(comment.childComments);
         }
-        await this.commentRepo.remove(comment);
+        await this.commentRepository.remove(comment);
         return { message: "댓글 및 대댓글이 삭제되었습니다." };
     }
     async deleteComments(ids) {
-        const comments = await this.commentRepo.find({
+        const comments = await this.commentRepository.find({
             where: ids.map((id) => ({ id })),
             relations: ["childComments"],
         });
@@ -132,9 +132,9 @@ let CommentsService = class CommentsService {
         }
         const allChildComments = comments.flatMap((comment) => comment.childComments);
         if (allChildComments.length > 0) {
-            await this.commentRepo.remove(allChildComments);
+            await this.commentRepository.remove(allChildComments);
         }
-        await this.commentRepo.remove(comments);
+        await this.commentRepository.remove(comments);
     }
     async reportComment(commentId, userId, reason) {
         const alreadyReported = await this.reportRepository.findOne({
@@ -147,7 +147,7 @@ let CommentsService = class CommentsService {
         if (alreadyReported) {
             throw new Error("이미 신고한 댓글입니다.");
         }
-        const reporter = await this.userRepo.findOneByOrFail({ id: userId });
+        const reporter = await this.userRepository.findOneByOrFail({ id: userId });
         const report = this.reportRepository.create({
             reporter,
             target_type: report_entity_1.TargetType.COMMENT,
@@ -158,7 +158,7 @@ let CommentsService = class CommentsService {
         return { message: "댓글 신고가 접수되었습니다." };
     }
     async findByUser(userId) {
-        return this.commentRepo.find({
+        return this.commentRepository.find({
             where: { user: { id: userId } },
             relations: ["novel", "chapter"],
             order: { created_at: "DESC" },

@@ -27,35 +27,37 @@ const notification_service_1 = require("../notifications/notification.service");
 const ai_service_1 = require("../ai/ai.service");
 const tag_entity_1 = require("./entities/tag.entity");
 let NovelService = class NovelService {
-    novelRepo;
-    genreRepo;
-    userRepo;
-    chapterRepo;
-    participantRepo;
+    novelRepository;
+    genreRepository;
+    userRepository;
+    chapterRepository;
+    participantRepository;
     notificationService;
     tagRepository;
     aiService;
-    constructor(novelRepo, genreRepo, userRepo, chapterRepo, participantRepo, notificationService, tagRepository, aiService) {
-        this.novelRepo = novelRepo;
-        this.genreRepo = genreRepo;
-        this.userRepo = userRepo;
-        this.chapterRepo = chapterRepo;
-        this.participantRepo = participantRepo;
+    constructor(novelRepository, genreRepository, userRepository, chapterRepository, participantRepository, notificationService, tagRepository, aiService) {
+        this.novelRepository = novelRepository;
+        this.genreRepository = genreRepository;
+        this.userRepository = userRepository;
+        this.chapterRepository = chapterRepository;
+        this.participantRepository = participantRepository;
         this.notificationService = notificationService;
         this.tagRepository = tagRepository;
         this.aiService = aiService;
     }
     async getAllNovels() {
-        return this.novelRepo.find({ relations: ["genre", "creator", "chapters"] });
+        return this.novelRepository.find({
+            relations: ["genre", "creator", "chapters"],
+        });
     }
     async getPublishedNovels() {
-        return this.novelRepo.find({
+        return this.novelRepository.find({
             where: { isPublished: true },
             relations: ["genre", "creator", "chapters"],
         });
     }
     async getNovelById(id) {
-        const novel = await this.novelRepo.findOne({
+        const novel = await this.novelRepository.findOne({
             where: { id },
             relations: ["chapters", "creator", "genre"],
         });
@@ -69,10 +71,10 @@ let NovelService = class NovelService {
     }
     async create(dto) {
         const { content, categoryId, peopleNum, userId, type, title, tags } = dto;
-        const user = await this.userRepo.findOneBy({ id: userId });
+        const user = await this.userRepository.findOneBy({ id: userId });
         if (!user)
             throw new common_1.NotFoundException("작성자 유저를 찾을 수 없습니다.");
-        const genre = await this.genreRepo.findOneBy({ id: categoryId });
+        const genre = await this.genreRepository.findOneBy({ id: categoryId });
         if (!genre)
             throw new common_1.NotFoundException("해당 장르가 존재하지 않습니다.");
         let tagEntities = [];
@@ -88,7 +90,7 @@ let NovelService = class NovelService {
         }
         const summary = await this.aiService.summarizeText(content);
         const imageUrl = await this.aiService["getImageFromUnsplash"](summary);
-        const novel = this.novelRepo.create({
+        const novel = this.novelRepository.create({
             title,
             creator: user,
             genre,
@@ -98,31 +100,33 @@ let NovelService = class NovelService {
             imageUrl,
             tags: tagEntities,
         });
-        await this.novelRepo.save(novel);
-        const chapter = this.chapterRepo.create({
+        await this.novelRepository.save(novel);
+        const chapter = this.chapterRepository.create({
             novel,
             author: user,
             content,
             chapter_number: 1,
         });
-        await this.chapterRepo.save(chapter);
-        const participant = this.participantRepo.create({
+        await this.chapterRepository.save(chapter);
+        const participant = this.participantRepository.create({
             novel,
             user,
             order_number: 1,
         });
-        await this.participantRepo.save(participant);
+        await this.participantRepository.save(participant);
         return novel;
     }
     async addChapter(novelId, dto) {
         const { userId, content } = dto;
-        const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+        const novel = await this.novelRepository.findOne({
+            where: { id: novelId },
+        });
         if (!novel)
             throw new common_1.NotFoundException("해당 소설이 존재하지 않습니다.");
-        const user = await this.userRepo.findOneBy({ id: userId });
+        const user = await this.userRepository.findOneBy({ id: userId });
         if (!user)
             throw new common_1.NotFoundException("작성자를 찾을 수 없습니다.");
-        const existingChapters = await this.chapterRepo.find({
+        const existingChapters = await this.chapterRepository.find({
             where: { novel: { id: novelId } },
             order: { chapter_number: "ASC" },
             relations: ["author"],
@@ -135,27 +139,27 @@ let NovelService = class NovelService {
         if (lastChapter?.author?.id === userId) {
             throw new common_1.BadRequestException("연속으로 작성할 수 없습니다.");
         }
-        const participantCount = await this.participantRepo.count({
+        const participantCount = await this.participantRepository.count({
             where: { novel: { id: novelId } },
         });
         if (participantCount >= novel.max_participants) {
             throw new common_1.BadRequestException("참여자 수를 초과했습니다.");
         }
-        const participant = this.participantRepo.create({
+        const participant = this.participantRepository.create({
             novel,
             user,
             order_number: participantCount + 1,
         });
-        await this.participantRepo.save(participant);
+        await this.participantRepository.save(participant);
         const chapterNumber = existingChapters.length > 0 ? existingChapters.length + 1 : 1;
-        const chapter = this.chapterRepo.create({
+        const chapter = this.chapterRepository.create({
             novel,
             author: user,
             content,
             chapter_number: chapterNumber,
         });
-        const savedChapter = await this.chapterRepo.save(chapter);
-        const newParticipantCount = await this.participantRepo.count({
+        const savedChapter = await this.chapterRepository.save(chapter);
+        const newParticipantCount = await this.participantRepository.count({
             where: { novel: { id: novelId } },
         });
         await this.checkAndUpdateNovelStatus(novelId);
@@ -167,7 +171,7 @@ let NovelService = class NovelService {
         };
     }
     async checkAndUpdateNovelStatus(novelId) {
-        const novel = await this.novelRepo.findOne({
+        const novel = await this.novelRepository.findOne({
             where: { id: novelId },
             relations: ["chapters"],
         });
@@ -178,15 +182,14 @@ let NovelService = class NovelService {
         if (chapterCount >= novel.max_participants &&
             novel.status !== novel_entity_2.NovelStatus.COMPLETED) {
             novel.status = novel_entity_2.NovelStatus.COMPLETED;
-            await this.novelRepo.save(novel);
+            await this.novelRepository.save(novel);
         }
     }
     async getChapters(novelId, userId) {
-        const novel = await this.novelRepo.findOne({
-            where: { id: novelId },
+        const novel = await this.novelRepository.findOne({
             select: ["id", "status"],
         });
-        const chapters = await this.chapterRepo.find({
+        const chapters = await this.chapterRepository.find({
             where: { novel: { id: novelId } },
             order: { chapter_number: "ASC" },
             relations: ["author"],
@@ -202,14 +205,14 @@ let NovelService = class NovelService {
         }));
     }
     async getParticipants(novelId) {
-        return this.participantRepo.find({
+        return this.participantRepository.find({
             where: { novel: { id: novelId } },
             relations: ["user"],
             order: { order_number: "ASC" },
         });
     }
     async getFilteredNovels(type, genre, age) {
-        const query = this.novelRepo
+        const query = this.novelRepository
             .createQueryBuilder("novel")
             .leftJoinAndSelect("novel.creator", "user")
             .leftJoinAndSelect("novel.genre", "genre")
@@ -227,7 +230,7 @@ let NovelService = class NovelService {
             query.andWhere("novel.type = :type", { type });
         }
         if (typeof genre === "string" && genre !== "all" && genre !== "전체") {
-            const foundGenre = await this.genreRepo.findOne({
+            const foundGenre = await this.genreRepository.findOne({
                 where: { value: genre },
             });
             if (foundGenre) {
@@ -256,7 +259,7 @@ let NovelService = class NovelService {
         }));
     }
     async getNovelDetail(novelId, userId) {
-        const novel = await this.novelRepo.findOne({
+        const novel = await this.novelRepository.findOne({
             where: { id: novelId },
             relations: [
                 "creator",
@@ -274,7 +277,7 @@ let NovelService = class NovelService {
         if (!novel)
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
         novel.viewCount += 1;
-        await this.novelRepo.save(novel);
+        await this.novelRepository.save(novel);
         const likeCount = novel.likes.length;
         const isLiked = userId
             ? novel.likes.some((like) => like.user.id === userId)
@@ -315,7 +318,7 @@ let NovelService = class NovelService {
         };
     }
     async findMyNovels(userId) {
-        const chapters = await this.chapterRepo.find({
+        const chapters = await this.chapterRepository.find({
             where: { author: { id: userId } },
             relations: ["novel", "novel.creator", "novel.genre"],
         });
@@ -329,14 +332,14 @@ let NovelService = class NovelService {
         return Array.from(novelsMap.values()).sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
     }
     async searchNovelsByTitle(query) {
-        return this.novelRepo.find({
+        return this.novelRepository.find({
             where: { title: (0, typeorm_1.Like)(`%${query}%`) },
             relations: ["genre", "creator", "chapters"],
             order: { created_at: "DESC" },
         });
     }
     async getRankedNovels() {
-        const novels = await this.novelRepo.find({
+        const novels = await this.novelRepository.find({
             relations: ["likes", "creator", "genre", "chapters"],
         });
         return novels
@@ -348,7 +351,7 @@ let NovelService = class NovelService {
             .slice(0, 10);
     }
     async getRankedNovelsByAge(ageGroup) {
-        const novels = await this.novelRepo.find({
+        const novels = await this.novelRepository.find({
             where: { creator: { age_group: ageGroup } },
             relations: ["likes", "creator", "genre", "chapters"],
         });
@@ -362,7 +365,7 @@ let NovelService = class NovelService {
     }
     async submitNovelForCompletion(novelId) {
         console.log("소설 완료 요청 ID:", novelId);
-        const novel = await this.novelRepo.findOneBy({ id: novelId });
+        const novel = await this.novelRepository.findOneBy({ id: novelId });
         if (!novel) {
             throw new common_1.NotFoundException(`소설 ID ${novelId}를 찾을 수 없습니다.`);
         }
@@ -372,10 +375,10 @@ let NovelService = class NovelService {
         }
         novel.status = novel_entity_2.NovelStatus.COMPLETED;
         console.log("소설 상태를 COMPLETED로 변경");
-        return await this.novelRepo.save(novel);
+        return await this.novelRepository.save(novel);
     }
     async getCompletedNovels() {
-        const novels = await this.novelRepo.find({
+        const novels = await this.novelRepository.find({
             where: { status: (0, typeorm_1.In)(["submitted", "completed"]) },
             relations: ["creator"],
             order: { created_at: "DESC" },
@@ -389,13 +392,15 @@ let NovelService = class NovelService {
         }));
     }
     async adminDeleteNovel(novelId) {
-        const novel = await this.novelRepo.findOne({ where: { id: novelId } });
+        const novel = await this.novelRepository.findOne({
+            where: { id: novelId },
+        });
         if (!novel)
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
-        return this.novelRepo.remove(novel);
+        return this.novelRepository.remove(novel);
     }
     async adminPublishNovel(novelId) {
-        const novel = await this.novelRepo.findOne({
+        const novel = await this.novelRepository.findOne({
             where: { id: novelId },
             relations: ["creator", "chapters", "chapters.author"],
         });
@@ -403,14 +408,14 @@ let NovelService = class NovelService {
             throw new common_1.NotFoundException("소설을 찾을 수 없습니다.");
         novel.status = novel_entity_2.NovelStatus.SUBMITTED;
         novel.isPublished = true;
-        await this.novelRepo.save(novel);
+        await this.novelRepository.save(novel);
         const chapters = novel.chapters.sort((a, b) => Number(a.chapter_number) - Number(b.chapter_number));
         const total = chapters.length;
         const freeLimit = Math.floor(total / 3);
         for (let i = 0; i < total; i++) {
             chapters[i].isPaid = i >= freeLimit;
         }
-        await this.chapterRepo.save(chapters);
+        await this.chapterRepository.save(chapters);
         const participantMap = new Map();
         for (const chapter of chapters) {
             if (chapter.author && !participantMap.has(chapter.author.id)) {
@@ -429,7 +434,7 @@ let NovelService = class NovelService {
         return novel;
     }
     async getWaitingNovelsForSubmission() {
-        const novels = await this.novelRepo.find({
+        const novels = await this.novelRepository.find({
             where: { status: novel_entity_2.NovelStatus.COMPLETED },
             relations: ["creator"],
             order: { created_at: "DESC" },
